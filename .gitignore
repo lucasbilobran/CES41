@@ -1,3 +1,11 @@
+# Cap3_ex Output
+cap3_ex/ans
+cap3_ex/tsimb012020
+
+# Flex / Yacc Output
+*.yy.c
+*.tab.c
+
 # Prerequisites
 *.d
 

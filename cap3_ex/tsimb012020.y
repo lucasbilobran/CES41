@@ -314,3 +314,17 @@ void TipoInadequado (char *s) {
 
 
 
+void VerificaInicRef() {
+	// Percorre a tabela de símbolos
+	for (int i = 0; i < NCLASSHASH; i++) {
+		for (simbolo s = tabsimb[i]; (s != NULL); s = s->prox) {
+			// Verifica não-inicializados e/ou não-referenciados
+			if (!s->ref) {
+				printf ("\n\n***** Identificador não-referenciado: %s *****\n\n", s);
+			}
+			if (!s->inic) {
+				printf ("\n\n***** Identificador não-inicializado: %s *****\n\n", s);
+			}
+		}
+	}
+}
