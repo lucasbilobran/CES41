@@ -1,6 +1,7 @@
 %{
 void comentario (void);
 char tratachar (char *);
+void tratacadeia (char *);
 %}
 delim			[ \t\n\r]
 ws				{delim}+
@@ -10,21 +11,30 @@ ctint			{digito}+
 id				{letra}({letra}|{digito})*
 ctreal		    {digito}+\.{digito}*([Ee][+-]?{digito}+)?
 carac1		    \\.|[^\\']
+carac2		    \\.|[^\\\"]
 ctcarac		    '{carac1}'
+cadeia		    \"{carac2}*\"
 %%
 {ws}			{ ;}
 "/*"			{comentario ();}
 carac			{return CARAC;}
 comandos        {return COMANDOS;}
+enquanto        {return ENQUANTO;}
+escrever        {return ESCREVER;}
 falso			{return FALSO;}
 int			    {return INT;}
+ler             {return LER;}
 logic			{return LOGIC;}
 programa		{return PROGRAMA;}
 real			{return REAL;}
+se              {return SE;}
+senao           {return SENAO;}
 var			    {return VAR;}
 verdade		    {return VERDADE;}
 {id}			{strcpy (yylval.cadeia, yytext); return ID;}
 {ctcarac}	    {yylval.carac = tratachar (yytext); return CTCARAC;}
+{cadeia}		{strcpy (yylval.cadeia, yytext);
+				tratacadeia (yylval.cadeia); return CADEIA;}
 {ctint}		    {yylval.valint = atoi(yytext); return CTINT;}
 {ctreal}		{yylval.valreal = atof(yytext); return CTREAL;}
 "||"			{return OR;}
@@ -44,6 +54,8 @@ verdade		    {return VERDADE;}
 "~"		    	{return NEG;}
 "("		    	{return ABPAR;}
 ")"		    	{return FPAR;}
+"["		    	{return ABCOL;}
+"]"		    	{return FCOL;}
 "{"		    	{return ABCHAV;}
 "}"		    	{return FCHAV;}
 "{{{"		    {return ABTRIP;}
@@ -92,4 +104,36 @@ char tratachar (char *s) {
 		case 'v': 	return 11;
 		default:	return s[2];
 	}
+}
+
+/*
+	tratacadeia: elimina as aspas e as barras invertidas
+	de uma constante do tipo char, substituindo-as pelo respectivo
+	codigo ASCII
+ */
+
+ void tratacadeia (char *s) {
+	int i, n, d;
+	n = strlen (s);
+	for (i = 0, d = 1; i <= n-2-d; i++)   {
+		if (s[i+d] != '\\') s[i] = s[i+d];
+		else {
+			switch (s[i+d+1]) {
+				case 'a': 	s[i] = 7;break;
+				case '\\': 	s[i] = 92; break;
+				case 'b': 	s[i] = 8; break;
+				case 'r': 	s[i] = 13; break;
+				case '\"': 	s[i] = 34; break;
+				case 'f': 	s[i] = 12; break;
+				case 't': 	s[i] = 9;  break;
+				case 'n': 	s[i] = 10; break;
+				case '\0': 	s[i] = 0;  break;
+				case '\'': 	s[i] = 39; break;
+				case 'v': 	s[i] = 11; break;
+				default:		s[i] = s[i+d+1];
+			}
+			d++;
+		}
+	}
+	s[i] = s[n];
 }

@@ -1,0 +1,25 @@
+programa MenorMaior {{{
+
+var {
+	int (i, n, num, menor, maior)
+}
+comandos {
+	ler (n, i, menor);
+	i = 1;
+	enquanto (i <= n) {
+		ler (num);
+		se (i == 1) {
+			menor = num;
+			maior = num;
+		}
+		senao {
+			se (num > maior) maior = num;
+			se (num < menor) menor = num;
+		}
+		i = i + 1;
+	}
+	escrever ("Maior = ", maior, "\nMenor = ", menor);
+    se (i+3) i = i-5;
+    enquanto (i * 5) i = i / 4;
+}
+}}}
