@@ -1,0 +1,143 @@
+programa teste {{{
+var {
+int ( i , jjj , h , tb )
+logic ( n , m )
+real ( v , i 
+
+***** Declaracao Repetida: i *****
+
+)
+carac ( x , y , z , w )
+}
+comandos {
+x = n && m ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+v = 3.5 * v ;
+y = '@' ;
+v = h % tb ;
+h = jjj % 4.2 
+
+***** Incompatibilidade: Operando improprio para operador resto *****
+
+;
+{
+i = jjj * falso 
+
+***** Incompatibilidade: Operando improprio para operador aritmetico *****
+
+;
+jjj = 0 ;
+}
+jjj = n + 1 ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+i = i + 1 ;
+{
+i = ! i ;
+i = i + 1 + z ;
+{
+i = 0 ;
+jjj = 0 ;
+}
+jjj = jjjj 
+
+***** Identificador Nao Declarado: jjjj *****
+
++ teste 
+
+***** Identificador de Tipo Inadequado: teste *****
+
+;
+}
+m = v + 2 > x ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+m = n != verdade ;
+m = i >= n ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+n = m == 4 ;
+i = i + 1 ;
+n = ~ m 
+
+***** Incompatibilidade: Operando improprio para menos unario *****
+
+;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+n = ( ! m && n ) && ( m && ! n ) ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+i = n / 5 
+
+***** Incompatibilidade: Operando improprio para operador aritmetico *****
+
+;
+i = ( ! m && n ) / 5 
+
+***** Incompatibilidade: Operando improprio para operador aritmetico *****
+
+;
+n = ( ! m || n ) && ( m || ! n ) ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+n = ( ! m || n ) && ( tb + v ) ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+n = ( tb + v ) || ( ! m || n ) ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+n = ( ~ h + v ) * ( tb - jjj ) ;
+
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+i = ( ! m || n ) - 5 ;
+}
+}}}
+
+
+   TABELA  DE  SIMBOLOS:
+
+Classe 3:
+  (v, IDVAR, FLOAT, 1, 1)
+Classe 4:
+  (w, IDVAR, CHAR, 0, 0)
+Classe 5:
+  (x, IDVAR, CHAR, 1, 1)
+Classe 6:
+  (y, IDVAR, CHAR, 1, 1)
+Classe 7:
+  (z, IDVAR, CHAR, 0, 1)
+  (tb, IDVAR, INTEGER, 0, 1)
+Classe 12:
+  (h, IDVAR, INTEGER, 1, 1)
+Classe 13:
+  (i, IDVAR, INTEGER, 1, 1)
+Classe 17:
+  (m, IDVAR, LOGICAL, 1, 1)
+Classe 18:
+  (n, IDVAR, LOGICAL, 1, 1)
+Classe 19:
+  (jjj, IDVAR, INTEGER, 1, 1)
+Classe 20:
+  (teste, IDPROG)
