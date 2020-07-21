@@ -63,6 +63,7 @@ struct celsimb {
 
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
+int tipocorrente;
 
 /*
 	Prototipos das funcoes para a tabela de simbolos
@@ -77,6 +78,7 @@ simbolo ProcuraSimb (char *);
 void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
 void NaoDeclarado (char *);
+void VerificaInicRef(void);
 
 %}
 
@@ -87,10 +89,12 @@ void NaoDeclarado (char *);
 	int atr, valint;
 	float valreal;
 	char carac;
+    simbolo simb; // Possibilita que terminais e /ou n-terminais tenham como atributo um ponteiro para uma celula tabsimb
 }
 
 /* Declaracao dos atributos dos tokens e dos nao-terminais */
 
+%type       <simb>          Variavel
 %token		<cadeia>		ID
 %token		<carac>		    CTCARAC
 %token		<valint>		CTINT
@@ -127,8 +131,8 @@ void NaoDeclarado (char *);
 	Os terminais sao escritos e, depois de alguns,
 	para alguma estetica, ha mudanca de linha       */
 
-Prog			:	PROGRAMA  ID  ABTRIP  {printf ("programa %s {{{\n", $2);}
-                    Decls  Comandos  FTRIP  {printf ("}}}\n");}
+Prog			:	{InicTabSimb();} PROGRAMA  ID  ABTRIP  {printf ("programa %s {{{\n", $3); InsereSimb($3, IDPROG, NOTVAR);}
+                    Decls  Comandos  FTRIP  {printf ("}}}\n"); ImprimeTabSimb();}
                 ;
 Decls 		    :
                 |   VAR  ABCHAV  {printf ("var {\n");}  ListDecl
@@ -139,14 +143,19 @@ ListDecl		:	Declaracao  |  ListDecl  Declaracao
 Declaracao 	    :	Tipo  ABPAR  {printf ("( ");}  ListElem
                     FPAR  {printf (")\n");}
                 ;
-Tipo			: 	INT  {printf ("int ");}
-                |   REAL  {printf ("real ");}
-                |   CARAC  {printf ("carac ");}
-                |   LOGIC  {printf ("logic ");}
+Tipo			: 	INT  {printf ("int ");      tipocorrente = INTEGER;}
+                |   REAL  {printf ("real ");    tipocorrente = FLOAT;  }
+                |   CARAC  {printf ("carac ");  tipocorrente = CHAR;   }
+                |   LOGIC  {printf ("logic ");  tipocorrente = LOGICAL;}
                 ;
 ListElem    	:	Elem  |  ListElem  VIRG  {printf (", ");}  Elem
                 ;
-Elem        	:	ID  {printf ("%s ", $1);}
+Elem        	:	ID  {printf ("%s ", $1);
+                            if(ProcuraSimb($1) != NULL)
+                                DeclaracaoRepetida($1);
+                            else
+                                InsereSimb($1, IDVAR, tipocorrente);
+                        }
                 ;
 Comandos       	:   COMANDOS  {printf ("comandos ");}  CmdComp
                 ;
@@ -158,7 +167,7 @@ ListCmd 		:
                 ;
 Comando        	:   CmdComp  |  CmdAtrib
                 ;
-CmdAtrib      	:   Variavel  ATRIB  {printf ("= ");}  Expressao  PVIRG
+CmdAtrib      	:   Variavel {if ($1!=NULL) $1->inic = $1->ref = TRUE;} ATRIB  {printf ("= ");}  Expressao  PVIRG
                     {printf (";\n");}
                 ;
 Expressao     	:   ExprAux1  |  Expressao  OR  {printf ("|| ");}  ExprAux1
@@ -196,7 +205,7 @@ Termo  	    	:   Fator
                         }
                     }  Fator
                 ;
-Fator		    :   Variavel
+Fator		    :   Variavel {if ($1 != NULL) $1->ref = TRUE;}
                 |   CTINT  {printf ("%d ", $1);}
                 |   CTREAL  {printf ("%g ", $1);}
                 |   CTCARAC  {printf ("\'%c\' ", $1);}
@@ -205,7 +214,14 @@ Fator		    :   Variavel
             	|   NEG  {printf ("~ ");}  Fator
             	|   ABPAR  {printf ("( ");}  Expressao  FPAR  {printf (") ");}
                 ;
-Variavel		:   ID  {printf ("%s ", $1);}
+Variavel		:   ID  {printf ("%s ", $1);
+                            simb = ProcuraSimb($1);
+                            if(simb == NULL) 
+                                NaoDeclarado($1);
+                            else if (simb->tid != IDVAR) 
+                                TipoInadequado($1);
+                            $$ = simb; // O atributo do n-terminal Variavel eh um ponteiro para a celula corrsp ao atrb de ID na tabsimb
+                        }
                 ;
 %%
 

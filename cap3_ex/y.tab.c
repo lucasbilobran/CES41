@@ -128,6 +128,7 @@ struct celsimb {
 
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
+int tipocorrente;
 
 /*
 	Prototipos das funcoes para a tabela de simbolos
@@ -144,7 +145,7 @@ void TipoInadequado (char *);
 void NaoDeclarado (char *);
 
 
-#line 148 "y.tab.c" /* yacc.c:339  */
+#line 149 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -245,14 +246,15 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 85 "tsimb012020.y" /* yacc.c:355  */
+#line 86 "tsimb012020.y" /* yacc.c:355  */
 
 	char cadeia[50];
 	int atr, valint;
 	float valreal;
 	char carac;
+    simbolo simb; // Possibilita que terminais e /ou n-terminais tenham como atributo um ponteiro para uma celula tabsimb
 
-#line 256 "y.tab.c" /* yacc.c:355  */
+#line 258 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -269,7 +271,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 273 "y.tab.c" /* yacc.c:358  */
+#line 275 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -509,18 +511,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  4
+#define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   64
+#define YYLAST   63
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  36
+#define YYNNTS  38
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  57
+#define YYNRULES  59
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  84
+#define YYNSTATES  86
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -569,12 +571,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   130,   130,   130,   133,   134,   134,   137,   137,   139,
-     139,   142,   143,   144,   145,   147,   147,   147,   149,   151,
-     151,   153,   153,   156,   157,   159,   159,   161,   161,   164,
-     164,   164,   166,   166,   166,   168,   168,   168,   170,   171,
-     171,   182,   183,   183,   190,   191,   191,   199,   200,   201,
-     202,   203,   204,   205,   205,   206,   206,   208
+       0,   133,   133,   133,   133,   136,   137,   137,   140,   140,
+     142,   142,   145,   146,   147,   148,   150,   150,   150,   152,
+     159,   159,   161,   161,   164,   165,   167,   167,   169,   169,
+     169,   172,   172,   172,   174,   174,   174,   176,   176,   176,
+     178,   179,   179,   190,   191,   191,   198,   199,   199,   207,
+     208,   209,   210,   211,   212,   213,   213,   214,   214,   216
 };
 #endif
 
@@ -587,12 +589,12 @@ static const char *const yytname[] =
   "AND", "NOT", "OPREL", "OPAD", "OPMULT", "NEG", "ABPAR", "FPAR",
   "ABCHAV", "FCHAV", "ABTRIP", "FTRIP", "VIRG", "PVIRG", "ATRIB", "CARAC",
   "COMANDOS", "FALSO", "INT", "LOGIC", "PROGRAMA", "REAL", "VAR",
-  "VERDADE", "INVAL", "$accept", "Prog", "$@1", "Decls", "$@2", "ListDecl",
-  "Declaracao", "$@3", "Tipo", "ListElem", "$@4", "Elem", "Comandos",
-  "$@5", "CmdComp", "$@6", "ListCmd", "Comando", "CmdAtrib", "$@7",
-  "Expressao", "$@8", "ExprAux1", "$@9", "ExprAux2", "$@10", "ExprAux3",
-  "$@11", "ExprAux4", "$@12", "Termo", "$@13", "Fator", "$@14", "$@15",
-  "Variavel", YY_NULLPTR
+  "VERDADE", "INVAL", "$accept", "Prog", "$@1", "$@2", "Decls", "$@3",
+  "ListDecl", "Declaracao", "$@4", "Tipo", "ListElem", "$@5", "Elem",
+  "Comandos", "$@6", "CmdComp", "$@7", "ListCmd", "Comando", "CmdAtrib",
+  "$@8", "$@9", "Expressao", "$@10", "ExprAux1", "$@11", "ExprAux2",
+  "$@12", "ExprAux3", "$@13", "ExprAux4", "$@14", "Termo", "$@15", "Fator",
+  "$@16", "$@17", "Variavel", YY_NULLPTR
 };
 #endif
 
@@ -608,10 +610,10 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -59
+#define YYPACT_NINF -61
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-59)))
+  (!!((Yystate) == (-61)))
 
 #define YYTABLE_NINF -1
 
@@ -622,15 +624,15 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -23,    15,     8,     7,   -59,   -59,    -1,    21,    14,   -59,
-     -59,    25,    20,    29,   -59,   -59,   -59,   -59,   -59,    13,
-     -59,    17,   -59,   -59,   -59,   -59,   -59,   -59,    45,     4,
-     -59,    12,   -59,   -59,   -59,   -59,   -59,   -59,    28,   -59,
-     -59,   -59,    45,    -3,   -59,   -59,   -59,   -59,   -59,   -59,
-     -59,   -59,   -59,     5,    43,   -59,   -59,    23,    40,   -59,
-     -59,    10,    10,    -3,   -59,   -59,   -59,   -59,   -59,   -59,
-     -59,   -59,     2,    -3,    -3,    10,    10,    10,   -59,    43,
-     -59,    42,    40,   -59
+     -61,     8,   -23,   -61,    15,     7,   -61,    -1,    21,    14,
+     -61,   -61,    25,    20,    29,   -61,   -61,   -61,   -61,   -61,
+      13,   -61,    17,   -61,   -61,   -61,   -61,   -61,   -61,    45,
+       4,   -61,    12,   -61,   -61,   -61,   -61,   -61,   -61,   -61,
+     -61,   -61,    28,    45,   -61,   -61,    -3,   -61,   -61,   -61,
+     -61,   -61,   -61,   -61,   -61,     5,    43,   -61,   -61,    23,
+      40,   -61,   -61,    10,    10,    -3,   -61,   -61,   -61,   -61,
+     -61,   -61,   -61,   -61,     2,    -3,    -3,    10,    10,    10,
+     -61,    43,   -61,    42,    40,   -61
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -638,33 +640,33 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     0,     1,     2,     4,     0,     0,     5,
-      19,     0,     0,     0,     3,    13,    11,    14,    12,     0,
-       7,     0,    21,    20,     6,     8,     9,    23,     0,     0,
-      18,     0,    15,    57,    22,    25,    24,    26,     0,    10,
-      16,    27,     0,     0,    17,    50,    48,    49,    36,    53,
-      55,    52,    51,     0,    29,    32,    35,    38,    41,    44,
-      47,     0,     0,     0,    30,    28,    33,    39,    42,    45,
-      37,    54,     0,     0,     0,     0,     0,     0,    56,    31,
-      34,    40,    43,    46
+       2,     0,     0,     1,     0,     0,     3,     5,     0,     0,
+       6,    20,     0,     0,     0,     4,    14,    12,    15,    13,
+       0,     8,     0,    22,    21,     7,     9,    10,    24,     0,
+       0,    19,     0,    16,    59,    23,    26,    25,    27,    28,
+      11,    17,     0,     0,    29,    18,     0,    52,    50,    51,
+      38,    55,    57,    54,    53,     0,    31,    34,    37,    40,
+      43,    46,    49,     0,     0,     0,    32,    30,    35,    41,
+      44,    47,    39,    56,     0,     0,     0,     0,     0,     0,
+      58,    33,    36,    42,    45,    48
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -59,   -59,   -59,   -59,   -59,   -59,    35,   -59,   -59,   -59,
-     -59,    16,   -59,   -59,    26,   -59,   -59,   -59,   -59,   -59,
-      -7,   -59,   -16,   -59,   -15,   -59,     0,   -59,   -13,   -59,
-     -12,   -59,   -58,   -59,   -59,    31
+     -61,   -61,   -61,   -61,   -61,   -61,   -61,    34,   -61,   -61,
+     -61,   -61,    16,   -61,   -61,    26,   -61,   -61,   -61,   -61,
+     -61,   -61,   -10,   -61,   -18,   -61,   -16,   -61,    -5,   -61,
+     -15,   -61,   -17,   -61,   -60,   -61,   -61,    33
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     6,     8,    12,    19,    20,    28,    21,    31,
-      42,    32,    11,    13,    23,    27,    29,    36,    37,    43,
-      53,    73,    54,    74,    55,    61,    56,    75,    57,    76,
-      58,    77,    59,    62,    63,    60
+      -1,     1,     2,     7,     9,    13,    20,    21,    29,    22,
+      32,    43,    33,    12,    14,    24,    28,    30,    37,    38,
+      42,    46,    55,    75,    56,    76,    57,    63,    58,    77,
+      59,    78,    60,    79,    61,    64,    65,    62
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -672,61 +674,61 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      33,    45,    46,    47,    71,     1,    48,    33,     4,    64,
-      49,    50,    64,    33,    45,    46,    47,    78,     3,    83,
-      22,    34,    51,    49,    50,     5,    65,    39,    52,     7,
-      24,    26,    40,    67,    68,    51,    15,     9,    10,    16,
-      17,    52,    18,    15,    14,    22,    16,    17,    30,    18,
-      41,    66,    69,    68,    25,    35,    72,    79,    44,    80,
-      38,    70,    81,     0,    82
+      34,    47,    48,    49,    73,     4,    50,    34,     3,    66,
+      51,    52,    66,    34,    47,    48,    49,    80,     5,    85,
+      23,    35,    53,    51,    52,     6,    67,    40,    54,     8,
+      25,    27,    41,    69,    70,    53,    16,    10,    11,    17,
+      18,    54,    19,    16,    15,    23,    17,    18,    31,    19,
+      44,    68,    71,    70,    26,    74,    36,    81,    72,    45,
+      82,    84,    83,    39
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-       3,     4,     5,     6,    62,    28,     9,     3,     0,     7,
-      13,    14,     7,     3,     4,     5,     6,    15,     3,    77,
+       3,     4,     5,     6,    64,    28,     9,     3,     0,     7,
+      13,    14,     7,     3,     4,     5,     6,    15,     3,    79,
       16,    17,    25,    13,    14,    18,    21,    15,    31,    30,
       17,    14,    20,    10,    11,    25,    23,    16,    24,    26,
       27,    31,    29,    23,    19,    16,    26,    27,     3,    29,
-      22,     8,    12,    11,    19,    29,    63,    73,    42,    74,
-      29,    61,    75,    -1,    76
+      22,     8,    12,    11,    20,    65,    30,    75,    63,    43,
+      76,    78,    77,    30
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    28,    34,     3,     0,    18,    35,    30,    36,    16,
-      24,    45,    37,    46,    19,    23,    26,    27,    29,    38,
-      39,    41,    16,    47,    17,    39,    14,    48,    40,    49,
-       3,    42,    44,     3,    17,    47,    50,    51,    68,    15,
-      20,    22,    43,    52,    44,     4,     5,     6,     9,    13,
-      14,    25,    31,    53,    55,    57,    59,    61,    63,    65,
-      68,    58,    66,    67,     7,    21,     8,    10,    11,    12,
-      59,    65,    53,    54,    56,    60,    62,    64,    15,    55,
-      57,    61,    63,    65
+       0,    34,    35,     0,    28,     3,    18,    36,    30,    37,
+      16,    24,    46,    38,    47,    19,    23,    26,    27,    29,
+      39,    40,    42,    16,    48,    17,    40,    14,    49,    41,
+      50,     3,    43,    45,     3,    17,    48,    51,    52,    70,
+      15,    20,    53,    44,    22,    45,    54,     4,     5,     6,
+       9,    13,    14,    25,    31,    55,    57,    59,    61,    63,
+      65,    67,    70,    60,    68,    69,     7,    21,     8,    10,
+      11,    12,    61,    67,    55,    56,    58,    62,    64,    66,
+      15,    57,    59,    63,    65,    67
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    33,    35,    34,    36,    37,    36,    38,    38,    40,
-      39,    41,    41,    41,    41,    42,    43,    42,    44,    46,
-      45,    48,    47,    49,    49,    50,    50,    52,    51,    53,
-      54,    53,    55,    56,    55,    57,    58,    57,    59,    60,
-      59,    61,    62,    61,    63,    64,    63,    65,    65,    65,
-      65,    65,    65,    66,    65,    67,    65,    68
+       0,    33,    35,    36,    34,    37,    38,    37,    39,    39,
+      41,    40,    42,    42,    42,    42,    43,    44,    43,    45,
+      47,    46,    49,    48,    50,    50,    51,    51,    53,    54,
+      52,    55,    56,    55,    57,    58,    57,    59,    60,    59,
+      61,    62,    61,    63,    64,    63,    65,    66,    65,    67,
+      67,    67,    67,    67,    67,    68,    67,    69,    67,    70
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     7,     0,     0,     5,     1,     2,     0,
-       5,     1,     1,     1,     1,     1,     0,     4,     1,     0,
-       3,     0,     4,     0,     2,     1,     1,     0,     5,     1,
-       0,     4,     1,     0,     4,     1,     0,     3,     1,     0,
-       4,     1,     0,     4,     1,     0,     4,     1,     1,     1,
-       1,     1,     1,     0,     3,     0,     4,     1
+       0,     2,     0,     0,     8,     0,     0,     5,     1,     2,
+       0,     5,     1,     1,     1,     1,     1,     0,     4,     1,
+       0,     3,     0,     4,     0,     2,     1,     1,     0,     0,
+       6,     1,     0,     4,     1,     0,     4,     1,     0,     3,
+       1,     0,     4,     1,     0,     4,     1,     0,     4,     1,
+       1,     1,     1,     1,     1,     0,     3,     0,     4,     1
 };
 
 
@@ -1403,127 +1405,144 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 130 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("programa %s {{{\n", (yyvsp[-1].cadeia));}
-#line 1409 "y.tab.c" /* yacc.c:1646  */
+#line 133 "tsimb012020.y" /* yacc.c:1646  */
+    {InicTabSimb();}
+#line 1411 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 131 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("}}}\n");}
-#line 1415 "y.tab.c" /* yacc.c:1646  */
+#line 133 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("programa %s {{{\n", (yyvsp[-1].cadeia)); InsereSimb((yyvsp[-1].cadeia), IDPROG, NOTVAR);}
+#line 1417 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 5:
+  case 4:
 #line 134 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("var {\n");}
-#line 1421 "y.tab.c" /* yacc.c:1646  */
+    {printf ("}}}\n"); ImprimeTabSimb();}
+#line 1423 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 135 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("}\n");}
-#line 1427 "y.tab.c" /* yacc.c:1646  */
+#line 137 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("var {\n");}
+#line 1429 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 9:
-#line 139 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("( ");}
-#line 1433 "y.tab.c" /* yacc.c:1646  */
+  case 7:
+#line 138 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("}\n");}
+#line 1435 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 140 "tsimb012020.y" /* yacc.c:1646  */
-    {printf (")\n");}
-#line 1439 "y.tab.c" /* yacc.c:1646  */
+#line 142 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("( ");}
+#line 1441 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 142 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("int ");}
-#line 1445 "y.tab.c" /* yacc.c:1646  */
+#line 143 "tsimb012020.y" /* yacc.c:1646  */
+    {printf (")\n");}
+#line 1447 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 143 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("real ");}
-#line 1451 "y.tab.c" /* yacc.c:1646  */
+#line 145 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("int ");      tipocorrente = INTEGER;}
+#line 1453 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 144 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("carac ");}
-#line 1457 "y.tab.c" /* yacc.c:1646  */
+#line 146 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("real ");    tipocorrente = FLOAT;  }
+#line 1459 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 145 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("logic ");}
-#line 1463 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
 #line 147 "tsimb012020.y" /* yacc.c:1646  */
-    {printf (", ");}
-#line 1469 "y.tab.c" /* yacc.c:1646  */
+    {printf ("carac ");  tipocorrente = CHAR;   }
+#line 1465 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 18:
-#line 149 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("%s ", (yyvsp[0].cadeia));}
-#line 1475 "y.tab.c" /* yacc.c:1646  */
+  case 15:
+#line 148 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("logic ");  tipocorrente = LOGICAL;}
+#line 1471 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 17:
+#line 150 "tsimb012020.y" /* yacc.c:1646  */
+    {printf (", ");}
+#line 1477 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 151 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("comandos ");}
-#line 1481 "y.tab.c" /* yacc.c:1646  */
+#line 152 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("%s ", (yyvsp[0].cadeia));
+                            if(ProcuraSimb((yyvsp[0].cadeia)) != NULL)
+                                DeclaracaoRepetida((yyvsp[0].cadeia));
+                            else
+                                InsereSimb((yyvsp[0].cadeia), IDVAR, tipocorrente);
+                        }
+#line 1488 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 21:
-#line 153 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("{\n");}
-#line 1487 "y.tab.c" /* yacc.c:1646  */
+  case 20:
+#line 159 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("comandos ");}
+#line 1494 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 154 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("}\n");}
-#line 1493 "y.tab.c" /* yacc.c:1646  */
+#line 161 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("{\n");}
+#line 1500 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 27:
-#line 161 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("= ");}
-#line 1499 "y.tab.c" /* yacc.c:1646  */
+  case 23:
+#line 162 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("}\n");}
+#line 1506 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 162 "tsimb012020.y" /* yacc.c:1646  */
-    {printf (";\n");}
-#line 1505 "y.tab.c" /* yacc.c:1646  */
+#line 169 "tsimb012020.y" /* yacc.c:1646  */
+    {if ((yyvsp[0].simb)!=NULL) (yyvsp[0].simb)->inic = (yyvsp[0].simb)->ref = TRUE;}
+#line 1512 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 169 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("= ");}
+#line 1518 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 164 "tsimb012020.y" /* yacc.c:1646  */
+#line 170 "tsimb012020.y" /* yacc.c:1646  */
+    {printf (";\n");}
+#line 1524 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 172 "tsimb012020.y" /* yacc.c:1646  */
     {printf ("|| ");}
-#line 1511 "y.tab.c" /* yacc.c:1646  */
+#line 1530 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 166 "tsimb012020.y" /* yacc.c:1646  */
+  case 35:
+#line 174 "tsimb012020.y" /* yacc.c:1646  */
     {printf ("&& ");}
-#line 1517 "y.tab.c" /* yacc.c:1646  */
+#line 1536 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 36:
-#line 168 "tsimb012020.y" /* yacc.c:1646  */
+  case 38:
+#line 176 "tsimb012020.y" /* yacc.c:1646  */
     {printf ("! ");}
-#line 1523 "y.tab.c" /* yacc.c:1646  */
+#line 1542 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 39:
-#line 171 "tsimb012020.y" /* yacc.c:1646  */
+  case 41:
+#line 179 "tsimb012020.y" /* yacc.c:1646  */
     {
                         switch ((yyvsp[0].atr)) {
                             case LT: printf ("< "); break;
@@ -1534,22 +1553,22 @@ yyreduce:
                             case GE: printf (">= "); break;
                         }
                     }
-#line 1538 "y.tab.c" /* yacc.c:1646  */
+#line 1557 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 42:
-#line 183 "tsimb012020.y" /* yacc.c:1646  */
+  case 44:
+#line 191 "tsimb012020.y" /* yacc.c:1646  */
     {
                         switch ((yyvsp[0].atr)) {
                             case MAIS: printf ("+ "); break;
                             case MENOS: printf ("- "); break;
                         }
                     }
-#line 1549 "y.tab.c" /* yacc.c:1646  */
+#line 1568 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 45:
-#line 191 "tsimb012020.y" /* yacc.c:1646  */
+  case 47:
+#line 199 "tsimb012020.y" /* yacc.c:1646  */
     {
                         switch ((yyvsp[0].atr)) {
                             case MULT: printf ("* "); break;
@@ -1557,65 +1576,78 @@ yyreduce:
                             case RESTO: printf ("%% "); break;
                         }
                     }
-#line 1561 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 48:
-#line 200 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("%d ", (yyvsp[0].valint));}
-#line 1567 "y.tab.c" /* yacc.c:1646  */
+#line 1580 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 201 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("%g ", (yyvsp[0].valreal));}
-#line 1573 "y.tab.c" /* yacc.c:1646  */
+#line 207 "tsimb012020.y" /* yacc.c:1646  */
+    {if ((yyvsp[0].simb) != NULL) (yyvsp[0].simb)->ref = TRUE;}
+#line 1586 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 202 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("\'%c\' ", (yyvsp[0].carac));}
-#line 1579 "y.tab.c" /* yacc.c:1646  */
+#line 208 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("%d ", (yyvsp[0].valint));}
+#line 1592 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 203 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("verdade ");}
-#line 1585 "y.tab.c" /* yacc.c:1646  */
+#line 209 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("%g ", (yyvsp[0].valreal));}
+#line 1598 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 204 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("falso ");}
-#line 1591 "y.tab.c" /* yacc.c:1646  */
+#line 210 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("\'%c\' ", (yyvsp[0].carac));}
+#line 1604 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 205 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("~ ");}
-#line 1597 "y.tab.c" /* yacc.c:1646  */
+#line 211 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("verdade ");}
+#line 1610 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 212 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("falso ");}
+#line 1616 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 206 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("( ");}
-#line 1603 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 206 "tsimb012020.y" /* yacc.c:1646  */
-    {printf (") ");}
-#line 1609 "y.tab.c" /* yacc.c:1646  */
+#line 213 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("~ ");}
+#line 1622 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 208 "tsimb012020.y" /* yacc.c:1646  */
-    {printf ("%s ", (yyvsp[0].cadeia));}
-#line 1615 "y.tab.c" /* yacc.c:1646  */
+#line 214 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("( ");}
+#line 1628 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 214 "tsimb012020.y" /* yacc.c:1646  */
+    {printf (") ");}
+#line 1634 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 216 "tsimb012020.y" /* yacc.c:1646  */
+    {printf ("%s ", (yyvsp[0].cadeia));
+                            simb = ProcuraSimb((yyvsp[0].cadeia));
+                            if(simb == NULL) 
+                                NaoDeclarado((yyvsp[0].cadeia));
+                            else if (simb->tid != IDVAR) 
+                                TipoInadequado((yyvsp[0].cadeia));
+                            (yyval.simb) = simb; // O atributo do n-terminal Variavel eh um ponteiro para a celula corrsp ao atrb de ID na tabsimb
+                        }
+#line 1647 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1619 "y.tab.c" /* yacc.c:1646  */
+#line 1651 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1843,7 +1875,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 210 "tsimb012020.y" /* yacc.c:1906  */
+#line 225 "tsimb012020.y" /* yacc.c:1906  */
 
 
 /* Inclusao do analisador lexico  */
