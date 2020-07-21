@@ -78,7 +78,9 @@ simbolo ProcuraSimb (char *);
 void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
 void NaoDeclarado (char *);
+
 void VerificaInicRef(void);
+void Incompatibilidade(char *s);
 
 %}
 
@@ -90,11 +92,14 @@ void VerificaInicRef(void);
 	float valreal;
 	char carac;
     simbolo simb; // Possibilita que terminais e /ou n-terminais tenham como atributo um ponteiro para uma celula tabsimb
+    int tipoexpr; 
 }
 
 /* Declaracao dos atributos dos tokens e dos nao-terminais */
 
 %type       <simb>          Variavel
+%type       <tipoexpr>      Expressao ExprAux1 ExprAux2 ExprAux3 ExprAux4 Termo Fator
+
 %token		<cadeia>		ID
 %token		<carac>		    CTCARAC
 %token		<valint>		CTINT
@@ -204,15 +209,48 @@ Termo  	    	:   Fator
                             case RESTO: printf ("%% "); break;
                         }
                     }  Fator
+                    {
+                        switch ($2) {
+                            case MULT:
+                            case DIV:
+                                if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR || $4 != INTEGER && $4 != FLOAT && $4 != CHAR)
+                                    Incompatibilidade("Operando improprio para operador aritmetico");
+                                
+                                if ($1 == FLOAT || $4 == FLOAT)
+                                    $$  = FLOAT;
+                                else
+                                    $$ = INTEGER;
+                                break;
+
+                            case RESTO: 
+                                if ($1 != INTEGER && $1 != CHAR || $4 != INTEGER && $4 != CHAR) 
+                                    Incompatibilidade("Operando improprio para operador resto");
+                                $$ = INTEGER;
+                                break;
+                        }
+                    }
                 ;
-Fator		    :   Variavel {if ($1 != NULL) $1->ref = TRUE;}
-                |   CTINT  {printf ("%d ", $1);}
-                |   CTREAL  {printf ("%g ", $1);}
-                |   CTCARAC  {printf ("\'%c\' ", $1);}
-            	|   VERDADE  {printf ("verdade ");}
-            	|   FALSO  {printf ("falso ");}
+Fator		    :   Variavel {
+                                if ($1 != NULL) {
+                                    $1->ref = TRUE;
+                                    $$ = $1->tvar;
+                                }
+                            }
+                |   CTINT  {printf ("%d ", $1); $$ = INTEGER;}
+                |   CTREAL  {printf ("%g ", $1); $$ = FLOAT;}
+                |   CTCARAC  {printf ("\'%c\' ", $1); $$ = CHAR;}
+            	|   VERDADE  {printf ("verdade "); $$ = LOGICAL;}
+            	|   FALSO  {printf ("falso "); $$ = LOGICAL;}
             	|   NEG  {printf ("~ ");}  Fator
-            	|   ABPAR  {printf ("( ");}  Expressao  FPAR  {printf (") ");}
+                    {
+                        if ($3 != INTEGER && $3 != FLOAT && $3 != CHAR)
+                            Incompatibilidade("Operando improprio para menos unario");
+                        if ($3 == FLOAT)
+                            $$ = FLOAT;
+                        else
+                            $$ = INTEGER;
+                    }
+            	|   ABPAR  {printf ("( ");}  Expressao  FPAR  {printf (") "); $$ = $3;}
                 ;
 Variavel		:   ID  {printf ("%s ", $1);
                             simb = ProcuraSimb($1);
@@ -310,6 +348,10 @@ void NaoDeclarado (char *s) {
 
 void TipoInadequado (char *s) {
     printf ("\n\n***** Identificador de Tipo Inadequado: %s *****\n\n", s);
+}
+
+void Incompatibilidade(char *s) {
+    printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
 }
 
 
