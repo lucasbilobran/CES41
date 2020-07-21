@@ -1,0 +1,20 @@
+acrescentar no Path --> c:\mingw\bin
+
+
+Para compiladores, utilizar:
+
+1) flex arquivo.lex --> lex.yy.c
+
+2) yacc arquivo.y --> y.tab.c
+
+3) gcc y.tab.c main.c yyerror.c -oarqsaida -lfl --> arqsaida.exe
+
+
+
+arquivo.lex --> analisador lexico em lex
+
+arquivo.y --> analisador sintatico em yacc
+
+
+
+arqsaida.exe < programa.robot > texto.saida
