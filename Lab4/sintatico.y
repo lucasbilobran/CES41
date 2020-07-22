@@ -182,7 +182,7 @@ ListDecl    :   Declaracao
             ;
 Declaracao  :   {tabular();} Tipo ABPAR {printf("(");} ListElem FPAR {printf(")\n");}
             ;
-Tipo        :   INT  {printf ("int "); tipocorrente = INTEGER;}
+Tipo        :   INT  {printf ("int "); tipocorrente = INTEGER;} 
             |   REAL  {printf ("real "); tipocorrente = FLOAT;}
             |   CARAC  {printf ("carac "); tipocorrente = CHAR;}
             |   LOGIC  {printf ("logic "); tipocorrente = LOGICAL;}
@@ -190,7 +190,7 @@ Tipo        :   INT  {printf ("int "); tipocorrente = INTEGER;}
 ListElem    :   Elem
             |   ListElem VIRG {printf(", ");} Elem
             ;
-Elem        :   ID {
+Elem        :   ID { 
                         printf ("%s ", $1);
                         if  (ProcuraSimb ($1, escopo)  !=  NULL)
                             DeclaracaoRepetida ($1);
@@ -620,13 +620,13 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     if (declparam) {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, &pontparam);
+            InsereListSimb(s, pontparam);
         s->escopo->nparam++;
     }
     else {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, &pontvar);
+            InsereListSimb(s, pontvar);
     }
 
     /* Código para identificados global ou nome de função */
