@@ -74,6 +74,8 @@ void TipoInadequado (char *);
 void NaoDeclarado (char *);
 void Incompatibilidade (char *);
 void tabular (void);
+void Esperado(char *);
+void NaoEsperado(char *);
 %}
 
 %union {
@@ -83,12 +85,13 @@ void tabular (void);
     float valreal;
     char carac;
     simbolo simb;
-    int tipoexpr;
+    int tipoexpr, nsubscr;
 }        
 
 /* === Atributos e Tokens === */
 %type     <simb>     Variavel
 %type     <tipoexpr> Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
+%type     <nsubscr>   Subscritos ListSubscr
 
 %token    <string>   ID
 %token    <valor>    CTINT
@@ -170,8 +173,14 @@ Elem        :   ID {
 Dims        :   
             |   ABCOL {printf("[");} ListDim FCOL {printf("]"); simb->array = TRUE;}
             ;
-ListDim     :   CTINT {printf("%d", $1);}
-            |   ListDim VIRG CTINT {printf(", %d", $3);}
+ListDim     :   CTINT {printf("%d", $1);
+                        if($1 <= 0) Esperado("Valor inteiro positivo");
+                        simb->ndims++; simb->dims[simb->ndims] = $1;  
+                      }
+            |   ListDim VIRG CTINT {printf(", %d", $3);
+                                        if($3 <= 0) Esperado("Valor inteiro positivo");
+                                        simb->ndims++; simb->dims[simb->ndims] = $3; 
+                                   }
             ;
 ListMod     :
             |   ListMod Modulo
@@ -394,13 +403,30 @@ Variavel    :  ID  {
                         if (simb == NULL)   NaoDeclarado ($1);
                         else if (simb->tid != IDVAR)   TipoInadequado ($1);
                         $<simb>$ = simb;
-                    }  Subscritos  {$$ = $<simb>2;}
+                    }  Subscritos  {
+                                    $$ = $<simb>2;
+                                    if($$ != NULL){
+                                        if($$->array == FALSE && $3 > 0)
+                                            NaoEsperado("Subscrito\(s)");
+                                        else if($$->array == TRUE && $3 == 0){
+                                            Esperado("Subscrito\(s)");
+                                        }
+                                        else if($$->ndims!= $3)
+                                            Incompatibilidade("Numero de subscritos incompativel com declaracao");
+                                    }
+                                    }
             ;    
-Subscritos  :  
-            |  ABCOL {printf("[");}  ListSubscr  FCOL  {printf("]");}
+Subscritos  :  {$$ = 0;}
+            |  ABCOL {printf("[");}  ListSubscr  FCOL  {printf("]"); $$ = $3;}
             ;    
-ListSubscr  :  ExprAux4 
-            |  ListSubscr  VIRG {printf(", ");}  ExprAux4 
+ListSubscr  :  ExprAux4 {
+                            if($1 != INTEGER && $1 != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
+                            $$ = 1;
+                        }
+            |  ListSubscr  VIRG {printf(", ");}  ExprAux4 {
+                            if($4 != INTEGER && $4 != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
+                            $$ = $1 + 1;
+                        }
             ;    
 ChamadaFunc :   ID  ABPAR  {printf("%s (", $1);} Argumentos  FPAR {printf(")");} 
             ;
@@ -510,6 +536,14 @@ void VerificaInicRef () {
                     if (s->ref == FALSE)
                         printf ("%s: Nao Referenciada\n", s->cadeia);
                 }
+}
+
+void Esperado(char *s) {
+    printf("\n\n*****Esperado: %s *****\n\n", s);
+}
+
+void NaoEsperado(char *s) {
+    printf("\n\n*****Nao Esperado: %s *****\n\n", s);
 }
 
 
