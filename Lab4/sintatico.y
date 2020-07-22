@@ -2,10 +2,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* === Declaracoes para a analise semântica === */
+
 enum tipos {
     SOMA=1, SUB, MULT, DIV, MOD, EQ, NEQ, LT, LEQ, GT, GEQ, FINAL
 };
 
+enum identificadores {
+    IDGLOB=1, IDVAR, IDFUNC, IDPROC, IDPROG
+};
+
+enum parametros {
+    PARAMVAL=1, PARAMREF
+};
+
+/*  Tabela de simbolos  */​
+typedef struct celsimb celsimb;​
+typedef celsimb *simbolo;​
+struct celsimb {​
+    char *cadeia;​
+    int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];​
+    char inic, ref, array, parametro ;​
+    listsimb listvar, listparam, ​listfunc;
+    simbolo escopo, prox; ​
+};
+
+/* === Variaveis globais para a tabela de simbolos e analises sintatica e semantica === */
+
+simbolo tabsimb[NCLASSHASH];
+simbolo simb;
+int tipocorrente;
 int tab = 0;
 %}
 
@@ -16,6 +42,7 @@ int tab = 0;
     float valreal;
     char carac;
 }
+
 
 %type               Prog Decls ListDecl Declaracao Tipo ListElem Elem Dims ListDim ListMod Modulo Cabecalho CabFunc CabProc ListParam Parametro Corpo ModPrincipal Comandos CmdComp ListCmd Comando CmdSe CmdSenao CmdEnquanto CmdRepetir CmdPara CmdLer ListLeit CmdEscrever ListEscr ElemEscr ChamadaProc Argumentos CmdRetornar CmdAtrib ListExpr Expressao ExprAux1 ExprAux2 ExprAux3 ExprAux4 Termo Fator Variavel Subscritos ListSubscr ChamadaFunc
 
@@ -262,4 +289,112 @@ void tabular() {
     for (i = 1; i <= tab; i++) {
         printf("   ");
     }
+}
+
+
+/*  InicTabSimb: Inicializa a tabela de simbolos   */
+
+void InicTabSimb () {
+    int i;
+    for (i = 0; i < NCLASSHASH; i++)
+        tabsimb[i] = NULL;
+}
+
+/*
+    ProcuraSimb (cadeia): Procura cadeia na tabela de simbolos;
+    Caso ela ali esteja, retorna um ponteiro para sua celula;
+    Caso contrario, retorna NULL.
+ */
+
+simbolo ProcuraSimb (char *cadeia) {
+    simbolo s; int i;
+    i = hash (cadeia);
+    for (s = tabsimb[i]; (s!=NULL) && strcmp(cadeia, s->cadeia);
+        s = s->prox);
+    return s;
+}
+
+/*
+    InsereSimb (cadeia, tid, tvar): Insere cadeia na tabela de
+    simbolos, com tid como tipo de identificador e com tvar como
+    tipo de variavel; Retorna um ponteiro para a celula inserida
+ */
+
+simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
+    int i; simbolo aux, s;
+    i = hash (cadeia); aux = tabsimb[i];
+    s = tabsimb[i] = (simbolo) malloc (sizeof (celsimb));
+    s->cadeia = (char*) malloc ((strlen(cadeia)+1) * sizeof(char));
+    strcpy (s->cadeia, cadeia);
+    s->tid = tid;
+    s->tvar = tvar;
+    s->inic = FALSE;
+    s->ref = FALSE;
+    s->prox = aux;
+    s->escopo = escopo;
+    return s;
+}
+
+/*
+    hash (cadeia): funcao que determina e retorna a classe
+    de cadeia na tabela de simbolos implementada por hashing
+ */
+
+int hash (char *cadeia) {
+    int i, h;
+    for (h = i = 0; cadeia[i]; i++) {h += cadeia[i];}
+    h = h % NCLASSHASH;
+    return h;
+}
+
+/* ImprimeTabSimb: Imprime todo o conteudo da tabela de simbolos  */
+
+void ImprimeTabSimb () {
+    int i; simbolo s;
+    printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i]) {
+            printf ("Classe %d:\n", i);
+            for (s = tabsimb[i]; s!=NULL; s = s->prox){
+                printf ("  (%s, %s", s->cadeia,  nometipid[s->tid]);
+                if (s->tid == IDVAR)
+                    printf (", %s, %d, %d",
+                        nometipvar[s->tvar], s->inic, s->ref);
+                printf(")\n");
+            }
+        }
+}
+
+void VerificaInicRef () {
+    int i; simbolo s;
+
+    printf ("\n");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i])
+            for (s = tabsimb[i]; s != NULL; s = s->prox)
+                if (s->tid == IDVAR) {
+                    if (s->inic == FALSE)
+                        printf ("%s: Nao Inicializada\n", s->cadeia);
+                    if (s->ref == FALSE)
+                        printf ("%s: Nao Referenciada\n", s->cadeia);
+                }
+}
+
+
+/*  Mensagens de erros semanticos  */
+
+void DeclaracaoRepetida (char *s) {
+    printf ("\n\n***** Declaracao Repetida: %s *****\n\n", s);
+}
+
+void NaoDeclarado (char *s) {
+    printf ("\n\n***** Identificador Nao Declarado: %s *****\n\n", s);
+}
+
+void TipoInadequado (char *s) {
+    printf ("\n\n***** Identificador de Tipo Inadequado: %s *****\n\n", s);
+}
+
+void Incompatibilidade (char *s) {
+    printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
 }
