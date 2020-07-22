@@ -9,7 +9,7 @@ enum tipos {
     SOMA=1, SUB, MULT, DIV, MOD, EQ, NEQ, LT, LEQ, GT, GEQ, FINAL
 };
 
-enum identificadores_escopo {
+enum identificadores {
     IDGLOB=1, IDVAR, IDFUNC, IDPROC, IDPROG
 };
 
@@ -19,10 +19,6 @@ enum parametros {
 
 enum variaveis {
     NOTVAR, INTEGER, LOGICAL, FLOAT, CHAR
-};
-
-enum identificadores {
-    IDPROG=1, IDVAR
 };
 
 /*   Constantes   */
@@ -41,6 +37,15 @@ char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"
 };
 
 /*    Declaracoes para a tabela de simbolos     */
+
+/*  Lista de simbolos  */​
+typedef struct elemlistsimb elemlistsimb;​
+typedef elemlistsimb *pontelemlistsimb;​
+typedef elemlistsimb *listsimb;​
+struct elemlistsimb {​
+    simbolo simb; ​
+    pontelemlistsimb prox;​
+}​;
 
 /*  Tabela de simbolos  */​
 typedef struct celsimb celsimb;​
