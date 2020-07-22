@@ -98,13 +98,13 @@ comandos {
 	enquanto (c == 's' || c == 'S') {
         	escrever ("\nDigite a palavra: ");
         	fim = falso;
-		para i (0; !fim; i+1) {
-            	ler (palavra[i]);
-            	se (palavra[i] == '\n') {
-                	fim = verdade;
-                	palavra[i] = '\0';
-            	}
-        	}
+			para i (0; !fim; i+1) {
+				ler (palavra[i]);
+				se (palavra[i] == '\n') {
+					fim = verdade;
+					palavra[i] = '\0';
+				}
+			}
 		posic = Procura ();
 		se (posic > 0)
 			nocorr[posic] = nocorr[posic] + 1;

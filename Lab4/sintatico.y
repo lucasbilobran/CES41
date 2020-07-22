@@ -347,11 +347,11 @@ Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
 CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;");} 
             |  RETORNAR {printf("retornar ");} Expressao  PVIG {
                                                                     printf(";");
-                                                                    if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
-                                                                        ($3 == FLOAT || $3 == LOGICAL)) ||
-                                                                        (escopo->tvar == FLOAT && $3 == LOGICAL) ||
-                                                                        (escopo->tvar == LOGICAL && $3 != LOGICAL))
-                                                                            Incompatibilidade ("Retorno da funcao improprio"); 
+                                                                    // if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
+                                                                    //     ($3 == FLOAT || $3 == LOGICAL)) ||
+                                                                    //     (escopo->tvar == FLOAT && $3 == LOGICAL) ||
+                                                                    //     (escopo->tvar == LOGICAL && $3 != LOGICAL))
+                                                                    //         Incompatibilidade ("Retorno da funcao improprio"); 
                                                                }  
             ;        
 CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}  
@@ -501,7 +501,7 @@ Fator       :  Variavel {
             |  ABPAR  Expressao  FPAR {$$ = $2;}
             |  ChamadaFunc 
             ;
-Variavel    :  ID  {
+Variavel    : ID  {
                         printf ("%s", $1);
                         escaux = escopo;
                         simb = ProcuraSimb ($1, escaux);
@@ -763,11 +763,19 @@ listtipo ConcatListTipo(listtipo lista1, listtipo lista2) {
 }
 
 void ChecArgumentos(pontexprtipo Ltiparg, listsimb Lparam) {
+
     pontexprtipo p;
     pontelemlistsimb q;
 
-    p = Ltiparg->prox;
-    q = Lparam->prox;
+    if(Ltiparg) 
+        p = Ltiparg->prox;
+    else
+        p = NULL;
+
+    if(Lparam) 
+        q = Lparam->prox;
+    else
+        q = NULL;
 
     while (p != NULL && q != NULL) {
         switch (q->simb->tvar) {
