@@ -23,9 +23,10 @@ enum variaveis {
 
 /*   Constantes   */
 
-#define    NCLASSHASH    23
-#define    TRUE           1
-#define    FALSE          0
+#define	NCLASSHASH	23
+#define	TRUE		1
+#define	FALSE		0
+#define MAXDIMS     10
 
 /*  Strings para nomes dos tipos de identificadores  */
 
@@ -170,12 +171,14 @@ Elem        :   ID {
                         printf ("%s ", $1);
                         if  (ProcuraSimb ($1)  !=  NULL)
                             DeclaracaoRepetida ($1);
-                        else
-                            InsereSimb ($1,  IDVAR,  tipocorrente);
+                        else {
+                            simb = InsereSimb ($1,  IDVAR,  tipocorrente);
+                            simb->array = FALSE; simb->ndims = 0;
+                        }
                     } Dims
             ;
 Dims        :   
-            |   ABCOL {printf("[");} ListDim FCOL {printf("]");}
+            |   ABCOL {printf("[");} ListDim FCOL {printf("]"); simb->array = TRUE}
             ;
 ListDim     :   CTINT {printf("%d", $1);}
             |   ListDim VIRG CTINT {printf(", %d", $3);}
@@ -479,19 +482,27 @@ int hash (char *cadeia) {
 /* ImprimeTabSimb: Imprime todo o conteudo da tabela de simbolos  */
 
 void ImprimeTabSimb () {
-    int i; simbolo s;
-    printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
-    for (i = 0; i < NCLASSHASH; i++)
-        if (tabsimb[i]) {
-            printf ("Classe %d:\n", i);
-            for (s = tabsimb[i]; s!=NULL; s = s->prox){
-                printf ("  (%s, %s", s->cadeia,  nometipid[s->tid]);
-                if (s->tid == IDVAR)
-                    printf (", %s, %d, %d",
-                        nometipvar[s->tvar], s->inic, s->ref);
-                printf(")\n");
-            }
-        }
+	int i; simbolo s;
+	printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
+	for (i = 0; i < NCLASSHASH; i++)
+		if (tabsimb[i]) {
+			printf ("Classe %d:\n", i);
+			for (s = tabsimb[i]; s!=NULL; s = s->prox){
+				printf ("  (%s, %s", s->cadeia,  nometipid[s->tid]);
+				if (s->tid == IDVAR){
+                    printf (", %s, %d, %d", nometipvar[s->tvar], s->inic, s->ref);
+                    if(s->array == TRUE){
+                        int j;
+                        printf("EH ARRAY\n \tdims = %d, dimensoes:", s->ndims);
+                            for(j = 1; j <= s->ndims; j++)
+                                printf(" %d", s->dims[j]);
+                    }
+                }
+
+					
+			    printf(")\n");
+			}
+		}
 }
 
 void VerificaInicRef () {

@@ -191,13 +191,13 @@ ListCmd 		:
 Comando        	:   CmdComp  |  CmdSe  |  CmdEnquanto  |  CmdLer
                 |   CmdEscrever  |  CmdAtrib
                 ;
-CmdSe		    :   SE    ABPAR  {printf ("se ( ");}  Expressao  FPAR
-                    {printf (")\n");}  Comando  CmdSenao
+CmdSe		    :   SE    ABPAR  {printf ("se ( ");}  Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");}
+                    FPAR    {printf (")\n");}  Comando  CmdSenao
                 ;
 CmdSenao		:   |
                     SENAO  {printf ("senao\n");}  Comando
                 ;
-CmdEnquanto   	:	ENQUANTO  ABPAR  {printf ("enquanto ( ");}  Expressao
+CmdEnquanto   	:	ENQUANTO  ABPAR  {printf ("enquanto ( ");}  Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");}
                     FPAR  {printf (")\n");}  Comando
                 ;
 CmdLer   	    :   LER  ABPAR  {printf ("ler ( ");}  ListLeit  FPAR  PVIRG
