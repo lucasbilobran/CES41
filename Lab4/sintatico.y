@@ -139,7 +139,7 @@ void tabular (void);
 %token               INVAL
 %%
 
-Prog        :   {InicTabSimb ();} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
+Prog        :   {InicTabSimb ();} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, NULL); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -162,7 +162,7 @@ Elem        :   ID {
                         if  (ProcuraSimb ($1)  !=  NULL)
                             DeclaracaoRepetida ($1);
                         else
-                            InsereSimb ($1,  IDVAR,  tipocorrente);
+                            InsereSimb ($1,  IDVAR,  tipocorrente, NULL);
                     } Dims
             ;
 Dims        :   
