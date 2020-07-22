@@ -244,9 +244,12 @@ CmdSenao    :
             ;
 CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
             ;
-CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao  FPAR  PVIG {printf(");");} 
+CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao {if ($7 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR  PVIG {printf(");");} 
             ;
-CmdPara     :  PARA {printf("para ");} Variavel  ABPAR {printf(" (");}  ExprAux4  PVIG {printf("; ");}  Expressao  PVIG {printf("; ");} ExprAux4  FPAR {printf(") "); tab++;} Comando {tab--;}
+CmdPara     :  PARA {printf("para ");} Variavel {if ($3 != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
+               ABPAR {printf(" (");}  ExprAux4 {if ($7 != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
+               PVIG {printf("; ");}  Expressao {if ($11 != LOGICAL) Incompatibilidade("Expressao nao logica");} PVIG {printf("; ");} 
+               ExprAux4 {if ($15 != LOGICAL) Incompatibilidade("Expressao nao inteiro ou caractere");} FPAR {printf(") "); tab++;} Comando {tab--;}
             ;
 CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR  PVIG {printf(");");} 
             ;        
