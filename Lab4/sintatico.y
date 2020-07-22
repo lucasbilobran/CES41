@@ -24,6 +24,7 @@ enum variaveis {
 /* === Constantes === */
 
 #define    NCLASSHASH    23
+#define    MAXDIMS      100
 #define    TRUE           1
 #define    FALSE          0
 
@@ -34,17 +35,17 @@ char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"
 };
 
 /* === Lista e Tabela de Simbolos === */
-
+typedef struct celsimb celsimb;
+typedef celsimb *simbolo;
 typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
+
 struct elemlistsimb {
     simbolo simb; 
     pontelemlistsimb prox;
 };
 
-typedef struct celsimb celsimb;
-typedef celsimb *simbolo;
 struct celsimb {
     char *cadeia;
     int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];
@@ -64,7 +65,7 @@ int tab = 0;
 
 void InicTabSimb (void);
 void ImprimeTabSimb (void);
-simbolo InsereSimb (char *, int, int);
+simbolo InsereSimb (char *, int, int, simbolo);
 int hash (char *);
 simbolo ProcuraSimb (char *);
 void VerificaInicRef (void);
@@ -72,6 +73,7 @@ void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
 void NaoDeclarado (char *);
 void Incompatibilidade (char *);
+void tabular (void);
 %}
 
 %union {
@@ -442,15 +444,19 @@ simbolo ProcuraSimb (char *cadeia) {
     tipo de variavel; Retorna um ponteiro para a celula inserida
  */
 
-simbolo InsereSimb (char *cadeia, int tid, int tvar) {
+simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     int i; simbolo aux, s;
     i = hash (cadeia); aux = tabsimb[i];
     s = tabsimb[i] = (simbolo) malloc (sizeof (celsimb));
     s->cadeia = (char*) malloc ((strlen(cadeia)+1) * sizeof(char));
     strcpy (s->cadeia, cadeia);
-    s->tid = tid;        s->tvar = tvar;
-    s->inic = FALSE;    s->ref = FALSE;
-    s->prox = aux;    return s;
+    s->tid = tid;
+    s->tvar = tvar;
+    s->inic = FALSE;
+    s->ref = FALSE;
+    s->prox = aux;
+    s->escopo = escopo;
+    return s;
 }
 
 /*
