@@ -5,6 +5,7 @@ programa AnaliseDeTexto {{{
       int (ntab, nocorr[50])
       carac(c)
       logic(fim)
+      int (teste)
    }
 
    funcao int Procura ()
@@ -76,7 +77,7 @@ programa AnaliseDeTexto {{{
    procedimento ExibirTabela ()
 
       var {
-         int (i)
+         int (i, j)
          logic(fim)
       }
 

@@ -78,6 +78,7 @@ void tabular (void);
 void Esperado(char *);
 void NaoEsperado(char *);
 void InsereListSimb(simbolo, listsimb);
+void MsgErro (char *);
 %}
 
 %union {
@@ -200,16 +201,65 @@ Modulo      :   Cabecalho {printf("\n"); tab++;} Corpo {printf("\n"); tab--;}
 Cabecalho   :   {printf("\n"); tabular(); printf("funcao ");} CabFunc
             |   CabProc
             ;
-CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo); printf("%s ()", $3);}
-            |   FUNCAO Tipo ID ABPAR {escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo); printf(" %s (", $3);} ListParam FPAR {printf(")");} 
+CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
+                                            simb = ProcuraSimb($3, escopo); 
+                                            if (simb == NULL)
+                                                escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                            else {
+                                                DeclaracaoRepetida($3);
+                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            }
+                                            printf("%s ()", $3);
+                                        }
+            |   FUNCAO Tipo ID ABPAR {
+                                        simb = ProcuraSimb($3, escopo); 
+                                            if (simb == NULL)
+                                                escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                            else {
+                                                DeclaracaoRepetida($3);
+                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            }
+                                        printf(" %s (", $3);
+                                    } ListParam FPAR {printf(")");} 
             ;
-CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {escopo = InsereSimb($2, IDPROC, NOTVAR, escopo); printf("\n"); tabular(); printf("procedimento %s ()", $2);}
-            |   PROCEDIMENTO ID ABPAR {escopo = InsereSimb($2, IDPROC, NOTVAR, escopo); printf("\n"); tabular(); printf("procedimento %s (", $2);} ListParam  FPAR {printf(")");}
+CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
+                                                simb = ProcuraSimb($2, escopo);
+                                                if (simb == NULL)
+                                                    escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
+                                                else {
+                                                    DeclaracaoRepetida($2);
+                                                    MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                                }
+                                                printf("\n");
+                                                tabular();
+                                                printf("procedimento %s ()", $2);
+                                            }
+            |   PROCEDIMENTO ID ABPAR {
+                                        simb = ProcuraSimb($2, escopo);
+                                        if (simb == NULL)
+                                            escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
+                                        else {
+                                            DeclaracaoRepetida($2);
+                                            MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                        }
+                                        printf("\n");
+                                        tabular(); 
+                                        printf("procedimento %s (", $2);
+                                    } ListParam  FPAR {printf(")");}
             ;
 ListParam   :   Parametro
             |   ListParam VIRG {printf(", ");} Parametro
             ;
-Parametro   :   Tipo ID {printf("%s", $2);}
+Parametro   :   Tipo ID {
+                            if  (ProcuraSimb ($2, escopo)  !=  NULL)
+                                DeclaracaoRepetida ($2);
+                            else {
+                                simb = InsereSimb ($2,  IDVAR,  tipocorrente, escopo);
+                                simb->array = FALSE;
+                                simb->ndims = 0;
+                            }
+                            printf("%s", $2);
+                        }
             ;
 Corpo       :   Decls Comandos {escopo = escopo->escopo;}
             ;
@@ -628,4 +678,8 @@ void TipoInadequado (char *s) {
 
 void Incompatibilidade (char *s) {
     printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
+}
+
+void MsgErro (char *s) {
+    printf ("\n***** Erro: %s *****\n", s);
 }
