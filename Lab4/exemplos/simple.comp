@@ -8,11 +8,12 @@ programa Testing {{{
 
       var {
          int (soma)
+         logic (toso)
       }
 
       comandos {
          soma = n1 + n2;
-         retornar soma;
+         retornar toso;
       }
 
    funcao int Test2 ()

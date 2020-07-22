@@ -156,7 +156,7 @@ void MsgErro (char *);
 %token                  PROGRAMA
 %token                  REAL
 %token                  REPETIR
-%token                  RETORNAR
+%token    <simb>        RETORNAR
 %token                  SE
 %token                  SENAO
 %token                  VAR
@@ -224,7 +224,7 @@ Cabecalho   :   {printf("\n"); tabular(); printf("funcao ");} CabFunc
 CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                             simb = ProcuraSimb($3, escopo); 
                                             if (simb == NULL)
-                                                simb = escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                                simb = escopo = InsereSimb($3, IDFUNC, tipocorrente, escopo);
                                             else {
                                                 DeclaracaoRepetida($3);
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
@@ -235,7 +235,7 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
             |   FUNCAO Tipo ID ABPAR {
                                         simb = ProcuraSimb($3, escopo); 
                                         if (simb == NULL)
-                                            simb = escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                            simb = escopo = InsereSimb($3, IDFUNC, tipocorrente, escopo);
                                         else {
                                             DeclaracaoRepetida($3);
                                             MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
@@ -345,7 +345,14 @@ Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
             ;
 CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;");} 
-            |  RETORNAR {printf("retornar ");} Expressao  PVIG {printf(";");}  
+            |  RETORNAR {printf("retornar ");} Expressao  PVIG {
+                                                                    printf(";");
+                                                                    if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
+                                                                        ($3 == FLOAT || $3 == LOGICAL)) ||
+                                                                        (escopo->tvar == FLOAT && $3 == LOGICAL) ||
+                                                                        (escopo->tvar == LOGICAL && $3 != LOGICAL))
+                                                                            Incompatibilidade ("Retorno da funcao improprio"); 
+                                                               }  
             ;        
 CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}  
                ATRIB {printf(" = ");}  Expressao  PVIG 
