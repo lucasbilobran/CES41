@@ -2,6 +2,10 @@
 cap3_ex/ans
 cap3_ex/tsimb012020
 
+# Lab4 Output
+Lab4/sintatico
+Lab4/ans
+
 # Flex / Yacc Output
 *.yy.c
 *.tab.c
