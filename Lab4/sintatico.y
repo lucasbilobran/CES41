@@ -13,10 +13,6 @@ enum identificadores {
     IDGLOB=1, IDVAR, IDFUNC, IDPROC, IDPROG
 };
 
-enum parametros {
-    PARAMVAL=1, PARAMREF
-};
-
 enum variaveis {
     NOTVAR, INTEGER, LOGICAL, FLOAT, CHAR
 };
@@ -43,8 +39,8 @@ typedef elemlistsimb *listsimb;
 
 struct celsimb {
     char *cadeia;
-    int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];
-    char inic, ref, array, parametro ;
+    int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
+    char inic, ref, array, parametro;
     listsimb listvar, listparam, listfunc;
     simbolo escopo, prox; 
 };
@@ -55,12 +51,17 @@ struct elemlistsimb {
 };
 
 /* ===  Variaveis globais === */
+typedef int bool;
 
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
 int tipocorrente;
 int tab = 0;
 simbolo escopo;
+bool declparam = FALSE;
+listsimb pontvar;
+listsimb pontfunc;
+listsimb pontparam;
 
 /* === Prototipos === */
 
@@ -143,7 +144,15 @@ void NaoEsperado(char *);
 %token               INVAL
 %%
 
-Prog        :   {InicTabSimb (); escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, NULL); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
+Prog        :   {
+                    InicTabSimb (); 
+                    declparam = FALSE; 
+                    simb = escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);
+                    pontvar = simb->listvar;
+                    pontfunc = simb->listfunc;
+                    pontparam = simb->listparam;
+                } 
+                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); escopo = InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -166,8 +175,11 @@ Elem        :   ID {
                         if  (ProcuraSimb ($1)  !=  NULL)
                             DeclaracaoRepetida ($1);
                         else {
-                            simb = InsereSimb ($1,  IDVAR,  tipocorrente, NULL);
-                            simb->array = FALSE; simb->ndims = 0;
+                            simb = InsereSimb ($1,  IDVAR,  tipocorrente, escopo);
+                            escopo = simb;
+                            simb->array = FALSE;
+                            simb->ndims = 0;
+                            InsereListSimb(simb, &pontvar);
                         }
                     } Dims
             ;
@@ -485,6 +497,9 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     s->ref = FALSE;
     s->prox = aux;
     s->escopo = escopo;
+    s->listvar = NULL;
+    s->listparam = NULL;
+    s->listfunc = NULL;
     return s;
 }
 
@@ -537,6 +552,20 @@ void VerificaInicRef () {
                     if (s->ref == FALSE)
                         printf ("%s: Nao Referenciada\n", s->cadeia);
                 }
+}
+
+void InsereListSimb(simbolo s, listsimb lista) {
+    // Inicializar lista se ela for vazia
+    if (lista == NULL) {
+        lista = (elemlistsimb*) malloc (sizeof(elemlistsimb));
+    }
+
+    // Percorrer até o final
+    elemlistsimb *p;
+    for (p = lista; p->prox != NULL; p = p->prox);
+
+    // Inserir o simbolo
+    p->simb = s;
 }
 
 void Esperado(char *s) {
