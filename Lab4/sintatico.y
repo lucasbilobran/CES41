@@ -172,7 +172,7 @@ ListElem    :   Elem
 Elem        :   ID {
                         printf ("%s ", $1);
                         if  (ProcuraSimb ($1, escopo)  !=  NULL)
-                            ; //DeclaracaoRepetida ($1);
+                            DeclaracaoRepetida ($1);
                         else {
                             simb = InsereSimb ($1,  IDVAR,  tipocorrente, escopo);
                             simb->array = FALSE;
@@ -211,9 +211,9 @@ ListParam   :   Parametro
             ;
 Parametro   :   Tipo ID {printf("%s", $2);}
             ;
-Corpo       :   Decls Comandos 
+Corpo       :   Decls Comandos {escopo = escopo->escopo;}
             ;
-ModPrincipal:   {printf("\n"); tabular();} PRINCIPAL {printf("principal \n"); tab++;}  Corpo {printf("\n"); tab--;}
+ModPrincipal:   {printf("\n"); tabular();} PRINCIPAL {escopo = InsereSimb("##principal", IDPROG, NOTVAR, escopo); printf("principal \n"); tab++;}  Corpo {printf("\n"); tab--;}
             ;
 Comandos    :   COMANDOS {printf("\n"); tabular(); printf("comandos "); tab++;}  CmdComp {tab--;}
             ;
@@ -480,7 +480,7 @@ void InicTabSimb () {
 simbolo ProcuraSimb (char *cadeia, simbolo escaux) {
     simbolo s; int i;
     i = hash (cadeia);
-    for (s = tabsimb[i]; (s != NULL) && strcmp(cadeia, s->cadeia) && s->escopo == escaux;
+    for (s = tabsimb[i]; (s != NULL) && (strcmp(cadeia, s->cadeia) || s->escopo != escaux);
         s = s->prox);
     return s;
 }
@@ -615,7 +615,7 @@ void NaoEsperado(char *s) {
 /*  Mensagens de erros semanticos  */
 
 void DeclaracaoRepetida (char *s) {
-    printf ("\n\n***** Declaracao Repetida: %s *****\n\n", s);
+    printf ("\n\n***** Declaracao Repetida: %s *****\n", s);
 }
 
 void NaoDeclarado (char *s) {
