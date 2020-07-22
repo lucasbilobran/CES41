@@ -40,8 +40,8 @@ typedef elemlistsimb *listsimb;
 struct celsimb {
     char *cadeia;
     int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
-    char inic, ref, array, parametro;
-    listsimb listvar, listparam, listfunc;
+    char inic, ref, array, param;
+    listsimb listvar, listparam;
     simbolo escopo, prox; 
 };
 
@@ -57,10 +57,9 @@ simbolo tabsimb[NCLASSHASH];
 simbolo simb;
 int tipocorrente;
 int tab = 0;
-simbolo escopo;
+simbolo escopo, escaux;
 bool declparam = FALSE;
 listsimb pontvar;
-listsimb pontfunc;
 listsimb pontparam;
 
 /* === Prototipos === */
@@ -69,7 +68,7 @@ void InicTabSimb (void);
 void ImprimeTabSimb (void);
 simbolo InsereSimb (char *, int, int, simbolo);
 int hash (char *);
-simbolo ProcuraSimb (char *);
+simbolo ProcuraSimb (char *, simbolo);
 void VerificaInicRef (void);
 void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
@@ -149,7 +148,6 @@ Prog        :   {
                     declparam = FALSE; 
                     simb = escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);
                     pontvar = simb->listvar;
-                    pontfunc = simb->listfunc;
                     pontparam = simb->listparam;
                 } 
                 PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); escopo = InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
@@ -172,14 +170,13 @@ ListElem    :   Elem
             ;
 Elem        :   ID {
                         printf ("%s ", $1);
-                        if  (ProcuraSimb ($1)  !=  NULL)
-                            DeclaracaoRepetida ($1);
+                        if  (ProcuraSimb ($1, escopo)  !=  NULL)
+                            ; //DeclaracaoRepetida ($1);
                         else {
                             simb = InsereSimb ($1,  IDVAR,  tipocorrente, escopo);
                             escopo = simb;
                             simb->array = FALSE;
                             simb->ndims = 0;
-                            InsereListSimb(simb, &pontvar);
                         }
                     } Dims
             ;
@@ -415,7 +412,13 @@ Fator       :  Variavel {
             ;
 Variavel    :  ID  {
                         printf ("%s", $1);
-                        simb = ProcuraSimb ($1);
+                        escaux = escopo;
+                        simb = ProcuraSimb ($1, escaux);
+                        while (escaux && !simb) {
+                            escaux = escaux->escopo;
+                            if (escaux)
+                                simb = ProcuraSimb ($1, escaux);
+                        }
                         if (simb == NULL)   NaoDeclarado ($1);
                         else if (simb->tid != IDVAR)   TipoInadequado ($1);
                         $<simb>$ = simb;
@@ -474,10 +477,10 @@ void InicTabSimb () {
     Caso contrario, retorna NULL.
  */
 
-simbolo ProcuraSimb (char *cadeia) {
+simbolo ProcuraSimb (char *cadeia, simbolo escaux) {
     simbolo s; int i;
     i = hash (cadeia);
-    for (s = tabsimb[i]; (s!=NULL) && strcmp(cadeia, s->cadeia);
+    for (s = tabsimb[i]; (s != NULL) && strcmp(cadeia, s->cadeia) && s->escopo == escaux;
         s = s->prox);
     return s;
 }
@@ -489,6 +492,7 @@ simbolo ProcuraSimb (char *cadeia) {
  */
 
 simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
+    /* Código comum a todos os identificadores */
     int i; simbolo aux, s;
     i = hash (cadeia); aux = tabsimb[i];
     s = tabsimb[i] = (simbolo) malloc (sizeof (celsimb));
@@ -502,7 +506,33 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     s->escopo = escopo;
     s->listvar = NULL;
     s->listparam = NULL;
-    s->listfunc = NULL;
+
+    /* Código para parâmetros e variáveis globais e locais */ 
+    if (declparam) {
+        s->inic = s->ref = s->param = TRUE;
+        if (s->tid == IDVAR)
+            InsereListSimb(s, &pontparam);
+        s->escopo->nparam++;
+    }
+    else {
+        s->inic = s->ref = s->param = TRUE;
+        if (s->tid == IDVAR)
+            InsereListSimb(s, &pontvar);
+    }
+
+    /* Código para identificados global ou nome de função */
+    if (tid == IDGLOB || tid == IDFUNC || tid == IDPROC) {
+        s->listvar = (elemlistsimb *) malloc(sizeof(elemlistsimb));
+        s->listvar->prox = NULL;
+    }
+
+    /* Código para nome de função e retorno de Inserir */
+    if (tid == IDFUNC) {
+        s->listparam = (elemlistsimb *) malloc(sizeof(elemlistsimb));
+        s->listparam->prox = NULL;
+        s->nparam = 0;
+    }
+
     return s;
 }
 
