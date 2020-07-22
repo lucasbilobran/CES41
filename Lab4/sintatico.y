@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* === Declaracoes para a analise semântica === */
+/* === Declaracoes de tipos === */
 
 enum tipos {
     SOMA=1, SUB, MULT, DIV, MOD, EQ, NEQ, LT, LEQ, GT, GEQ, FINAL
@@ -21,50 +21,46 @@ enum variaveis {
     NOTVAR, INTEGER, LOGICAL, FLOAT, CHAR
 };
 
-/*   Constantes   */
+/* === Constantes === */
 
 #define    NCLASSHASH    23
 #define    TRUE           1
 #define    FALSE          0
 
-/*  Strings para nomes dos tipos de identificadores  */
+/*  === Nomes ===  */
 
 char *nometipid[3] = {" ", "IDPROG", "IDVAR"};
-
-/*  Strings para nomes dos tipos de variaveis  */
-
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"
 };
 
-/*    Declaracoes para a tabela de simbolos     */
+/* === Lista e Tabela de Simbolos === */
 
-/*  Lista de simbolos  */​
-typedef struct elemlistsimb elemlistsimb;​
-typedef elemlistsimb *pontelemlistsimb;​
-typedef elemlistsimb *listsimb;​
-struct elemlistsimb {​
-    simbolo simb; ​
-    pontelemlistsimb prox;​
-}​;
-
-/*  Tabela de simbolos  */​
-typedef struct celsimb celsimb;​
-typedef celsimb *simbolo;​
-struct celsimb {​
-    char *cadeia;​
-    int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];​
-    char inic, ref, array, parametro ;​
-    listsimb listvar, listparam, ​listfunc;
-    simbolo escopo, prox; ​
+typedef struct elemlistsimb elemlistsimb;
+typedef elemlistsimb *pontelemlistsimb;
+typedef elemlistsimb *listsimb;
+struct elemlistsimb {
+    simbolo simb; 
+    pontelemlistsimb prox;
 };
 
-/*  Variaveis globais para a tabela de simbolos e analise semantica */
+typedef struct celsimb celsimb;
+typedef celsimb *simbolo;
+struct celsimb {
+    char *cadeia;
+    int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];
+    char inic, ref, array, parametro ;
+    listsimb listvar, listparam, listfunc;
+    simbolo escopo, prox; 
+};
+
+/* ===  Variaveis globais === */
 
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
 int tipocorrente;
+int tab = 0;
 
-/* Prototipos das funcoes para a tabela de simbolos e analise semantica */
+/* === Prototipos === */
 
 void InicTabSimb (void);
 void ImprimeTabSimb (void);
@@ -76,13 +72,6 @@ void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
 void NaoDeclarado (char *);
 void Incompatibilidade (char *);
-
-/* === Variaveis globais para a tabela de simbolos e analises sintatica e semantica === */
-
-simbolo tabsimb[NCLASSHASH];
-simbolo simb;
-int tipocorrente;
-int tab = 0;
 %}
 
 %union {
@@ -95,7 +84,7 @@ int tab = 0;
     int tipoexpr;
 }        
 
-/* Declaracao dos atributos dos tokens e dos nao-terminais */
+/* === Atributos e Tokens === */
 %type     <simb>     Variavel
 %type     <tipoexpr> Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
 
