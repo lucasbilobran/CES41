@@ -35,23 +35,22 @@ char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"
 };
 
 /* === Lista e Tabela de Simbolos === */
-
+typedef struct celsimb celsimb;
+typedef celsimb *simbolo;
 typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
-struct elemlistsimb {
-    simbolo simb; 
-    pontelemlistsimb prox;
-};
-
-typedef struct celsimb celsimb;
-typedef celsimb *simbolo;
 struct celsimb {
     char *cadeia;
     int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];
     char inic, ref, array, parametro ;
     listsimb listvar, listparam, listfunc;
     simbolo escopo, prox; 
+};
+
+struct elemlistsimb {
+    simbolo simb; 
+    pontelemlistsimb prox;
 };
 
 /* ===  Variaveis globais === */
@@ -167,7 +166,7 @@ Elem        :   ID {
                     } Dims
             ;
 Dims        :   
-            |   ABCOL {printf("[");} ListDim FCOL {printf("]"); simb->array = TRUE}
+            |   ABCOL {printf("[");} ListDim FCOL {printf("]"); simb->array = TRUE;}
             ;
 ListDim     :   CTINT {printf("%d", $1);}
             |   ListDim VIRG CTINT {printf(", %d", $3);}
@@ -487,8 +486,6 @@ void ImprimeTabSimb () {
                                 printf(" %d", s->dims[j]);
                     }
                 }
-
-					
 			    printf(")\n");
 			}
 		}
