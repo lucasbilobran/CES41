@@ -546,7 +546,6 @@ ChamadaFunc :   ID  ABPAR  {
                                                 if ($$ && $$->tid == IDFUNC) {
                                                     if ($$->nparam != $4.nargs)
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
-                                                    printf("\n\n===== START CHECK =====\n\n");
                                                     ChecArgumentos($4.listtipo, $$->listparam);
                                                 }
                                             } 
@@ -707,8 +706,6 @@ void InsereListSimb(simbolo s, listsimb lista) {
     p->prox = (elemlistsimb *) malloc (sizeof(elemlistsimb));
     p->prox->prox = NULL;
     p->prox->simb = s;
-
-    printf("\n\n ==== ADICIONANDO Outros %s ====\n\n", s->escopo->cadeia);
 }
 
 void Esperado(char *s) {
@@ -769,19 +766,19 @@ void ChecArgumentos(pontexprtipo Ltiparg, listsimb Lparam) {
         switch (q->simb->tvar) {
             case INTEGER: case CHAR:
                 if (p->tipo != INTEGER && p->tipo != CHAR)
-                    Incompatibilidade("....");
+                    Incompatibilidade("Esperava-se inteiro ou caractere");
                 break;
             case FLOAT:
                 if (p->tipo != INTEGER &&  p->tipo != CHAR && p->tipo != FLOAT)
-                    Incompatibilidade("....");
+                    Incompatibilidade("Esperava-se numero real");
                 break;
             case LOGICAL:
                 if (p->tipo != LOGICAL)
-                    Incompatibilidade("....");
+                    Incompatibilidade("Esperava-se booleana");
                 break;
             default:
                 if (q->simb->tvar != p->tipo)
-                    Incompatibilidade("....");
+                    Incompatibilidade("Tipos incompativeis (desconhecido)");
                 break;
         }
         p = p->prox; 
