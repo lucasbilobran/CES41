@@ -546,7 +546,8 @@ ChamadaFunc :   ID  ABPAR  {
                                                 if ($$ && $$->tid == IDFUNC) {
                                                     if ($$->nparam != $4.nargs)
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
-                                                    //ChecArgumentos($4.listtipo, $$->listparam);
+                                                    printf("\n\n===== START CHECK =====\n\n");
+                                                    ChecArgumentos($4.listtipo, $$->listparam);
                                                 }
                                             } 
             ;
@@ -613,16 +614,22 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     if (declparam) {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, pontparam);
+            InsereListSimb(s, &pontparam);
         s->escopo->nparam++;
     }
     else {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, pontvar);
+            InsereListSimb(s, &pontvar);
     }
 
     /* Código para identificados global ou nome de função */
+
+    /* 
+
+    O Código a seguir foi substituido e inserido dentro da função InsereListSimb
+    Isto deve-se aos autores não estarem utilizando nó-cabeça; */
+
     if (tid == IDGLOB || tid == IDFUNC || tid == IDPROC) {
         s->listvar = (elemlistsimb *) malloc(sizeof(elemlistsimb));
         s->listvar->prox = NULL;
@@ -633,7 +640,6 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
         s->listparam = (elemlistsimb *) malloc(sizeof(elemlistsimb));
         s->listparam->prox = NULL;
         s->nparam = 0;
-        //InsereListSimb(s, &pontfunc);
     }
 
     return s;
@@ -698,7 +704,11 @@ void InsereListSimb(simbolo s, listsimb lista) {
     for (p = lista; p->prox != NULL; p = p->prox);
 
     // Inserir o simbolo
-    p->simb = s;
+    p->prox = (elemlistsimb *) malloc (sizeof(elemlistsimb));
+    p->prox->prox = NULL;
+    p->prox->simb = s;
+
+    printf("\n\n ==== ADICIONANDO Outros %s ====\n\n", s->escopo->cadeia);
 }
 
 void Esperado(char *s) {
@@ -730,8 +740,10 @@ void Incompatibilidade (char *s) {
 
 listtipo InicListTipo(int tipo) {
     pontexprtipo p = (elemlisttipo *) malloc (sizeof(elemlisttipo));
-    p->tipo = tipo;
-    p->prox = NULL;
+    p->prox = (elemlisttipo *) malloc (sizeof(elemlisttipo));
+    p->prox->tipo = tipo;
+    p->prox->prox = NULL;
+    return p;
 }
 
 listtipo ConcatListTipo(listtipo lista1, listtipo lista2) {
@@ -741,7 +753,7 @@ listtipo ConcatListTipo(listtipo lista1, listtipo lista2) {
     for (p = lista1; p->prox != NULL; p = p->prox);
 
     // Adiciona a segunda lista ao final da primeira
-    p->prox = lista2;
+    p->prox = lista2->prox;
 
     return lista1;
 }
@@ -755,16 +767,16 @@ void ChecArgumentos(pontexprtipo Ltiparg, listsimb Lparam) {
 
     while (p != NULL && q != NULL) {
         switch (q->simb->tvar) {
-            case INT: case CARAC:
-                if (p->tipo != INT && p->tipo != CARAC)
+            case INTEGER: case CHAR:
+                if (p->tipo != INTEGER && p->tipo != CHAR)
                     Incompatibilidade("....");
                 break;
-            case REAL:
-                if (p->tipo != INT &&  p->tipo != CARAC && p->tipo != REAL)
+            case FLOAT:
+                if (p->tipo != INTEGER &&  p->tipo != CHAR && p->tipo != FLOAT)
                     Incompatibilidade("....");
                 break;
-            case LOGIC:
-                if (p->tipo != LOGIC)
+            case LOGICAL:
+                if (p->tipo != LOGICAL)
                     Incompatibilidade("....");
                 break;
             default:
