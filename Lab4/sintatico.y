@@ -77,6 +77,7 @@ void Incompatibilidade (char *);
 void tabular (void);
 void Esperado(char *);
 void NaoEsperado(char *);
+void InsereListSimb(simbolo, listsimb);
 %}
 
 %union {
@@ -150,7 +151,7 @@ Prog        :   {
                     pontvar = simb->listvar;
                     pontparam = simb->listparam;
                 } 
-                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); escopo = InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
+                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -174,7 +175,6 @@ Elem        :   ID {
                             ; //DeclaracaoRepetida ($1);
                         else {
                             simb = InsereSimb ($1,  IDVAR,  tipocorrente, escopo);
-                            escopo = simb;
                             simb->array = FALSE;
                             simb->ndims = 0;
                         }
@@ -200,11 +200,11 @@ Modulo      :   Cabecalho {printf("\n"); tab++;} Corpo {printf("\n"); tab--;}
 Cabecalho   :   {printf("\n"); tabular(); printf("funcao ");} CabFunc
             |   CabProc
             ;
-CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {printf("%s ()", $3);}
-            |   FUNCAO Tipo ID ABPAR {printf(" %s (", $3);} ListParam FPAR {printf(")");} 
+CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo); printf("%s ()", $3);}
+            |   FUNCAO Tipo ID ABPAR {escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo); printf(" %s (", $3);} ListParam FPAR {printf(")");} 
             ;
-CabProc     :   PROCEDIMENTO   ID  ABPAR  FPAR  {printf("\n"); tabular(); printf("procedimento %s ()", $2);}
-            |   PROCEDIMENTO   ID  ABPAR {printf("\n"); tabular(); printf("procedimento %s (", $2);} ListParam  FPAR {printf(")");}
+CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {escopo = InsereSimb($2, IDPROC, NOTVAR, escopo); printf("\n"); tabular(); printf("procedimento %s ()", $2);}
+            |   PROCEDIMENTO ID ABPAR {escopo = InsereSimb($2, IDPROC, NOTVAR, escopo); printf("\n"); tabular(); printf("procedimento %s (", $2);} ListParam  FPAR {printf(")");}
             ;
 ListParam   :   Parametro
             |   ListParam VIRG {printf(", ");} Parametro
@@ -567,6 +567,8 @@ void ImprimeTabSimb () {
                                 printf(" %d", s->dims[j]);
                     }
                 }
+                if (s->escopo != NULL)
+                    printf(" | Escopo: %s", s->escopo->cadeia);
 			    printf(")\n");
 			}
 		}
