@@ -162,7 +162,7 @@ Elem        :   ID {
                         if  (ProcuraSimb ($1)  !=  NULL)
                             DeclaracaoRepetida ($1);
                         else {
-                            simb = InsereSimb ($1,  IDVAR,  tipocorrente);
+                            simb = InsereSimb ($1,  IDVAR,  tipocorrente, NULL);
                             simb->array = FALSE; simb->ndims = 0;
                         }
                     } Dims

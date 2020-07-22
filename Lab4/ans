@@ -180,12 +180,8 @@ Classe 3:
 Classe 7:
   (c, IDVAR, CHAR, 0, 1)
   (ntab, IDVAR, INTEGER, 1, 1)
-<<<<<<< HEAD
   (palavra, IDVAR, CHAR, 1, 1EH ARRAY
  	dims = 0, dimensoes:)
-=======
-  (palavra, IDVAR, CHAR, 1, 1)
->>>>>>> d609848d835df24bd0a2f48c50895fc878e3c38b
 Classe 11:
   (med, IDVAR, INTEGER, 1, 1)
 Classe 13:
@@ -195,19 +191,12 @@ Classe 14:
   (j, IDVAR, INTEGER, 0, 1)
   (fimteste, IDVAR, LOGICAL, 1, 1)
 Classe 15:
-<<<<<<< HEAD
   (nocorr, IDVAR, INTEGER, 1, 1EH ARRAY
  	dims = 0, dimensoes:)
 Classe 17:
   (fim, IDVAR, LOGICAL, 1, 1)
   (nomes, IDVAR, CHAR, 1, 1EH ARRAY
  	dims = 0, dimensoes:)
-=======
-  (nocorr, IDVAR, INTEGER, 1, 1)
-Classe 17:
-  (fim, IDVAR, LOGICAL, 1, 1)
-  (nomes, IDVAR, CHAR, 1, 1)
->>>>>>> d609848d835df24bd0a2f48c50895fc878e3c38b
 Classe 18:
   (inf, IDVAR, INTEGER, 1, 1)
 Classe 22:
