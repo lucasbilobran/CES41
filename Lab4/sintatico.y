@@ -40,6 +40,7 @@ typedef celsimb *simbolo;
 typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
+
 struct celsimb {
     char *cadeia;
     int  tid, tvar, tparam, ndims, dims[MAXDIMS+1];
@@ -64,7 +65,7 @@ int tab = 0;
 
 void InicTabSimb (void);
 void ImprimeTabSimb (void);
-simbolo InsereSimb (char *, int, int);
+simbolo InsereSimb (char *, int, int, simbolo);
 int hash (char *);
 simbolo ProcuraSimb (char *);
 void VerificaInicRef (void);
@@ -72,6 +73,7 @@ void DeclaracaoRepetida (char *);
 void TipoInadequado (char *);
 void NaoDeclarado (char *);
 void Incompatibilidade (char *);
+void tabular (void);
 %}
 
 %union {
@@ -137,7 +139,7 @@ void Incompatibilidade (char *);
 %token               INVAL
 %%
 
-Prog        :   {InicTabSimb ();} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
+Prog        :   {InicTabSimb ();} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, NULL); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -444,15 +446,19 @@ simbolo ProcuraSimb (char *cadeia) {
     tipo de variavel; Retorna um ponteiro para a celula inserida
  */
 
-simbolo InsereSimb (char *cadeia, int tid, int tvar) {
+simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     int i; simbolo aux, s;
     i = hash (cadeia); aux = tabsimb[i];
     s = tabsimb[i] = (simbolo) malloc (sizeof (celsimb));
     s->cadeia = (char*) malloc ((strlen(cadeia)+1) * sizeof(char));
     strcpy (s->cadeia, cadeia);
-    s->tid = tid;        s->tvar = tvar;
-    s->inic = FALSE;    s->ref = FALSE;
-    s->prox = aux;    return s;
+    s->tid = tid;
+    s->tvar = tvar;
+    s->inic = FALSE;
+    s->ref = FALSE;
+    s->prox = aux;
+    s->escopo = escopo;
+    return s;
 }
 
 /*
