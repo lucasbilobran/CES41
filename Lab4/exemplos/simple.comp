@@ -1,0 +1,38 @@
+programa Testing {{{
+
+   var {
+      int (g1, g2)
+   }
+
+   funcao int Test (int n1, int n2, int n3)
+
+      var {
+         int (soma)
+      }
+
+      comandos {
+         soma = n1 + n2;
+         retornar soma;
+      }
+
+   funcao int Test2 ()
+
+      var {
+         int (soma)
+      }
+
+      comandos {
+         retornar soma;
+      }
+
+   principal 
+
+      var {
+         int (result)
+      }
+
+      comandos {
+         result = Test(1, 2, 3);
+      }
+
+}}}

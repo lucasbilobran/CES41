@@ -14,34 +14,40 @@ enum identificadores {
 };
 
 enum variaveis {
-    NOTVAR, INTEGER, LOGICAL, FLOAT, CHAR
+    NOTVAR=1, INTEGER, LOGICAL, FLOAT, CHAR
 };
 
 /* === Constantes === */
 
-#define	NCLASSHASH	23
-#define	TRUE		1
-#define	FALSE		0
+#define NCLASSHASH  23
+#define TRUE         1
+#define FALSE        0
 #define MAXDIMS     10
 
 /*  === Nomes ===  */
 
 char *nometipid[3] = {" ", "IDPROG", "IDVAR"};
-char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"
-};
+char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
 
-/* === Lista e Tabela de Simbolos === */
+/* === Definições de Tipos === */
+typedef int bool;
+typedef struct elemlisttipo elemlisttipo;
+typedef elemlisttipo *pontexprtipo;
+typedef elemlisttipo *listtipo;
+typedef struct infolistexpr infolistexpr;
 typedef struct celsimb celsimb;
 typedef celsimb *simbolo;
 typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
 
+
+/* === Estruturas === */
 struct celsimb {
     char *cadeia;
     int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
     char inic, ref, array, param;
-    listsimb listvar, listparam;
+    listsimb listvar, listparam, listfunc;
     simbolo escopo, prox; 
 };
 
@@ -50,9 +56,17 @@ struct elemlistsimb {
     pontelemlistsimb prox;
 };
 
-/* ===  Variaveis globais === */
-typedef int bool;
+struct infolistexpr { 
+    pontexprtipo listtipo;
+    int nargs;
+};
 
+struct elemlisttipo {
+    int tipo;
+    pontexprtipo prox;
+};
+
+/* ===  Variaveis globais === */
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
 int tipocorrente;
@@ -61,9 +75,9 @@ simbolo escopo, escaux;
 bool declparam = FALSE;
 listsimb pontvar;
 listsimb pontparam;
+listsimb pontfunc;
 
 /* === Prototipos === */
-
 void InicTabSimb (void);
 void ImprimeTabSimb (void);
 simbolo InsereSimb (char *, int, int, simbolo);
@@ -78,6 +92,9 @@ void tabular (void);
 void Esperado(char *);
 void NaoEsperado(char *);
 void InsereListSimb(simbolo, listsimb);
+listtipo ConcatListTipo(listtipo, listtipo);
+listtipo InicListTipo(int);
+void ChecArgumentos(pontexprtipo, listsimb);
 void MsgErro (char *);
 %}
 
@@ -89,60 +106,62 @@ void MsgErro (char *);
     char carac;
     simbolo simb;
     int tipoexpr, nsubscr;
+    infolistexpr infolexpr;
 }        
 
 /* === Atributos e Tokens === */
-%type     <simb>     Variavel
-%type     <tipoexpr> Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
-%type     <nsubscr>   Subscritos ListSubscr
+%type     <simb>        Variavel ChamadaFunc
+%type     <tipoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
+%type     <infolexpr>   ListExpr Argumentos
+%type     <nsubscr>     Subscritos ListSubscr
 
-%token    <string>   ID
-%token    <valor>    CTINT
-%token    <string>   CTCARAC
-%token    <valreal>  CTREAL
-%token    <string>   CADEIA
+%token    <string>      ID
+%token    <valor>       CTINT
+%token    <string>      CTCARAC
+%token    <valreal>     CTREAL
+%token    <string>      CADEIA
 
-%token    <atr>      OPAD
-%token    <atr>      OPMULT
-%token    <atr>      OPREL
-%token               OR
-%token               AND
-%token               NOT
-%token               NEG
-%token               ATRIB
-%token               ABPAR
-%token               FPAR
-%token               ABCOL
-%token               FCOL
-%token               ABCHAV
-%token               FCHAV
-%token               ABTRIP
-%token               FTRIP
-%token               PVIG
-%token               VIRG
+%token    <atr>         OPAD
+%token    <atr>         OPMULT
+%token    <atr>         OPREL
+%token                  OR
+%token                  AND
+%token                  NOT
+%token                  NEG
+%token                  ATRIB
+%token                  ABPAR
+%token                  FPAR
+%token                  ABCOL
+%token                  FCOL
+%token                  ABCHAV
+%token                  FCHAV
+%token                  ABTRIP
+%token                  FTRIP
+%token                  PVIG
+%token                  VIRG
 
-%token               CARAC
-%token               CHAMAR
-%token               COMANDOS
-%token               ENQUANTO 
-%token               ESCREVER
-%token               FALSO
-%token               FUNCAO
-%token               INT
-%token               LER
-%token               LOGIC
-%token               PARA
-%token               PRINCIPAL 
-%token               PROCEDIMENTO
-%token               PROGRAMA
-%token               REAL
-%token               REPETIR
-%token               RETORNAR
-%token               SE
-%token               SENAO
-%token               VAR
-%token               VERDADE
-%token               INVAL
+%token                  CARAC
+%token                  CHAMAR
+%token                  COMANDOS
+%token                  ENQUANTO 
+%token                  ESCREVER
+%token                  FALSO
+%token                  FUNCAO
+%token                  INT
+%token                  LER
+%token                  LOGIC
+%token                  PARA
+%token                  PRINCIPAL 
+%token                  PROCEDIMENTO
+%token                  PROGRAMA
+%token                  REAL
+%token                  REPETIR
+%token                  RETORNAR
+%token                  SE
+%token                  SENAO
+%token                  VAR
+%token                  VERDADE
+%token                  INVAL
 %%
 
 Prog        :   {
@@ -151,6 +170,7 @@ Prog        :   {
                     simb = escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);
                     pontvar = simb->listvar;
                     pontparam = simb->listparam;
+                    pontfunc = simb->listfunc;
                 } 
                 PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
@@ -204,32 +224,37 @@ Cabecalho   :   {printf("\n"); tabular(); printf("funcao ");} CabFunc
 CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                             simb = ProcuraSimb($3, escopo); 
                                             if (simb == NULL)
-                                                escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                                simb = escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
                                             else {
                                                 DeclaracaoRepetida($3);
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                             }
+                                            pontvar = simb->listvar;
                                             printf("%s ()", $3);
                                         }
             |   FUNCAO Tipo ID ABPAR {
                                         simb = ProcuraSimb($3, escopo); 
-                                            if (simb == NULL)
-                                                escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
-                                            else {
-                                                DeclaracaoRepetida($3);
-                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                            }
+                                        if (simb == NULL)
+                                            simb = escopo = InsereSimb($3, IDFUNC, NOTVAR, escopo);
+                                        else {
+                                            DeclaracaoRepetida($3);
+                                            MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                        }
+                                        pontvar = simb->listvar;
+                                        pontparam = simb->listparam;
+                                        declparam = TRUE;
                                         printf(" %s (", $3);
-                                    } ListParam FPAR {printf(")");} 
+                                    } ListParam FPAR {declparam = FALSE; printf(")");} 
             ;
 CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                                 simb = ProcuraSimb($2, escopo);
                                                 if (simb == NULL)
-                                                    escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
+                                                    simb = escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
                                                 else {
                                                     DeclaracaoRepetida($2);
                                                     MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                                 }
+                                                pontvar = simb->listvar;
                                                 printf("\n");
                                                 tabular();
                                                 printf("procedimento %s ()", $2);
@@ -237,15 +262,18 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
             |   PROCEDIMENTO ID ABPAR {
                                         simb = ProcuraSimb($2, escopo);
                                         if (simb == NULL)
-                                            escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
+                                            simb = escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
                                         else {
                                             DeclaracaoRepetida($2);
                                             MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                         }
+                                        pontvar = simb->listvar;
+                                        pontparam = simb->listparam;
+                                        declparam = TRUE;
                                         printf("\n");
                                         tabular(); 
                                         printf("procedimento %s (", $2);
-                                    } ListParam  FPAR {printf(")");}
+                                    } ListParam  FPAR {declparam = FALSE; printf(")");}
             ;
 ListParam   :   Parametro
             |   ListParam VIRG {printf(", ");} Parametro
@@ -313,7 +341,7 @@ ElemEscr    :  CADEIA {printf("%s", $1);}
             ;    
 ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2);} Argumentos  FPAR  PVIG  {printf(");");}
             ;    
-Argumentos  :  
+Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
             ;
 CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;");} 
@@ -331,8 +359,14 @@ CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}
                                 Incompatibilidade ("Lado direito de comando de atribuicao improprio"); 
                 } 
             ;
-ListExpr    :  Expressao 
-            |  ListExpr  VIRG {printf(", ");} Expressao 
+ListExpr    :  Expressao {
+                            $$.nargs = 1;
+                            $$.listtipo = InicListTipo($1);
+                         }
+            |  ListExpr  VIRG {printf(", ");} Expressao {
+                                                            $$.nargs = $1.nargs + 1;
+                                                            $$.listtipo = ConcatListTipo($1.listtipo, InicListTipo($4));
+                                                        }
             ;    
 Expressao   :  ExprAux1 
             |  Expressao  OR {printf(" || ");} ExprAux1 {
@@ -497,7 +531,24 @@ ListSubscr  :  ExprAux4 {
                             $$ = $1 + 1;
                         }
             ;    
-ChamadaFunc :   ID  ABPAR  {printf("%s (", $1);} Argumentos  FPAR {printf(")");} 
+ChamadaFunc :   ID  ABPAR  {
+                                printf("%s (", $1);
+                                simb = ProcuraSimb ($1, escopo->escopo);
+                                if (!simb)
+                                    NaoDeclarado($1);
+                                else if (simb->tid != IDFUNC)
+                                    TipoInadequado($1);
+                                $<simb>$ = simb;
+                           } 
+                           Argumentos  FPAR {
+                                                printf(")");
+                                                $$ = $<simb>3;
+                                                if ($$ && $$->tid == IDFUNC) {
+                                                    if ($$->nparam != $4.nargs)
+                                                        Incompatibilidade("Numero de argumentos diferente do numero de parametros");
+                                                    //ChecArgumentos($4.listtipo, $$->listparam);
+                                                }
+                                            } 
             ;
 
 %%
@@ -556,18 +607,19 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     s->escopo = escopo;
     s->listvar = NULL;
     s->listparam = NULL;
+    s->listfunc = NULL;
 
     /* Código para parâmetros e variáveis globais e locais */ 
     if (declparam) {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, &pontparam);
+            InsereListSimb(s, pontparam);
         s->escopo->nparam++;
     }
     else {
         s->inic = s->ref = s->param = TRUE;
         if (s->tid == IDVAR)
-            InsereListSimb(s, &pontvar);
+            InsereListSimb(s, pontvar);
     }
 
     /* Código para identificados global ou nome de função */
@@ -577,10 +629,11 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     }
 
     /* Código para nome de função e retorno de Inserir */
-    if (tid == IDFUNC) {
+    if (tid == IDFUNC || tid == IDPROC) {
         s->listparam = (elemlistsimb *) malloc(sizeof(elemlistsimb));
         s->listparam->prox = NULL;
         s->nparam = 0;
+        //InsereListSimb(s, &pontfunc);
     }
 
     return s;
@@ -601,14 +654,14 @@ int hash (char *cadeia) {
 /* ImprimeTabSimb: Imprime todo o conteudo da tabela de simbolos  */
 
 void ImprimeTabSimb () {
-	int i; simbolo s;
-	printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
-	for (i = 0; i < NCLASSHASH; i++)
-		if (tabsimb[i]) {
-			printf ("Classe %d:\n", i);
-			for (s = tabsimb[i]; s!=NULL; s = s->prox){
-				printf ("  (%s, %s", s->cadeia,  nometipid[s->tid]);
-				if (s->tid == IDVAR){
+    int i; simbolo s;
+    printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i]) {
+            printf ("Classe %d:\n", i);
+            for (s = tabsimb[i]; s!=NULL; s = s->prox){
+                printf ("  (%s, %s", s->cadeia,  nometipid[s->tid]);
+                if (s->tid == IDVAR){
                     printf (", %s, %d, %d", nometipvar[s->tvar], s->inic, s->ref);
                     if(s->array == TRUE){
                         int j;
@@ -619,9 +672,9 @@ void ImprimeTabSimb () {
                 }
                 if (s->escopo != NULL)
                     printf(" | Escopo: %s", s->escopo->cadeia);
-			    printf(")\n");
-			}
-		}
+                printf(")\n");
+            }
+        }
 }
 
 void VerificaInicRef () {
@@ -640,11 +693,6 @@ void VerificaInicRef () {
 }
 
 void InsereListSimb(simbolo s, listsimb lista) {
-    // Inicializar lista se ela for vazia
-    if (lista == NULL) {
-        lista = (elemlistsimb*) malloc (sizeof(elemlistsimb));
-    }
-
     // Percorrer até o final
     elemlistsimb *p;
     for (p = lista; p->prox != NULL; p = p->prox);
@@ -678,6 +726,55 @@ void TipoInadequado (char *s) {
 
 void Incompatibilidade (char *s) {
     printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
+}
+
+listtipo InicListTipo(int tipo) {
+    pontexprtipo p = (elemlisttipo *) malloc (sizeof(elemlisttipo));
+    p->tipo = tipo;
+    p->prox = NULL;
+}
+
+listtipo ConcatListTipo(listtipo lista1, listtipo lista2) {
+    pontexprtipo p;
+
+    // Percorre a lista até o final
+    for (p = lista1; p->prox != NULL; p = p->prox);
+
+    // Adiciona a segunda lista ao final da primeira
+    p->prox = lista2;
+
+    return lista1;
+}
+
+void ChecArgumentos(pontexprtipo Ltiparg, listsimb Lparam) {
+    pontexprtipo p;
+    pontelemlistsimb q;
+
+    p = Ltiparg->prox;
+    q = Lparam->prox;
+
+    while (p != NULL && q != NULL) {
+        switch (q->simb->tvar) {
+            case INT: case CARAC:
+                if (p->tipo != INT && p->tipo != CARAC)
+                    Incompatibilidade("....");
+                break;
+            case REAL:
+                if (p->tipo != INT &&  p->tipo != CARAC && p->tipo != REAL)
+                    Incompatibilidade("....");
+                break;
+            case LOGIC:
+                if (p->tipo != LOGIC)
+                    Incompatibilidade("....");
+                break;
+            default:
+                if (q->simb->tvar != p->tipo)
+                    Incompatibilidade("....");
+                break;
+        }
+        p = p->prox; 
+        q = q->prox;
+    }
 }
 
 void MsgErro (char *s) {
