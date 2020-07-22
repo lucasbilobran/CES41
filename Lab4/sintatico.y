@@ -83,6 +83,9 @@ int tab = 0;
 }        
 
 /* Declaracao dos atributos dos tokens e dos nao-terminais */
+%type	  <simb>	 Variavel
+%type 	    <tipoexpr> 	    Expressao  ExprAux1  ExprAux2
+                            ExprAux3   ExprAux4   Termo   Fator
 
 %token    <string>   ID
 %token    <valor>    CTINT
@@ -133,7 +136,7 @@ int tab = 0;
 %token               INVAL
 %%
 
-Prog        :   PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $2); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); return;}
+Prog        :   {InicTabSimb ();} PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -143,15 +146,21 @@ ListDecl    :   Declaracao
             ;
 Declaracao  :   {tabular();} Tipo ABPAR {printf("(");} ListElem FPAR {printf(")\n");}
             ;
-Tipo        :   INT {printf("int ");}
-            |   REAL {printf("real ");}
-            |   CARAC {printf("carac");}
-            |   LOGIC {printf("logic");}
+Tipo        :   INT  {printf ("int "); tipocorrente = INTEGER;}
+            |   REAL  {printf ("real "); tipocorrente = FLOAT;}
+            |   CARAC  {printf ("carac "); tipocorrente = CHAR;}
+            |   LOGIC  {printf ("logic "); tipocorrente = LOGICAL;}
             ;
 ListElem    :   Elem
             |   ListElem VIRG {printf(", ");} Elem
             ;
-Elem        :   ID {printf("%s", $1);} Dims
+Elem        :   ID {
+                        printf ("%s ", $1);
+                        if  (ProcuraSimb ($1)  !=  NULL)
+                            DeclaracaoRepetida ($1);
+                        else
+                            InsereSimb ($1,  IDVAR,  tipocorrente);
+                    } Dims
             ;
 Dims        :   
             |   ABCOL {printf("[");} ListDim FCOL {printf("]");}
@@ -201,12 +210,12 @@ Comando     :   CmdComp
             |   {printf("\n"); tabular();} CmdRetornar
             |   PVIG {printf("aaaa;");} 
             ;
-CmdSe       :   SE   ABPAR {printf("se (");}  Expressao  FPAR {printf(") "); tab++;} Comando  CmdSenao {tab--;} 
+CmdSe       :   SE   ABPAR {printf("se (");}  Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando  CmdSenao {tab--;} 
             ;   
 CmdSenao    :  
             |  SENAO   {tab--; printf("\n"); tabular(); printf("senao "); tab++;} Comando
             ;
-CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao  FPAR {printf(") "); tab++;} Comando {tab--;} 
+CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
             ;
 CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao  FPAR  PVIG {printf(");");} 
             ;
@@ -233,19 +242,41 @@ Argumentos  :
 CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;");} 
             |  RETORNAR {printf("retornar ");} Expressao  PVIG {printf(";");}  
             ;        
-CmdAtrib    :  Variavel  ATRIB {printf(" = ");}  Expressao  PVIG {printf(";");} 
+CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}  
+               ATRIB {printf(" = ");}  Expressao  PVIG 
+               {
+                   printf(";");
+                   if ($1 != NULL)
+                        if ((($1->tvar == INTEGER || $1->tvar == CHAR) &&
+                            ($5 == FLOAT || $5 == LOGICAL)) ||
+                            ($1->tvar == FLOAT && $5 == LOGICAL) ||
+                            ($1->tvar == LOGICAL && $5 != LOGICAL))
+                                Incompatibilidade ("Lado direito de comando de atribuicao improprio"); 
+                } 
             ;
 ListExpr    :  Expressao 
             |  ListExpr  VIRG {printf(", ");} Expressao 
             ;    
 Expressao   :  ExprAux1 
-            |  Expressao  OR {printf(" || ");} ExprAux1 
+            |  Expressao  OR {printf(" || ");} ExprAux1 {
+                        if ($1 != LOGICAL || $4 != LOGICAL)
+                            Incompatibilidade ("Operando improprio para operador or");
+                        $$ = LOGICAL;
+                    }
             ;    
 ExprAux1    :  ExprAux2 
-            |  ExprAux1  AND {printf(" && ");} ExprAux2 
+            |  ExprAux1  AND {printf(" && ");} ExprAux2 {
+                        if ($1 != LOGICAL || $4 != LOGICAL)
+                            Incompatibilidade ("Operando improprio para operador and");
+                        $$ = LOGICAL;
+                    }
             ;    
 ExprAux2    :  ExprAux3 
-            |  NOT {printf("!");} ExprAux3 
+            |  NOT {printf("!");} ExprAux3 {
+                        if ($3 != LOGICAL)
+                            Incompatibilidade ("Operando improprio para operador not");
+                        $$ = LOGICAL;
+                    }
             ;    
 ExprAux3    :  ExprAux4 
             |  ExprAux4  OPREL {
@@ -269,7 +300,19 @@ ExprAux3    :  ExprAux4
                         printf(" != ");
                     break;
                 }
-            } ExprAux4 
+            } ExprAux4 {
+                        switch ($2) {
+                            case LT: case LEQ: case GT: case GEQ:
+                                if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR || $4 != INTEGER && $4 != FLOAT && $4 != CHAR)
+                                    Incompatibilidade	("Operando improprio para operador relacional");
+                                break;
+                            case EQ: case NEQ:
+                                if (($1 == LOGICAL || $4 == LOGICAL) && $1 != $4)
+                                    Incompatibilidade ("Operando improprio para operador relacional");
+                                break;
+                        }
+                        $$ = LOGICAL;
+                    }
             ;    
 ExprAux4    :  Termo 
             |  ExprAux4  OPAD {
@@ -281,7 +324,12 @@ ExprAux4    :  Termo
                         printf(" - ");
                     break;
                 }
-            } Termo 
+            } Termo {
+                        if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR || $4 != INTEGER && $4!=FLOAT && $4!=CHAR)
+                            Incompatibilidade ("Operando improprio para operador aritmetico");
+                        if ($1 == FLOAT || $4 == FLOAT) $$ = FLOAT;
+                        else $$ = INTEGER;
+                    }
             ;    
 Termo       :  Fator 
             |  Termo  OPMULT {
@@ -293,22 +341,55 @@ Termo       :  Fator
                         printf(" / ");
                     break;
                     case MOD:
-                        printf(" % ");
+                        printf(" %% ");
                     break;
                 }
-            } Fator 
+            } Fator {
+                        switch ($2) {
+                            case MULT: case DIV:
+                                if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR
+                                    || $4 != INTEGER && $4!=FLOAT && $4!=CHAR)
+                                    Incompatibilidade ("Operando improprio para operador aritmetico");
+                                if ($1 == FLOAT || $4 == FLOAT) $$ = FLOAT;
+                                else $$ = INTEGER;
+                                break;
+                            case MOD:
+                                if ($1 != INTEGER && $1 != CHAR
+                                    ||  $4 != INTEGER && $4 != CHAR)
+                                    Incompatibilidade ("Operando improprio para operador resto");
+                                $$ = INTEGER;
+                                break;
+                        }
+                    }
             ;    
-Fator       :  Variavel 
-            |  CTINT {printf("%d", $1);}
-            |  CTREAL {printf("%.4f", $1);}
-            |  CTCARAC {printf("%s", $1);}
-            |  VERDADE  {printf("verdade");}
-            |  FALSO  {printf("falso");}
-            |  NEG {printf("~");} Fator 
-            |  ABPAR  Expressao  FPAR 
+Fator       :  Variavel {
+                        if  ($1 != NULL) {
+                            $1->ref  =  TRUE;
+                            $$ = $1->tvar;
+                        }
+                    }
+            |  CTINT {printf ("%d", $1); $$ = INTEGER;}
+            |  CTREAL {printf ("%g", $1); $$ = FLOAT;}
+            |  CTCARAC {printf("%s", $1); $$ = CHAR;}
+            |  VERDADE  {printf("verdade"); $$ = LOGICAL;}
+            |  FALSO  {printf("falso"); $$ = LOGICAL;}
+            |  NEG {printf("~");} Fator {
+                        if ($3 != INTEGER &&
+                            $3 != FLOAT && $3 != CHAR)
+                            Incompatibilidade  ("Operando improprio para menos unario");
+                            if ($3 == FLOAT) $$ = FLOAT;
+                            else $$ = INTEGER;
+                    }
+            |  ABPAR  Expressao  FPAR {$$ = $2;}
             |  ChamadaFunc 
             ;
-Variavel    :  ID {printf("%s", $1);} Subscritos 
+Variavel    :  ID  {
+                        printf ("%s", $1);
+                        simb = ProcuraSimb ($1);
+                        if (simb == NULL)   NaoDeclarado ($1);
+                        else if (simb->tid != IDVAR)   TipoInadequado ($1);
+                        $<simb>$ = simb;
+                    }  Subscritos  {$$ = $<simb>2;}
             ;    
 Subscritos  :  
             |  ABCOL {printf("[");}  ListSubscr  FCOL  {printf("]");}
