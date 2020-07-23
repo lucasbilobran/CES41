@@ -227,7 +227,9 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                                 simb = escopo = InsereSimb($3, IDFUNC, tipocorrente, escopo);
                                             else {
                                                 DeclaracaoRepetida($3);
-                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                                if(simb->tid == IDVAR)
+                                                    MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                                return;
                                             }
                                             pontvar = simb->listvar;
                                             printf("%s ()", $3);
@@ -238,7 +240,9 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                             simb = escopo = InsereSimb($3, IDFUNC, tipocorrente, escopo);
                                         else {
                                             DeclaracaoRepetida($3);
-                                            MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            if(simb->tid == IDVAR)
+                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            return;
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
@@ -252,7 +256,9 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                                     simb = escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
                                                 else {
                                                     DeclaracaoRepetida($2);
-                                                    MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                                    if(simb->tid == IDVAR)
+                                                        MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                                    return;
                                                 }
                                                 pontvar = simb->listvar;
                                                 printf("\n");
@@ -265,7 +271,9 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                             simb = escopo = InsereSimb($2, IDPROC, NOTVAR, escopo);
                                         else {
                                             DeclaracaoRepetida($2);
-                                            MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            if(simb->tid == IDVAR)
+                                                MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
+                                            return;
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
