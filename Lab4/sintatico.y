@@ -9,13 +9,18 @@ enum tipos {
     SOMA=1, SUB, MULT, DIV, MOD, EQ, NEQ, LT, LEQ, GT, GEQ, FINAL
 };
 
-enum identificadores {
-    IDGLOB=1, IDVAR, IDFUNC, IDPROC, IDPROG
-};
+#define IDGLOB 0
+#define IDVAR  2 
+#define IDFUNC 3
+#define IDPROC 4
+#define IDPROG 1
 
-enum variaveis {
-    NOTVAR=1, INTEGER, LOGICAL, FLOAT, CHAR
-};
+#define NOTVAR 0
+#define INTEGER 1  
+#define LOGICAL 2
+#define FLOAT   3
+#define CHAR    4
+
 
 /* === Constantes === */
 
@@ -26,7 +31,7 @@ enum variaveis {
 
 /*  === Nomes ===  */
 
-char *nometipid[3] = {" ", "IDPROG", "IDVAR"};
+char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
 
 /* === Definições de Tipos === */
