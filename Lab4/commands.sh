@@ -3,4 +3,4 @@
 flex lexico.l
 yacc sintatico.y
 gcc y.tab.c main.c yyerror.c -o sintatico -lfl
-./sintatico < exemplos/completo.comp > ans
+./sintatico < exemplos/simple.comp
