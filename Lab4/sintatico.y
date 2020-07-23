@@ -9,17 +9,13 @@ enum tipos {
     SOMA=1, SUB, MULT, DIV, MOD, EQ, NEQ, LT, LEQ, GT, GEQ, FINAL
 };
 
-#define IDGLOB 0
-#define IDVAR  2 
-#define IDFUNC 3
-#define IDPROC 4
-#define IDPROG 1
+enum identificadores {
+    IDGLOB=0, IDPROG, IDVAR, IDFUNC, IDPROC
+};
 
-#define NOTVAR 0
-#define INTEGER 1  
-#define LOGICAL 2
-#define FLOAT   3
-#define CHAR    4
+enum tiposvar {
+    NOTVAR=0, INTEGER, LOGICAL, FLOAT, CHAR
+};
 
 
 /* === Constantes === */
