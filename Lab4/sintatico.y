@@ -97,6 +97,7 @@ listtipo ConcatListTipo(listtipo, listtipo);
 listtipo InicListTipo(int);
 void ChecArgumentos(pontexprtipo, listsimb);
 void MsgErro (char *);
+void ChecaChamarId(char *);
 %}
 
 %union {
@@ -348,7 +349,7 @@ ListEscr    :  ElemEscr
 ElemEscr    :  CADEIA {printf("%s", $1);}
             |  Expressao 
             ;    
-ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaRecursividade($2, escopo);} Argumentos  FPAR  PVIG  {printf(");");}
+ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {printf(");");}
             ;    
 Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
@@ -664,6 +665,11 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     return s;
 }
 
+/*
+    ChecaRecursividade( nome, simbolo escopo): funcao que verifica se uma funcao/procedimento
+    eh chamado por ele mesmo.
+ */
+
 void ChecaRecursividade(char* nome, simbolo escopo){
     // Acha na tabela o simbolo dessa funcao
     simbolo esc; int i;
@@ -672,9 +678,20 @@ void ChecaRecursividade(char* nome, simbolo escopo){
 
     if(esc != NULL)
         for(; esc != NULL; esc = esc->escopo){
-            if(strcmp(esc->cadeia, escopo->cadeia) == 0)
+            if(strcmp(esc->cadeia, escopo->cadeia) == 0 && (esc->tid == IDFUNC || esc->tid == IDPROC))
                 printf("\nRecursao da ma sorte! (Essa linguagem nao permite recursao)\n");
         }
+}
+
+void ChecaChamarId(char * cadeia) {
+    // Acha na tabela o simbolo dessa funcao
+    simbolo esc; int i;
+    i = hash (cadeia);
+    for (esc = tabsimb[i]; (esc != NULL) && (strcmp(cadeia, esc->cadeia) != 0);esc = esc->prox);
+
+    // Verifica se é funcao ou procedimento
+    if(esc->tid != IDFUNC && esc->tid != IDPROC)
+        Incompatibilidade("O identificador de um comando chamar deve ser do tipo nome de procedimento ou funcao");
 }
 
 /*
