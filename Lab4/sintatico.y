@@ -637,7 +637,7 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
         s->escopo->nparam++;
     }
     else {
-        s->inic = s->ref = s->param = TRUE;
+        s->inic = s->ref = s->param = FALSE;
         if (s->tid == IDVAR)
             InsereListSimb(s, pontvar);
     }
