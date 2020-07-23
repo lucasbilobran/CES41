@@ -348,7 +348,7 @@ ListEscr    :  ElemEscr
 ElemEscr    :  CADEIA {printf("%s", $1);}
             |  Expressao 
             ;    
-ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2);} Argumentos  FPAR  PVIG  {printf(");");}
+ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaRecursividade($2, escopo);} Argumentos  FPAR  PVIG  {printf(");");}
             ;    
 Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
@@ -550,6 +550,7 @@ ListSubscr  :  ExprAux4 {
 ChamadaFunc :   ID  ABPAR  {
                                 printf("%s (", $1);
                                 simb = ProcuraSimb ($1, escopo->escopo);
+                                ChecaRecursividade($1, escopo);
                                 if (!simb)
                                     NaoDeclarado($1);
                                 else if (simb->tid != IDFUNC)
@@ -564,6 +565,7 @@ ChamadaFunc :   ID  ABPAR  {
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
                                                     ChecArgumentos($4.listtipo, $$->listparam);
                                                 }
+                                                $$ = $<simb>3->tvar;
                                             } 
             ;
 
@@ -658,6 +660,19 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     }
 
     return s;
+}
+
+void ChecaRecursividade(char* nome, simbolo escopo){
+    // Acha na tabela o simbolo dessa funcao
+    simbolo esc; int i;
+    i = hash (nome);
+    for (esc = tabsimb[i]; (esc != NULL) && (strcmp(nome, esc->cadeia) != 0);esc = esc->prox);
+
+    if(esc != NULL)
+        for(; esc != NULL; esc = esc->escopo){
+            if(strcmp(esc->cadeia, escopo->cadeia) == 0)
+                printf("\nRecursao da ma sorte! (Essa linguagem nao permite recursao)\n");
+        }
 }
 
 /*
