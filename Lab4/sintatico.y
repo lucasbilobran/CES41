@@ -353,14 +353,16 @@ ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaRecursividade
 Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
             ;
-CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;");} 
+CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;"); if (escopo->tvar != NOTVAR) Incompatibilidade ("Retorno da funcao improprio");} 
             |  RETORNAR {printf("retornar ");} Expressao  PVIG {
                                                                     printf(";");
-                                                                    // if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
-                                                                    //     ($3 == FLOAT || $3 == LOGICAL)) ||
-                                                                    //     (escopo->tvar == FLOAT && $3 == LOGICAL) ||
-                                                                    //     (escopo->tvar == LOGICAL && $3 != LOGICAL))
-                                                                    //         Incompatibilidade ("Retorno da funcao improprio"); 
+                                                                    if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
+                                                                        ($3 == FLOAT || $3 == LOGICAL)) ||
+                                                                        (escopo->tvar == FLOAT && $3 == LOGICAL) ||
+                                                                        (escopo->tvar == LOGICAL && $3 != LOGICAL))
+                                                                            Incompatibilidade ("Retorno da funcao improprio");
+                                                                    else if( escopo->tvar == NOTVAR )
+                                                                        Incompatibilidade ("Procedimento nao deve retornar variavel");
                                                                }  
             ;        
 CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}  
