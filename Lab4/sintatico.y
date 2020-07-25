@@ -741,7 +741,7 @@ int hash (char *cadeia) {
 
 void ImprimeTabSimb () {
     int i; simbolo s;
-    printf ("\n\n   TABELA  DE  SIMBOLOS:\n\n");
+    printf ("\n\n===== TABELA  DE  SIMBOLOS: =====\n\n");
     for (i = 0; i < NCLASSHASH; i++)
         if (tabsimb[i]) {
             printf ("Classe %d:\n", i);
@@ -765,16 +765,15 @@ void ImprimeTabSimb () {
 
 void VerificaInicRef () {
     int i; simbolo s;
-
-    printf ("\n");
+    printf ("\n\n===== VARIAVEIS NAO DECLARADAS OU NAO REFERENCIADAS: =====\n\n");
     for (i = 0; i < NCLASSHASH; i++)
         if (tabsimb[i])
             for (s = tabsimb[i]; s!=NULL; s = s->prox)
                 if (s->tid == IDVAR) {
                     if (s->inic == FALSE)
-                        printf ("%s: Nao Inicializada\n", s->cadeia);
+                        printf ("Variavel %s (Escopo: %s): Nao Inicializada\n", s->cadeia, s->escopo->cadeia);
                     if (s->ref == FALSE)
-                        printf ("%s: Nao Referenciada\n", s->cadeia);
+                        printf ("Variavel %s (Escopo: %s): Nao Referenciada\n", s->cadeia, s->escopo->cadeia);
                 }
 }
 
