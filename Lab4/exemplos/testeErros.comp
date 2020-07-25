@@ -19,19 +19,31 @@ programa TestandoASemantica {{{
          soma = glob2;
          soma = variavelalieligena; /* 1 */
 
+         glob1 = soma;
+         glob1 = argcarac;
          glob1 = soma + argcarac;
-         glob1 = argreal; /* 8 */
-         glob1 = arclogic; /* 8 */
+         glob1 = argreal; /* 8, 12 */
+         glob1 = arclogic; /* 8, 12 */
 
+         pi = soma;
+         pi = argreal;
+         pi = argcarac;
          pi = soma + argreal - argcarac;
-         pi = soma + argreal - argcarac + arclogic; /* 8 */
+         pi = arclogic; /* 8, 12 */
+         pi = soma + argreal - argcarac + arclogic; /* 8, 12 */
 
+         c = soma;
+         c = argcarac;
          c = soma * argcarac;
-         c = soma + argcarac + argreal; /* 8 */
-         c = arclogic; /* 8 */
+         c = argreal; /* 8, 12 */
+         c = soma + argcarac + argreal; /* 8, 12 */
+         c = arclogic; /* 8, 12 */
 
          implicacao = arclogic && !arclogic || arclogic;
-         implicacao = soma + argreal + argcarac; /* 8 */
+         implicacao = soma; /* 8, 12 */
+         implicacao = argreal; /* 8, 12 */
+         implicacao = argcarac; /* 8, 12 */
+         implicacao = soma + argreal + argcarac; /* 8, 12 */
 
          se (c)  /* 14 */
             soma = 0;

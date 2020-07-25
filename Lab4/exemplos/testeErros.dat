@@ -29,6 +29,8 @@ programa TestandoASemantica {{{
 ***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
 
 
+         glob1 = soma;
+         glob1 = argcarac;
          glob1 = soma + argcarac;
          glob1 = argreal;
 
@@ -40,13 +42,28 @@ programa TestandoASemantica {{{
 ***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
 
 
+         pi = soma;
+         pi = argreal;
+         pi = argcarac;
          pi = soma + argreal - argcarac;
+         pi = arclogic;
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+
          pi = soma + argreal - argcarac + arclogic
 
 ***** Incompatibilidade: Operando improprio para operador aritmetico *****
 
 ;
+         c = soma;
+         c = argcarac;
          c = soma * argcarac;
+         c = argreal;
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+
          c = soma + argcarac + argreal;
 
 ***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
@@ -58,6 +75,21 @@ programa TestandoASemantica {{{
 
 
          implicacao = arclogic && !arclogic || arclogic;
+         implicacao = soma;
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+
+         implicacao = argreal;
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+
+         implicacao = argcarac;
+
+***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
+
+
          implicacao = soma + argreal + argcarac;
 
 ***** Incompatibilidade: Lado direito de comando de atribuicao improprio *****
@@ -128,10 +160,6 @@ programa TestandoASemantica {{{
 
          comandos {
             chamar Exibir (
-
-***** Procedimento desconhecido: Exibir *****
-
-
 Recursao da ma sorte! (Essa linguagem nao permite recursao)
 );
             retornar a;
@@ -169,11 +197,7 @@ glob1 ()
 ***** Incompatibilidade: Numero de subscritos incompativel com declaracao *****
 
 ;
-            chamar Exibir (
-
-***** Procedimento desconhecido: Exibir *****
-
-);
+            chamar Exibir ();
             meuint = Test (1, 1, 'a', falso);
             meuint = Test (1, 1, 'a', falso, 4)
 

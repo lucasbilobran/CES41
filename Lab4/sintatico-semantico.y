@@ -823,21 +823,16 @@ void Incompatibilidade (char *s) {
 }
 
 void ChecaSeEhProcedimento(char * cadeia, simbolo escopo) {
-    simbolo aux;
-    simbolo esc;
+    simbolo s; int i;
+    i = hash (cadeia);
+    
+    // Procura o símbolo em todos os escopos
+    for (s = tabsimb[i]; (s != NULL) && strcmp(cadeia, s->cadeia); s = s->prox);
 
-    esc = escopo;
-    aux = ProcuraSimb (cadeia, esc);
-    while (esc && !simb) {
-        esc = esc->escopo;
-        if (esc)
-            aux = ProcuraSimb (cadeia, esc);
-    }
-
-    if (aux == NULL)
+    if (s == NULL)
         printf ("\n\n***** Procedimento desconhecido: %s *****\n\n", cadeia);
 
-    if (aux != NULL && aux->tid != IDPROC)
+    if (s != NULL && s->tid != IDPROC)
         printf ("\n\n***** Procedimento desconhecido: %s *****\n\n", cadeia);
 }
 

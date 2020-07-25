@@ -143,19 +143,11 @@ programa AnaliseDeTexto {{{
             se (posic > 0) 
                nocorr[posic] = nocorr[posic] + 1;
             senao 
-               chamar Inserir (
-
-***** Procedimento desconhecido: Inserir *****
-
-~posic, i);
+               chamar Inserir (~posic, i);
             escrever ("\n\nNova palavra? (s/n): ");
             ler (c);
          }
-         chamar ExibirTabela (
-
-***** Procedimento desconhecido: ExibirTabela *****
-
-);
+         chamar ExibirTabela ();
       }
 
 }}}
