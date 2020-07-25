@@ -70,7 +70,7 @@ struct elemlisttipo {
 /* ===  Variaveis globais === */
 simbolo tabsimb[NCLASSHASH];
 simbolo simb;
-int tipocorrente;
+int tipocorrente = 0;
 int tab = 0;
 simbolo escopo, escaux;
 bool declparam = FALSE;
@@ -533,7 +533,7 @@ Variavel    : ID  {
                         }
                         if (simb == NULL)   {
                             NaoDeclarado ($1);
-                            simb = InsereSimbDedup($1, IDVAR, INTEGER, escopo);
+                            simb = InsereSimbDedup($1, IDVAR, tipocorrente, escopo);
                         }
                         else if (simb->tid != IDVAR)   TipoInadequado ($1);
                         $<simb>$ = simb;
