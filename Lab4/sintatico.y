@@ -99,6 +99,7 @@ listtipo InicListTipo(int);
 void ChecArgumentos(pontexprtipo, listsimb);
 void MsgErro (char *);
 void ChecaChamarId(char *);
+simbolo InsereSimbDedup (char *, int, int, simbolo);
 %}
 
 %union {
@@ -234,13 +235,7 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                                     MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                                 
                                                 // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
-                                                char dedup_name[60];
-                                                strcpy(dedup_name, $3);
-                                                while (simb != NULL) {
-                                                    strcat(dedup_name, "_");
-                                                    simb = ProcuraSimb(dedup_name, escopo);
-                                                }
-                                                simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
+                                                simb = escopo = InsereSimbDedup($3, IDFUNC, tipocorrente, escopo);
                                             }
                                             pontvar = simb->listvar;
                                             printf("%s ()", $3);
@@ -255,13 +250,7 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                             
                                             // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
-                                            char dedup_name[60];
-                                            strcpy(dedup_name, $3);
-                                            while (simb != NULL) {
-                                                strcat(dedup_name, "_");
-                                                simb = ProcuraSimb(dedup_name, escopo);
-                                            }
-                                            simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
+                                            simb = escopo = InsereSimbDedup($3, IDFUNC, tipocorrente, escopo);
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
@@ -279,13 +268,7 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                                         MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
                                                     
                                                     // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
-                                                    char dedup_name[60];
-                                                    strcpy(dedup_name, $2);
-                                                    while (simb != NULL) {
-                                                        strcat(dedup_name, "_");
-                                                        simb = ProcuraSimb(dedup_name, escopo);
-                                                    }
-                                                    simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
+                                                    simb = escopo = InsereSimbDedup($2, IDPROC, tipocorrente, escopo);
                                                 }
                                                 pontvar = simb->listvar;
                                                 printf("\n");
@@ -300,15 +283,8 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                             DeclaracaoRepetida($2);
                                             if(simb->tid == IDVAR)
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                            
                                             // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
-                                            char dedup_name[60];
-                                            strcpy(dedup_name, $2);
-                                            while (simb != NULL) {
-                                                strcat(dedup_name, "_");
-                                                simb = ProcuraSimb(dedup_name, escopo);
-                                            }
-                                            simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
+                                            simb = escopo = InsereSimbDedup($2, IDPROC, tipocorrente, escopo);
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
@@ -555,7 +531,10 @@ Variavel    : ID  {
                             if (escaux)
                                 simb = ProcuraSimb ($1, escaux);
                         }
-                        if (simb == NULL)   NaoDeclarado ($1);
+                        if (simb == NULL)   {
+                            NaoDeclarado ($1);
+                            simb = InsereSimbDedup($1, IDVAR, INTEGER, escopo);
+                        }
                         else if (simb->tid != IDVAR)   TipoInadequado ($1);
                         $<simb>$ = simb;
                     }  Subscritos  {
@@ -587,8 +566,10 @@ ChamadaFunc :   ID  ABPAR  {
                                 printf("%s (", $1);
                                 simb = ProcuraSimb ($1, escopo->escopo);
                                 ChecaRecursividade($1, escopo);
-                                if (!simb)
+                                if (!simb) {
                                     NaoDeclarado($1);
+                                    simb = InsereSimbDedup($1, IDFUNC, tipocorrente, escopo);
+                                }
                                 else if (simb->tid != IDFUNC)
                                     TipoInadequado($1);
                                 $<simb>$ = simb;
@@ -696,6 +677,23 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     }
 
     return s;
+}
+
+/*
+    InsereSimbDedup (cadeia, tid, tvar): Insere cadeia na tabela de
+    simbolos, deduplicando se ele já existir com tid como tipo de identificador e com tvar como
+    tipo de variavel; Retorna um ponteiro para a celula inserida
+ */
+
+simbolo InsereSimbDedup (char *cadeia, int tid, int tvar, simbolo escopo) {
+    simbolo simb = NULL;
+    char dedup_name[60];
+    strcpy(dedup_name, cadeia);
+    while (simb != NULL) {
+        strcat(dedup_name, "_");
+        simb = ProcuraSimb(dedup_name, escopo);
+    }
+    return InsereSimb(dedup_name, tid, tvar, escopo);
 }
 
 /*
