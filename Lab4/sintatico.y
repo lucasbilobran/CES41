@@ -195,7 +195,7 @@ ListElem    :   Elem
             |   ListElem VIRG {printf(", ");} Elem
             ;
 Elem        :   ID { 
-                        printf ("%s ", $1);
+                        printf ("%s", $1);
                         if  (ProcuraSimb ($1, escopo)  !=  NULL)
                             DeclaracaoRepetida ($1);
                         else {
