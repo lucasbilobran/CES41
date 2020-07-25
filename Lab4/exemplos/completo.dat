@@ -81,11 +81,11 @@ programa AnaliseDeTexto {{{
       }
 
       comandos {
-         escrever ("  ", "Palavra  ", "  Num.  de  ocorr.");
+         escrever ("          ", "Palavra             ", "   Num. de ocorr.");
          para i (1; i <= 50; i + 1) 
             escrever ("-");
          para i (1; i <= ntab; i + 1) {
-            escrever ("\n  ");
+            escrever ("\n          ");
             fim = falso;
             para j
 
@@ -113,7 +113,7 @@ programa AnaliseDeTexto {{{
 
 ]);
             }
-            escrever ("  |  ", nocorr[i]);
+            escrever (" | ", nocorr[i]);
          }
       }
 
@@ -127,10 +127,10 @@ programa AnaliseDeTexto {{{
 
       comandos {
          ntab = 0;
-         escrever ("Nova  palavra?  (s/n):  ");
+         escrever ("Nova palavra? (s/n): ");
          ler (c);
          enquanto (c == 's' || c == 'S') {
-            escrever ("\nDigite  a  palavra:  ");
+            escrever ("\nDigite a palavra: ");
             fim = falso;
             para i (0; !fim; i + 1) {
                ler (palavra[i]);
@@ -148,7 +148,7 @@ programa AnaliseDeTexto {{{
 ***** Procedimento desconhecido: Inserir *****
 
 ~posic, i);
-            escrever ("\n\nNova  palavra?  (s/n):  ");
+            escrever ("\n\nNova palavra? (s/n): ");
             ler (c);
          }
          chamar ExibirTabela (
