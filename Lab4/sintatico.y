@@ -771,14 +771,10 @@ void VerificaInicRef () {
         if (tabsimb[i])
             for (s = tabsimb[i]; s!=NULL; s = s->prox)
                 if (s->tid == IDVAR) {
-                    if (s->inic == FALSE) {
-                        semanticamente_valido = FALSE;
+                    if (s->inic == FALSE)
                         printf ("%s: Nao Inicializada\n", s->cadeia);
-                    }
-                    if (s->ref == FALSE) {
-                        semanticamente_valido = FALSE;
+                    if (s->ref == FALSE)
                         printf ("%s: Nao Referenciada\n", s->cadeia);
-                    }
                 }
 }
 
