@@ -99,6 +99,7 @@ listtipo InicListTipo(int);
 void ChecArgumentos(pontexprtipo, listsimb);
 void MsgErro (char *);
 void ChecaChamarId(char *);
+void ChecaSeEhProcedimento(char *, simbolo);
 simbolo InsereSimbDedup (char *, int, int, simbolo);
 %}
 
@@ -358,7 +359,7 @@ ListEscr    :  ElemEscr
 ElemEscr    :  CADEIA {printf("%s", $1);}
             |  Expressao 
             ;    
-ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {printf(");");}
+ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaSeEhProcedimento($2, escopo); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {printf(");");}
             ;    
 Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
@@ -819,6 +820,25 @@ void TipoInadequado (char *s) {
 void Incompatibilidade (char *s) {
     semanticamente_valido = FALSE;
     printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
+}
+
+void ChecaSeEhProcedimento(char * cadeia, simbolo escopo) {
+    simbolo aux;
+    simbolo esc;
+
+    esc = escopo;
+    aux = ProcuraSimb (cadeia, esc);
+    while (esc && !simb) {
+        esc = esc->escopo;
+        if (esc)
+            aux = ProcuraSimb (cadeia, esc);
+    }
+
+    if (aux == NULL)
+        printf ("\n\n***** Procedimento desconhecido: %s *****\n\n", cadeia);
+
+    if (aux != NULL && aux->tid != IDPROC)
+        printf ("\n\n***** Procedimento desconhecido: %s *****\n\n", cadeia);
 }
 
 listtipo InicListTipo(int tipo) {
