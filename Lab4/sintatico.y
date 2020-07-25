@@ -375,7 +375,8 @@ CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}
                             ($5 == FLOAT || $5 == LOGICAL)) ||
                             ($1->tvar == FLOAT && $5 == LOGICAL) ||
                             ($1->tvar == LOGICAL && $5 != LOGICAL))
-                                Incompatibilidade ("Lado direito de comando de atribuicao improprio"); 
+                                Incompatibilidade ("Lado direito de comando de atribuicao improprio");
+                    printf("\n\n%d %d\n\n", $1->tvar, $5);
                 } 
             ;
 ListExpr    :  Expressao {
