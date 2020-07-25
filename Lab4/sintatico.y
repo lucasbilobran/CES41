@@ -74,6 +74,7 @@ int tipocorrente;
 int tab = 0;
 simbolo escopo, escaux;
 bool declparam = FALSE;
+bool semanticamente_valido = TRUE;
 listsimb pontvar;
 listsimb pontparam;
 listsimb pontfunc;
@@ -174,7 +175,7 @@ Prog        :   {
                     pontparam = simb->listparam;
                     pontfunc = simb->listfunc;
                 } 
-                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); printf("\n\nPrograma Compilado com Sucesso!\n\n"); VerificaInicRef (); ImprimeTabSimb ();return;}
+                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); VerificaInicRef (); ImprimeTabSimb (); if (semanticamente_valido) printf("\n\nPrograma Compilado com Sucesso!\n\n"); else printf("\n\nPROGRAMA COM ERROS SEMÂNTICOS!\n\n"); return;}
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
@@ -772,10 +773,14 @@ void VerificaInicRef () {
         if (tabsimb[i])
             for (s = tabsimb[i]; s!=NULL; s = s->prox)
                 if (s->tid == IDVAR) {
-                    if (s->inic == FALSE)
+                    if (s->inic == FALSE) {
+                        semanticamente_valido = FALSE;
                         printf ("%s: Nao Inicializada\n", s->cadeia);
-                    if (s->ref == FALSE)
+                    }
+                    if (s->ref == FALSE) {
+                        semanticamente_valido = FALSE;
                         printf ("%s: Nao Referenciada\n", s->cadeia);
+                    }
                 }
 }
 
@@ -791,10 +796,12 @@ void InsereListSimb(simbolo s, listsimb lista) {
 }
 
 void Esperado(char *s) {
+    semanticamente_valido = FALSE;
     printf("\n\n*****Esperado: %s *****\n\n", s);
 }
 
 void NaoEsperado(char *s) {
+    semanticamente_valido = FALSE;
     printf("\n\n*****Nao Esperado: %s *****\n\n", s);
 }
 
@@ -802,18 +809,22 @@ void NaoEsperado(char *s) {
 /*  Mensagens de erros semanticos  */
 
 void DeclaracaoRepetida (char *s) {
+    semanticamente_valido = FALSE;
     printf ("\n\n***** Declaracao Repetida: %s *****\n", s);
 }
 
 void NaoDeclarado (char *s) {
+    semanticamente_valido = FALSE;
     printf ("\n\n***** Identificador Nao Declarado: %s *****\n\n", s);
 }
 
 void TipoInadequado (char *s) {
+    semanticamente_valido = FALSE;
     printf ("\n\n***** Identificador de Tipo Inadequado: %s *****\n\n", s);
 }
 
 void Incompatibilidade (char *s) {
+    semanticamente_valido = FALSE;
     printf ("\n\n***** Incompatibilidade: %s *****\n\n", s);
 }
 
@@ -877,5 +888,6 @@ void ChecArgumentos(pontexprtipo Ltiparg, listsimb Lparam) {
 }
 
 void MsgErro (char *s) {
+    semanticamente_valido = FALSE;
     printf ("\n***** Erro: %s *****\n", s);
 }
