@@ -231,7 +231,15 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                                 DeclaracaoRepetida($3);
                                                 if(simb->tid == IDVAR)
                                                     MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                                return;
+                                                
+                                                // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
+                                                char dedup_name[60];
+                                                strcpy(dedup_name, $3);
+                                                while (simb != NULL) {
+                                                    strcat(dedup_name, "_");
+                                                    simb = ProcuraSimb(dedup_name, escopo);
+                                                }
+                                                simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
                                             }
                                             pontvar = simb->listvar;
                                             printf("%s ()", $3);
@@ -244,7 +252,15 @@ CabFunc     :   FUNCAO Tipo ID ABPAR FPAR {
                                             DeclaracaoRepetida($3);
                                             if(simb->tid == IDVAR)
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                            return;
+                                            
+                                            // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
+                                            char dedup_name[60];
+                                            strcpy(dedup_name, $3);
+                                            while (simb != NULL) {
+                                                strcat(dedup_name, "_");
+                                                simb = ProcuraSimb(dedup_name, escopo);
+                                            }
+                                            simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
@@ -260,7 +276,15 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                                     DeclaracaoRepetida($2);
                                                     if(simb->tid == IDVAR)
                                                         MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                                    return;
+                                                    
+                                                    // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
+                                                    char dedup_name[60];
+                                                    strcpy(dedup_name, $2);
+                                                    while (simb != NULL) {
+                                                        strcat(dedup_name, "_");
+                                                        simb = ProcuraSimb(dedup_name, escopo);
+                                                    }
+                                                    simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
                                                 }
                                                 pontvar = simb->listvar;
                                                 printf("\n");
@@ -275,7 +299,15 @@ CabProc     :   PROCEDIMENTO ID ABPAR  FPAR  {
                                             DeclaracaoRepetida($2);
                                             if(simb->tid == IDVAR)
                                                 MsgErro("Um módulo não pode ter o mesmo nome que o de uma variável global");
-                                            return;
+                                            
+                                            // Adiciona um novo escopo com caracteres underline no final só para evitar a repetição
+                                            char dedup_name[60];
+                                            strcpy(dedup_name, $2);
+                                            while (simb != NULL) {
+                                                strcat(dedup_name, "_");
+                                                simb = ProcuraSimb(dedup_name, escopo);
+                                            }
+                                            simb = escopo = InsereSimb(dedup_name, IDFUNC, tipocorrente, escopo);
                                         }
                                         pontvar = simb->listvar;
                                         pontparam = simb->listparam;
