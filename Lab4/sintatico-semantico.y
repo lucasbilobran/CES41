@@ -711,7 +711,7 @@ void ChecaRecursividade(char* nome, simbolo escopo){
     if(esc != NULL)
         for(; esc != NULL; esc = esc->escopo){
             if(strcmp(esc->cadeia, escopo->cadeia) == 0 && (esc->tid == IDFUNC || esc->tid == IDPROC))
-                printf("\nRecursao da ma sorte! (Essa linguagem nao permite recursao)\n");
+                printf ("\n\n***** Recursao da ma sorte! (Essa linguagem nao permite recursao) *****\n\n");
         }
 }
 

@@ -103,6 +103,7 @@ programa TestandoASemantica {{{
          meuarray[6,7] = meuarray2[2, 3]; /* 10 */
 
          chamar Exibir();
+         chamar Test(1, 1.0, 'a', falso);
          meuint = Test(1, 1.0, 'a', falso);
          meuint =  Test(1, 1.0, 'a', falso, 4); /* 22 */
 

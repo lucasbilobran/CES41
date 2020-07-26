@@ -160,7 +160,9 @@ programa TestandoASemantica {{{
 
          comandos {
             chamar Exibir (
-Recursao da ma sorte! (Essa linguagem nao permite recursao)
+
+***** Recursao da ma sorte! (Essa linguagem nao permite recursao) *****
+
 );
             retornar a;
 
@@ -198,6 +200,11 @@ glob1 ()
 
 ;
             chamar Exibir ();
+            chamar Test (
+
+***** Procedimento desconhecido: Test *****
+
+1, 1, 'a', falso);
             meuint = Test (1, 1, 'a', falso);
             meuint = Test (1, 1, 'a', falso, 4)
 
