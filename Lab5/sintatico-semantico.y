@@ -243,7 +243,7 @@ Prog        :   {
                 } 
                 PROGRAMA ID ABTRIP {
                     tabular(); 
-                    printf("programa %s {{{", $3); 
+                    printf("programa %s {{{", $3);
                     InsereSimb ($3, IDPROG, NOTVAR, escopo); 
                     tab++; 
                     printf("\n");
