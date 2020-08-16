@@ -25,14 +25,6 @@ enum tiposoperandos {
     IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND     
 };
 
-/*   Definicao de outras constantes   */
-
-#define        NCLASSHASH    23
-#define     TRUE        1
-#define     FALSE        0
-#define     MAXDIMS        10
-
-
 /* === Constantes === */
 
 #define NCLASSHASH  23
@@ -44,6 +36,12 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
+char *nomeoperquad[24] = {"",
+	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
+	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
+	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE"
+};
+char *nometipoopndquad[9] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO"};
 
 /* === Definições de Tipos: Análises Léxica, Sintática e Semântica === */
 typedef int bool;
@@ -91,25 +89,31 @@ typedef celmodhead *modhead;
 
 // /* === Estruturas: Código Intermediário === */
 union atribopnd {
-    simbolo simb; int valint; float valfloat;
-    char valchar; char vallogic; char *valcad;
-    quadrupla rotulo; modhead modulo;
+    simbolo simb; 
+    int valint; 
+    float valfloat;
+    char valchar, vallogic; 
+    char *valcad;
+    quadrupla rotulo; 
+    modhead modulo;
 };
 
 struct operando {
-    int tipo; atribopnd atr;
+    int tipo; 
+    atribopnd atr;
 };
 
 struct celquad {
-    int num, oper; operando opnd1, opnd2, result;
+    int num, oper; 
+    operando opnd1, opnd2, result;
     quadrupla prox;
 };
 
 struct celmodhead {
-    simbolo modname; modhead prox;
+    simbolo modname;
+    modhead prox;
     quadrupla listquad;
 };
-
 
 /* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
 simbolo tabsimb[NCLASSHASH];

@@ -218,7 +218,7 @@ struct infovariavel {
 
 /* Declaracao dos atributos dos tokens e dos nao-terminais */
 
-%type	    <infovar>	        Variavel
+%type	    <infovar>	    Variavel
 %type 	    <infoexpr> 	    Expressao  ExprAux1  ExprAux2
                             ExprAux3   ExprAux4   Termo   Fator
 %type       <nsubscr>       Subscritos  ListSubscr
@@ -262,9 +262,7 @@ struct infovariavel {
 %token		<carac>         INVAL
 %%
 /* Producoes da gramatica:
-
-	Os terminais sao escritos e, depois de alguns,
-	para alguma estetica, ha mudanca de linha       */
+Os terminais sao escritos e, depois de alguns, para alguma estetica, ha mudanca de linha       */
 
 Prog			:	{
                         InicTabSimb (); InicCodIntermed (); numtemp = 0;
