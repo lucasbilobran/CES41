@@ -234,12 +234,17 @@ void RenumQuadruplas (quadrupla, quadrupla);
 %%
 
 Prog        :   {
-                    InicTabSimb (); 
+                    InicTabSimb ();
+                    InicCodIntermed ();
                     declparam = FALSE; 
                     simb = escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);
+                    InicCodIntermMod (simb);
                     pontvar = simb->listvar;
                     pontparam = simb->listparam;
                     pontfunc = simb->listfunc;
+                    opnd1.tipo = MODOPND;
+                    opnd1.atr.modulo = modcorrente;
+                    GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
                 } 
                 PROGRAMA ID ABTRIP {
                     tabular(); 
@@ -252,7 +257,7 @@ Prog        :   {
                     printf("}}}\n");
                     VerificaInicRef();
                     ImprimeTabSimb();
-                    //ImprimeQuadruplas();
+                    ImprimeQuadruplas();
                     if (semanticamente_valido) 
                         printf("\n\nPrograma Compilado com Sucesso!\n\n");
                     else 
