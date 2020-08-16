@@ -17,6 +17,21 @@ enum tiposvar {
     NOTVAR=0, INTEGER, LOGICAL, FLOAT, CHAR
 };
 
+enum operandos {
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE
+};
+
+enum tiposoperandos {
+    IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND     
+};
+
+/*   Definicao de outras constantes   */
+
+#define        NCLASSHASH    23
+#define     TRUE        1
+#define     FALSE        0
+#define     MAXDIMS        10
+
 
 /* === Constantes === */
 
@@ -30,7 +45,7 @@ enum tiposvar {
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
 
-/* === Definições de Tipos === */
+/* === Definições de Tipos: Análises Léxica, Sintática e Semântica === */
 typedef int bool;
 typedef struct elemlisttipo elemlisttipo;
 typedef elemlisttipo *pontexprtipo;
@@ -42,8 +57,7 @@ typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
 
-
-/* === Estruturas === */
+/* === Estruturas: Análises Léxica, Sintática e Semântica === */
 struct celsimb {
     char *cadeia;
     int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
@@ -67,19 +81,56 @@ struct elemlisttipo {
     pontexprtipo prox;
 };
 
-/* ===  Variaveis globais === */
+// /* === Definições de Tipos: Código Intermediário === */
+// typedef union atribopnd atribopnd;
+// typedef struct operando operando;
+// typedef struct celquad celquad;
+// typedef celquad *quadrupla;
+// typedef struct celmodhead celmodhead;
+// typedef celmodhead *modhead;
+
+// /* === Estruturas: Código Intermediário === */
+// union atribopnd {
+//     simbolo simb; int valint; float valfloat;
+//     char valchar; char vallogic; char *valcad;
+//     quadrupla rotulo; modhead modulo;
+// };
+
+// struct operando {
+//     int tipo; atribopnd atr;
+// };
+
+// struct celquad {
+//     int num, oper; operando opnd1, opnd2, result;
+//     quadrupla prox;
+// };
+
+// struct celmodhead {
+//     simbolo modname; modhead prox;
+//     quadrupla listquad;
+// };
+
+
+/* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
 simbolo tabsimb[NCLASSHASH];
-simbolo simb;
+simbolo simb, escopo, escaux;
 int tipocorrente = 0;
 int tab = 0;
-simbolo escopo, escaux;
 bool declparam = FALSE;
 bool semanticamente_valido = TRUE;
 listsimb pontvar;
 listsimb pontparam;
 listsimb pontfunc;
 
-/* === Prototipos === */
+// /* ===  Variaveis globais: Código Intermediário === */
+// quadrupla quadcorrente, quadaux;
+// modhead codintermed, modcorrente;
+// int oper, numquadcorrente;
+// operando opnd1, opnd2, result, opndaux;
+// int numtemp;
+// const operando opndidle = {IDLEOPND, 0};
+
+/* === Prototipos: Análises Léxica, Sintática e Semântica === */
 void InicTabSimb (void);
 void ImprimeTabSimb (void);
 simbolo InsereSimb (char *, int, int, simbolo);
@@ -101,6 +152,15 @@ void MsgErro (char *);
 void ChecaChamarId(char *);
 void ChecaSeEhProcedimento(char *, simbolo);
 simbolo InsereSimbDedup (char *, int, int, simbolo);
+
+// /* === Prototipos: Código Intermediário === */
+// void InicCodIntermed (void);
+// void InicCodIntermMod (simbolo);
+// void ImprimeQuadruplas (void);
+// quadrupla GeraQuadrupla (int, operando, operando, operando);
+// simbolo NovaTemp (int);
+// void RenumQuadruplas (quadrupla, quadrupla);
+
 %}
 
 %union {
@@ -593,6 +653,7 @@ ChamadaFunc :   ID  ABPAR  {
 
 #include "lex.yy.c"
 
+/* ===== Funções: Análises Léxica, Sintática e Semântica ===== */
 void tabular() {
     int i;
     for (i = 1; i <= tab; i++) {
@@ -601,7 +662,6 @@ void tabular() {
 }
 
 /*  InicTabSimb: Inicializa a tabela de simbolos   */
-
 void InicTabSimb () {
     int i;
     for (i = 0; i < NCLASSHASH; i++)
@@ -899,3 +959,114 @@ void MsgErro (char *s) {
     semanticamente_valido = FALSE;
     printf ("\n***** Erro: %s *****\n", s);
 }
+
+/* ===== Funções: Codigo Intermediario ===== */
+/* void InicCodIntermed () {
+    modcorrente = codintermed = malloc (sizeof (celmodhead));
+    modcorrente->listquad = NULL;
+    modcorrente->prox = NULL;
+} */
+
+/* void InicCodIntermMod (simbolo simb) {
+    modcorrente->prox = malloc (sizeof (celmodhead));
+    modcorrente = modcorrente->prox;
+    modcorrente->prox = NULL;
+    modcorrente->modname = simb;
+    modcorrente->listquad = malloc (sizeof (celquad));
+    quadcorrente = modcorrente->listquad;
+    quadcorrente->prox = NULL;
+    numquadcorrente = 0;
+    quadcorrente->num = numquadcorrente;
+} */
+
+/* quadrupla GeraQuadrupla (int oper, operando opnd1, operando opnd2,
+    operando result) {
+    quadcorrente->prox = malloc (sizeof (celquad));
+    quadcorrente = quadcorrente->prox;
+    quadcorrente->oper = oper;
+    quadcorrente->opnd1 = opnd1;
+    quadcorrente->opnd2 = opnd2;
+    quadcorrente->result = result;
+    quadcorrente->prox = NULL;
+    numquadcorrente ++;
+    quadcorrente->num = numquadcorrente;
+    return quadcorrente;
+} */
+
+/* simbolo NovaTemp (int tip) {
+    simbolo simb; int temp, i, j;
+    char nometemp[10] = "##", s[10] = {0};
+
+    numtemp ++; temp = numtemp;
+    for (i = 0; temp > 0; temp /= 10, i++)
+        s[i] = temp % 10 + '0';
+    i --;
+    for (j = 0; j <= i; j++)
+        nometemp[2+i-j] = s[j];
+    simb = InsereSimb (nometemp, IDVAR, tip);
+    simb->inic = simb->ref = TRUE;
+    simb->array = FALSE;
+    return simb;
+} */
+
+/* void ImprimeQuadruplas () {
+    modhead p;
+    quadrupla q;
+    for (p = codintermed->prox; p != NULL; p = p->prox) {
+        printf ("\n\nQuadruplas do modulo %s:\n", p->modname->cadeia);
+        for (q = p->listquad->prox; q != NULL; q = q->prox) {
+            printf ("\n\t%4d) %s", q->num, nomeoperquad[q->oper]);
+            printf (", (%s", nometipoopndquad[q->opnd1.tipo]);
+            switch (q->opnd1.tipo) {
+                case IDLEOPND: break;
+                case VAROPND: printf (", %s", q->opnd1.atr.simb->cadeia); break;
+                case INTOPND: printf (", %d", q->opnd1.atr.valint); break;
+                case REALOPND: printf (", %g", q->opnd1.atr.valfloat); break;
+                case CHAROPND: printf (", %c", q->opnd1.atr.valchar); break;
+                case LOGICOPND: printf (", %d", q->opnd1.atr.vallogic); break;
+                case CADOPND: printf (", %s", q->opnd1.atr.valcad); break;
+                case ROTOPND: printf (", %d", q->opnd1.atr.rotulo->num); break;
+                case MODOPND: printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
+                    break;
+            }
+            printf (")");
+            printf (", (%s", nometipoopndquad[q->opnd2.tipo]);
+            switch (q->opnd2.tipo) {
+                case IDLEOPND: break;
+                case VAROPND: printf (", %s", q->opnd2.atr.simb->cadeia); break;
+                case INTOPND: printf (", %d", q->opnd2.atr.valint); break;
+                case REALOPND: printf (", %g", q->opnd2.atr.valfloat); break;
+                case CHAROPND: printf (", %c", q->opnd2.atr.valchar); break;
+                case LOGICOPND: printf (", %d", q->opnd2.atr.vallogic); break;
+                case CADOPND: printf (", %s", q->opnd2.atr.valcad); break;
+                case ROTOPND: printf (", %d", q->opnd2.atr.rotulo->num); break;
+                case MODOPND: printf(", %s", q->opnd2.atr.modulo->modname->cadeia);
+                    break;
+            }
+            printf (")");
+            printf (", (%s", nometipoopndquad[q->result.tipo]);
+            switch (q->result.tipo) {
+                case IDLEOPND: break;
+                case VAROPND: printf (", %s", q->result.atr.simb->cadeia); break;
+                case INTOPND: printf (", %d", q->result.atr.valint); break;
+                case REALOPND: printf (", %g", q->result.atr.valfloat); break;
+                case CHAROPND: printf (", %c", q->result.atr.valchar); break;
+                case LOGICOPND: printf (", %d", q->result.atr.vallogic); break;
+                case CADOPND: printf (", %s", q->result.atr.valcad); break;
+                case ROTOPND: printf (", %d", q->result.atr.rotulo->num); break;
+                case MODOPND: printf(", %s", q->result.atr.modulo->modname->cadeia);
+                    break;
+            }
+            printf (")");
+        }
+    }
+   printf ("\n");
+} */
+
+/* void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
+    quadrupla q; int nquad;
+    for (q = quad1->prox, nquad = quad1->num; q != quad2; q = q->prox) {
+      nquad++;
+        q->num = nquad;
+    }
+} */
