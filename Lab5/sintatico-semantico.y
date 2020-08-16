@@ -965,13 +965,13 @@ void MsgErro (char *s) {
 }
 
 /* ===== Funções: Codigo Intermediario ===== */
-/* void InicCodIntermed () {
+void InicCodIntermed () {
     modcorrente = codintermed = malloc (sizeof (celmodhead));
     modcorrente->listquad = NULL;
     modcorrente->prox = NULL;
-} */
+}
 
-/* void InicCodIntermMod (simbolo simb) {
+void InicCodIntermMod (simbolo simb) {
     modcorrente->prox = malloc (sizeof (celmodhead));
     modcorrente = modcorrente->prox;
     modcorrente->prox = NULL;
@@ -981,9 +981,9 @@ void MsgErro (char *s) {
     quadcorrente->prox = NULL;
     numquadcorrente = 0;
     quadcorrente->num = numquadcorrente;
-} */
+}
 
-/* quadrupla GeraQuadrupla (int oper, operando opnd1, operando opnd2,
+quadrupla GeraQuadrupla (int oper, operando opnd1, operando opnd2,
     operando result) {
     quadcorrente->prox = malloc (sizeof (celquad));
     quadcorrente = quadcorrente->prox;
@@ -995,10 +995,15 @@ void MsgErro (char *s) {
     numquadcorrente ++;
     quadcorrente->num = numquadcorrente;
     return quadcorrente;
-} */
+}
 
-/* simbolo NovaTemp (int tip) {
-    simbolo simb; int temp, i, j;
+// **********************************************************************
+// By Toso: Aqui eu adicionei um parâmetro para compilar, temos que
+//          verificar se ta certo isso
+// ********************************************************************** 
+simbolo NovaTemp (int tip) {
+    simbolo simb; 
+    int temp, i, j;
     char nometemp[10] = "##", s[10] = {0};
 
     numtemp ++; temp = numtemp;
@@ -1007,13 +1012,14 @@ void MsgErro (char *s) {
     i --;
     for (j = 0; j <= i; j++)
         nometemp[2+i-j] = s[j];
-    simb = InsereSimb (nometemp, IDVAR, tip);
+    // adicionei o "escopo" na linha abaixo
+    simb = InsereSimb (nometemp, IDVAR, tip, escopo);
     simb->inic = simb->ref = TRUE;
     simb->array = FALSE;
     return simb;
-} */
+}
 
-/* void ImprimeQuadruplas () {
+void ImprimeQuadruplas () {
     modhead p;
     quadrupla q;
     for (p = codintermed->prox; p != NULL; p = p->prox) {
@@ -1065,12 +1071,12 @@ void MsgErro (char *s) {
         }
     }
    printf ("\n");
-} */
+}
 
-/* void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
+void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
     quadrupla q; int nquad;
     for (q = quad1->prox, nquad = quad1->num; q != quad2; q = q->prox) {
       nquad++;
         q->num = nquad;
     }
-} */
+}
