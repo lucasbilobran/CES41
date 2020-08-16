@@ -419,10 +419,39 @@ Comando     :   CmdComp
             |   {printf("\n"); tabular();} CmdRetornar
             |   PVIG {printf("aaaa;");} 
             ;
-CmdSe       :   SE   ABPAR {printf("se (");}  Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando  CmdSenao {tab--;} 
+CmdSe       :   SE   ABPAR {printf("se (");}  Expressao 
+                {
+                    if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");
+                    opndaux.tipo = ROTOPND;
+                    $<quad>$ = GeraQuadrupla(OPJF, $4.opnd, opndidle, opndaux);
+                } 
+                FPAR { printf(") "); tab++;} Comando 
+                {
+                    $<quad>$ = quadcorrente;
+                    $<quad>5->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                }
+                CmdSenao 
+                {
+                    tab--;
+                    if ($<quad>9->prox != quadcorrente) {​
+                        quadaux = $<quad>9->prox;​
+                        $<quad>9->prox = quadaux->prox;​
+                        quadaux->prox = ​$<quad>9->prox->prox;​
+                        $<quad>9->prox->prox = quadaux;​
+                        RenumQuadruplas ​($<quad>9, quadaux);​
+                        }
+                } 
             ;   
-CmdSenao    :  
-            |  SENAO   {tab--; printf("\n"); tabular(); printf("senao "); tab++;} Comando
+CmdSenao    : 
+            |  SENAO   
+            {
+                tab--; printf("\n"); tabular(); printf("senao "); tab++;
+                opndaux.tipo = ROTOPND;
+                $<quad>$ = GeraQuadrupla(OPJUMP, opndidle, opndidle, opndaux);
+            } Comando
+            {
+                $<quad>2->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndaux);
+            }
             ;
 CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
             ;
