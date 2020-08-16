@@ -157,7 +157,7 @@ void ChecaChamarId(char *);
 void ChecaSeEhProcedimento(char *, simbolo);
 simbolo InsereSimbDedup (char *, int, int, simbolo);
 
-// /* === Prototipos: Código Intermediário === */
+/* === Prototipos: Código Intermediário === */
 void InicCodIntermed (void);
 void InicCodIntermMod (simbolo);
 void ImprimeQuadruplas (void);
@@ -252,7 +252,7 @@ Prog        :   {
                     printf("}}}\n");
                     VerificaInicRef();
                     ImprimeTabSimb();
-                    //ImprimeQuadruplas(); 
+                    //ImprimeQuadruplas();
                     if (semanticamente_valido) 
                         printf("\n\nPrograma Compilado com Sucesso!\n\n");
                     else 
@@ -741,9 +741,7 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
 
     /* Código para identificados global ou nome de função */
 
-    /* 
-
-    O Código a seguir foi substituido e inserido dentro da função InsereListSimb
+    /* O Código a seguir foi substituido e inserido dentro da função InsereListSimb
     Isto deve-se aos autores não estarem utilizando nó-cabeça; */
 
     if (tid == IDGLOB || tid == IDFUNC || tid == IDPROC) {

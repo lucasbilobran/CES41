@@ -1,0 +1,15 @@
+programa ExemploSimples {{{
+
+   var {
+      carac (toso)
+   }
+
+    principal
+
+    var {
+        int (i)
+    }
+    comandos {
+        i = 5;
+    } 
+}}}
