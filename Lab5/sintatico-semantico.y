@@ -241,7 +241,24 @@ Prog        :   {
                     pontparam = simb->listparam;
                     pontfunc = simb->listfunc;
                 } 
-                PROGRAMA ID ABTRIP {tabular(); printf("programa %s {{{", $3); InsereSimb ($3, IDPROG, NOTVAR, escopo); tab++; printf("\n");}  Decls ListMod ModPrincipal FTRIP {printf("\n"); printf("}}}\n"); VerificaInicRef (); ImprimeTabSimb (); if (semanticamente_valido) printf("\n\nPrograma Compilado com Sucesso!\n\n"); else printf("\n\nPROGRAMA COM ERROS SEMÂNTICOS!\n\n"); return;}
+                PROGRAMA ID ABTRIP {
+                    tabular(); 
+                    printf("programa %s {{{", $3); 
+                    InsereSimb ($3, IDPROG, NOTVAR, escopo); 
+                    tab++; 
+                    printf("\n");
+                }  Decls ListMod ModPrincipal FTRIP {
+                    printf("\n"); 
+                    printf("}}}\n");
+                    VerificaInicRef();
+                    ImprimeTabSimb();
+                    //ImprimeQuadruplas(); 
+                    if (semanticamente_valido) 
+                        printf("\n\nPrograma Compilado com Sucesso!\n\n");
+                    else 
+                        printf("\n\nPROGRAMA COM ERROS SEMÂNTICOS!\n\n"); 
+                    return;
+                }
             ;
 Decls       :
             |   VAR  ABCHAV {printf("\n"); tabular(); printf("var {\n"); tab++;} ListDecl FCHAV {tab--; tabular(); printf("}\n");}
