@@ -86,6 +86,8 @@ typedef struct celquad celquad;
 typedef celquad *quadrupla;
 typedef struct celmodhead celmodhead;
 typedef celmodhead *modhead;
+typedef struct infoexpressao infoexpressao;
+typedef struct infovariavel infovariavel;
 
 // /* === Estruturas: Código Intermediário === */
 union atribopnd {
@@ -113,6 +115,16 @@ struct celmodhead {
     simbolo modname;
     modhead prox;
     quadrupla listquad;
+};
+
+struct infoexpressao {
+	int tipo;
+	operando opnd;
+};
+
+struct infovariavel {
+	simbolo simb;
+	operando opnd;
 };
 
 /* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
@@ -174,13 +186,16 @@ void RenumQuadruplas (quadrupla, quadrupla);
     float valreal;
     char carac;
     simbolo simb;
+    quadrupla quad;
     int tipoexpr, nsubscr;
     infolistexpr infolexpr;
+    infoexpressao infoexpr;
+	infovariavel infovar;
 }        
 
 /* === Atributos e Tokens === */
-%type     <simb>        Variavel ChamadaFunc
-%type     <tipoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
+%type     <infovar>     Variavel ChamadaFunc
+%type     <infoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
 %type     <infolexpr>   ListExpr Argumentos
 %type     <nsubscr>     Subscritos ListSubscr
 
@@ -226,8 +241,8 @@ void RenumQuadruplas (quadrupla, quadrupla);
 %token                  REAL
 %token                  REPETIR
 %token    <simb>        RETORNAR
-%token                  SE
-%token                  SENAO
+%token    <quad>        SE
+%token    <quad>        SENAO
 %token                  VAR
 %token                  VERDADE
 %token                  INVAL
@@ -421,7 +436,7 @@ Comando     :   CmdComp
             ;
 CmdSe       :   SE   ABPAR {printf("se (");}  Expressao 
                 {
-                    if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");
+                    if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");
                     opndaux.tipo = ROTOPND;
                     $<quad>$ = GeraQuadrupla(OPJF, $4.opnd, opndidle, opndaux);
                 } 
@@ -433,15 +448,15 @@ CmdSe       :   SE   ABPAR {printf("se (");}  Expressao
                 CmdSenao 
                 {
                     tab--;
-                    if ($<quad>9->prox != quadcorrente) {​
-                        quadaux = $<quad>9->prox;​
-                        $<quad>9->prox = quadaux->prox;​
-                        quadaux->prox = ​$<quad>9->prox->prox;​
-                        $<quad>9->prox->prox = quadaux;​
-                        RenumQuadruplas ​($<quad>9, quadaux);​
+                    if ($<quad>9->prox != quadcorrente) {
+                        quadaux = $<quad>9->prox;
+                        $<quad>9->prox = quadaux->prox;
+                        quadaux->prox = $<quad>9->prox->prox;
+                        $<quad>9->prox->prox = quadaux;
+                        RenumQuadruplas ($<quad>9, quadaux);
                         }
                 } 
-            ;   
+            ;  
 CmdSenao    : 
             |  SENAO   
             {
@@ -453,14 +468,14 @@ CmdSenao    :
                 $<quad>2->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndaux);
             }
             ;
-CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
+CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
             ;
-CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao {if ($7 != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR  PVIG {printf(");");} 
+CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao {if ($7.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR  PVIG {printf(");");} 
             ;
-CmdPara     :  PARA {printf("para ");} Variavel {if ($3->tvar != CHAR && $3->tvar != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
-               ABPAR {printf(" (");}  ExprAux4 {if ($7 != INTEGER && $7 != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} 
-               PVIG {printf("; ");}  Expressao {if ($11 != LOGICAL) Incompatibilidade("Expressao nao logica");} PVIG {printf("; ");} 
-               ExprAux4 {if ($15 != INTEGER && $15 != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} FPAR {printf(") "); tab++;} Comando {tab--;}
+CmdPara     :  PARA {printf("para ");} Variavel {if ($3.simb->tvar != CHAR && $3.simb->tvar != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
+               ABPAR {printf(" (");}  ExprAux4 {if ($7.tipo != INTEGER && $7.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} 
+               PVIG {printf("; ");}  Expressao {if ($11.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} PVIG {printf("; ");} 
+               ExprAux4 {if ($15.tipo != INTEGER && $15.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} FPAR {printf(") "); tab++;} Comando {tab--;}
             ;
 CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR  PVIG {printf(");");} 
             ;        
@@ -484,55 +499,55 @@ CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;"); if (escopo->tvar != NOTVA
             |  RETORNAR {printf("retornar ");} Expressao  PVIG {
                                                                     printf(";");
                                                                     if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
-                                                                        ($3 == FLOAT || $3 == LOGICAL)) ||
-                                                                        (escopo->tvar == FLOAT && $3 == LOGICAL) ||
-                                                                        (escopo->tvar == LOGICAL && $3 != LOGICAL))
+                                                                        ($3.tipo == FLOAT || $3.tipo == LOGICAL)) ||
+                                                                        (escopo->tvar == FLOAT && $3.tipo == LOGICAL) ||
+                                                                        (escopo->tvar == LOGICAL && $3.tipo != LOGICAL))
                                                                             Incompatibilidade ("Retorno da funcao improprio");
                                                                     else if( escopo->tvar == NOTVAR )
                                                                         Incompatibilidade ("Procedimento nao deve retornar variavel");
                                                                }  
             ;        
-CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}  
+CmdAtrib    :  Variavel {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;}  
                ATRIB {printf(" = ");}  Expressao  PVIG 
                {
                    printf(";");
-                   if ($1 != NULL)
-                        if ((($1->tvar == INTEGER || $1->tvar == CHAR) &&
-                            ($5 == FLOAT || $5 == LOGICAL)) ||
-                            ($1->tvar == FLOAT && $5 == LOGICAL) ||
-                            ($1->tvar == LOGICAL && $5 != LOGICAL))
+                   if ($1.simb != NULL)
+                        if ((($1.simb->tvar == INTEGER || $1.simb->tvar == CHAR) &&
+                            ($5.tipo == FLOAT || $5.tipo == LOGICAL)) ||
+                            ($1.simb->tvar == FLOAT && $5.tipo == LOGICAL) ||
+                            ($1.simb->tvar == LOGICAL && $5.tipo != LOGICAL))
                                 Incompatibilidade ("Lado direito de comando de atribuicao improprio");
                         GeraQuadrupla (OPATRIB, $5.opnd, opndidle, $1.opnd);
                 } 
             ;
 ListExpr    :  Expressao {
                             $$.nargs = 1;
-                            $$.listtipo = InicListTipo($1);
+                            $$.listtipo = InicListTipo($1.tipo);
                          }
             |  ListExpr  VIRG {printf(", ");} Expressao {
                                                             $$.nargs = $1.nargs + 1;
-                                                            $$.listtipo = ConcatListTipo($1.listtipo, InicListTipo($4));
+                                                            $$.listtipo = ConcatListTipo($1.listtipo, InicListTipo($4.tipo));
                                                         }
             ;    
 Expressao   :  ExprAux1 
             |  Expressao  OR {printf(" || ");} ExprAux1 {
-                        if ($1 != LOGICAL || $4 != LOGICAL)
+                        if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador or");
-                        $$ = LOGICAL;
+                        $$.tipo = LOGICAL;
                     }
             ;    
 ExprAux1    :  ExprAux2 
             |  ExprAux1  AND {printf(" && ");} ExprAux2 {
-                        if ($1 != LOGICAL || $4 != LOGICAL)
+                        if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador and");
-                        $$ = LOGICAL;
+                        $$.tipo = LOGICAL;
                     }
             ;    
 ExprAux2    :  ExprAux3 
             |  NOT {printf("!");} ExprAux3 {
-                        if ($3 != LOGICAL)
+                        if ($3.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador not");
-                        $$ = LOGICAL;
+                        $$.tipo = LOGICAL;
                     }
             ;    
 ExprAux3    :  ExprAux4 
@@ -560,15 +575,15 @@ ExprAux3    :  ExprAux4
             } ExprAux4 {
                         switch ($2) {
                             case LT: case LEQ: case GT: case GEQ:
-                                if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR || $4 != INTEGER && $4 != FLOAT && $4 != CHAR)
+                                if ($1.tipo != INTEGER && $1.tipo != FLOAT && $1.tipo != CHAR || $4.tipo != INTEGER && $4.tipo != FLOAT && $4.tipo != CHAR)
                                     Incompatibilidade    ("Operando improprio para operador relacional");
                                 break;
                             case EQ: case NEQ:
-                                if (($1 == LOGICAL || $4 == LOGICAL) && $1 != $4)
+                                if (($1.tipo == LOGICAL || $4.tipo == LOGICAL) && $1.tipo != $4.tipo)
                                     Incompatibilidade ("Operando improprio para operador relacional");
                                 break;
                         }
-                        $$ = LOGICAL;
+                        $$.tipo = LOGICAL;
                     }
             ;    
 ExprAux4    :  Termo 
@@ -582,10 +597,10 @@ ExprAux4    :  Termo
                     break;
                 }
             } Termo {
-                        if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR || $4 != INTEGER && $4!=FLOAT && $4!=CHAR)
+                        if ($1.tipo != INTEGER && $1.tipo != FLOAT && $1.tipo != CHAR || $4.tipo != INTEGER && $4.tipo !=FLOAT && $4.tipo !=CHAR)
                             Incompatibilidade ("Operando improprio para operador aritmetico");
-                        if ($1 == FLOAT || $4 == FLOAT) $$ = FLOAT;
-                        else $$ = INTEGER;
+                        if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
+                        else $$.tipo = INTEGER;
                     }
             ;    
 Termo       :  Fator 
@@ -604,40 +619,53 @@ Termo       :  Fator
             } Fator {
                         switch ($2) {
                             case MULT: case DIV:
-                                if ($1 != INTEGER && $1 != FLOAT && $1 != CHAR
-                                    || $4 != INTEGER && $4!=FLOAT && $4!=CHAR)
+                                if ($1.tipo != INTEGER && $1.tipo != FLOAT && $1.tipo != CHAR
+                                    || $4.tipo != INTEGER && $4.tipo !=FLOAT && $4.tipo !=CHAR)
                                     Incompatibilidade ("Operando improprio para operador aritmetico");
-                                if ($1 == FLOAT || $4 == FLOAT) $$ = FLOAT;
-                                else $$ = INTEGER;
+                                if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
+                                else $$.tipo = INTEGER;
+                                $$.opnd.tipo = VAROPND;
+                                $$.opnd.atr.simb = NovaTemp($$.tipo);
+                                if($2 == MULT)
+                                    GeraQuadrupla(OPMULTIP, $1.opnd, $4.opnd, $$.opnd);
+                                else
+                                    GeraQuadrupla(OPDIV, $1.opnd, $4.opnd, $$.opnd);
                                 break;
                             case MOD:
-                                if ($1 != INTEGER && $1 != CHAR
-                                    ||  $4 != INTEGER && $4 != CHAR)
+                                if ($1.tipo != INTEGER && $1.tipo != CHAR
+                                    ||  $4.tipo != INTEGER && $4.tipo != CHAR)
                                     Incompatibilidade ("Operando improprio para operador resto");
-                                $$ = INTEGER;
+                                $$.tipo = INTEGER;
+                                $$.opnd.tipo = VAROPND;
+                                $$.opnd.atr.simb = NovaTemp($$.tipo);
+                                GeraQuadrupla(OPRESTO, $1.opnd, $4.opnd, $$.opnd);
                                 break;
                         }
                     }
             ;    
 Fator       :  Variavel {
-                        if  ($1 != NULL) {
-                            $1->ref  =  TRUE;
-                            $$ = $1->tvar;
+                        if  ($1.simb != NULL) {
+                            $1.simb->ref = TRUE;
+                            $$.tipo = $1.simb->tvar;
+                            $$.opnd = $1.opnd;
                         }
                     }
-            |  CTINT {printf ("%d", $1); $$ = INTEGER;}
-            |  CTREAL {printf ("%g", $1); $$ = FLOAT;}
-            |  CTCARAC {printf("%s", $1); $$ = CHAR;}
-            |  VERDADE  {printf("verdade"); $$ = LOGICAL;}
-            |  FALSO  {printf("falso"); $$ = LOGICAL;}
+            |  CTINT {printf ("%d", $1); $$.tipo = INTEGER; $$.opnd.tipo = INTOPND; $$.opnd.atr.valint = $1;}
+            |  CTREAL {printf ("%g", $1); $$.tipo = FLOAT; $$.opnd.tipo = REALOPND; $$.opnd.atr.valfloat = $1;}
+            |  CTCARAC {printf("%s", $1); $$.tipo = CHAR; $$.opnd.tipo = CHAROPND; $$.opnd.atr.valchar = $1;}
+            |  VERDADE  {printf("verdade"); $$.tipo = LOGICAL; $$.opnd.tipo = LOGICOPND; $$.opnd.atr.vallogic = 1;}
+            |  FALSO  {printf("falso"); $$.tipo = LOGICAL; $$.opnd.tipo = LOGICOPND; $$.opnd.atr.vallogic = 0;}
             |  NEG {printf("~");} Fator {
-                        if ($3 != INTEGER &&
-                            $3 != FLOAT && $3 != CHAR)
+                        if ($3.tipo != INTEGER &&
+                            $3.tipo != FLOAT && $3.tipo != CHAR)
                             Incompatibilidade  ("Operando improprio para menos unario");
-                            if ($3 == FLOAT) $$ = FLOAT;
-                            else $$ = INTEGER;
+                            if ($3.tipo == FLOAT) $$.tipo = FLOAT;
+                            else $$.tipo = INTEGER;
+                            $$.opnd.tipo = VAROPND;
+                            $$.opnd.atr.simb = NovaTemp($$.tipo);
+                            GeraQuadrupla(OPMENUN, $3.opnd, opndidle, $$.opnd);
                     }
-            |  ABPAR  Expressao  FPAR {$$ = $2;}
+            |  ABPAR  Expressao  FPAR {$$.tipo = $2.tipo; $$.opnd = $2.opnd;}
             |  ChamadaFunc 
             ;
 Variavel    : ID  {
@@ -656,27 +684,30 @@ Variavel    : ID  {
                         else if (simb->tid != IDVAR)   TipoInadequado ($1);
                         $<simb>$ = simb;
                     }  Subscritos  {
-                                    $$ = $<simb>2;
-                                    if($$ != NULL){
-                                        if($$->array == FALSE && $3 > 0)
+                                    $$.simb = $<simb>2;
+                                    if($$.simb != NULL) {
+                                        if($$.simb->array == FALSE && $3 > 0)
                                             NaoEsperado("Subscrito\(s)");
-                                        else if($$->array == TRUE && $3 == 0){
+                                        else if($$.simb->array == TRUE && $3 == 0){
                                             Esperado("Subscrito\(s)");
                                         }
-                                        else if($$->ndims!= $3)
+                                        else if($$.simb->ndims!= $3)
                                             Incompatibilidade("Numero de subscritos incompativel com declaracao");
+                                        $$.opnd.tipo = VAROPND;
+                                        if ($3 == 0)
+                                            $$.opnd.atr.simb = $$.simb;
                                     }
-                                    }
+                        }
             ;    
 Subscritos  :  {$$ = 0;}
             |  ABCOL {printf("[");}  ListSubscr  FCOL  {printf("]"); $$ = $3;}
             ;    
 ListSubscr  :  ExprAux4 {
-                            if($1 != INTEGER && $1 != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
+                            if($1.tipo != INTEGER && $1.tipo != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
                             $$ = 1;
                         }
             |  ListSubscr  VIRG {printf(", ");}  ExprAux4 {
-                            if($4 != INTEGER && $4 != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
+                            if($4.tipo != INTEGER && $4.tipo != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
                             $$ = $1 + 1;
                         }
             ;    
@@ -694,13 +725,13 @@ ChamadaFunc :   ID  ABPAR  {
                            } 
                            Argumentos  FPAR {
                                                 printf(")");
-                                                $$ = $<simb>3;
-                                                if ($$ && $$->tid == IDFUNC) {
-                                                    if ($$->nparam != $4.nargs)
+                                                $$.simb = $<simb>3;
+                                                if ($$.simb && $$.simb->tid == IDFUNC) {
+                                                    if ($$.simb->nparam != $4.nargs)
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
-                                                    ChecArgumentos($4.listtipo, $$->listparam);
+                                                    ChecArgumentos($4.listtipo, $$.simb->listparam);
                                                 }
-                                                $$ = $<simb>3->tvar;
+                                                //$$.tipo = $<simb>3->tvar;
                                             } 
             ;
 

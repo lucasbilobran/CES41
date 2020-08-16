@@ -7,9 +7,16 @@ programa ExemploSimples {{{
     principal
 
     var {
-        int (i)
+        int (i, inf, sup, med, compara)
+        logic (acho)
     }
     comandos {
         i = 5;
+        se (compara == 0)
+            achou = verdade;
+        senao se (compara < 0)
+            sup = med - 1;
+        senao 
+            inf = med + 1;
     } 
 }}}
