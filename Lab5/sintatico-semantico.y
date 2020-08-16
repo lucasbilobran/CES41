@@ -81,34 +81,34 @@ struct elemlisttipo {
     pontexprtipo prox;
 };
 
-// /* === Definições de Tipos: Código Intermediário === */
-// typedef union atribopnd atribopnd;
-// typedef struct operando operando;
-// typedef struct celquad celquad;
-// typedef celquad *quadrupla;
-// typedef struct celmodhead celmodhead;
-// typedef celmodhead *modhead;
+/* === Definições de Tipos: Código Intermediário === */
+typedef union atribopnd atribopnd;
+typedef struct operando operando;
+typedef struct celquad celquad;
+typedef celquad *quadrupla;
+typedef struct celmodhead celmodhead;
+typedef celmodhead *modhead;
 
 // /* === Estruturas: Código Intermediário === */
-// union atribopnd {
-//     simbolo simb; int valint; float valfloat;
-//     char valchar; char vallogic; char *valcad;
-//     quadrupla rotulo; modhead modulo;
-// };
+union atribopnd {
+    simbolo simb; int valint; float valfloat;
+    char valchar; char vallogic; char *valcad;
+    quadrupla rotulo; modhead modulo;
+};
 
-// struct operando {
-//     int tipo; atribopnd atr;
-// };
+struct operando {
+    int tipo; atribopnd atr;
+};
 
-// struct celquad {
-//     int num, oper; operando opnd1, opnd2, result;
-//     quadrupla prox;
-// };
+struct celquad {
+    int num, oper; operando opnd1, opnd2, result;
+    quadrupla prox;
+};
 
-// struct celmodhead {
-//     simbolo modname; modhead prox;
-//     quadrupla listquad;
-// };
+struct celmodhead {
+    simbolo modname; modhead prox;
+    quadrupla listquad;
+};
 
 
 /* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
@@ -122,13 +122,13 @@ listsimb pontvar;
 listsimb pontparam;
 listsimb pontfunc;
 
-// /* ===  Variaveis globais: Código Intermediário === */
-// quadrupla quadcorrente, quadaux;
-// modhead codintermed, modcorrente;
-// int oper, numquadcorrente;
-// operando opnd1, opnd2, result, opndaux;
-// int numtemp;
-// const operando opndidle = {IDLEOPND, 0};
+/* ===  Variaveis globais: Código Intermediário === */
+quadrupla quadcorrente, quadaux;
+modhead codintermed, modcorrente;
+int oper, numquadcorrente;
+operando opnd1, opnd2, result, opndaux;
+int numtemp;
+const operando opndidle = {IDLEOPND, 0};
 
 /* === Prototipos: Análises Léxica, Sintática e Semântica === */
 void InicTabSimb (void);
@@ -154,12 +154,12 @@ void ChecaSeEhProcedimento(char *, simbolo);
 simbolo InsereSimbDedup (char *, int, int, simbolo);
 
 // /* === Prototipos: Código Intermediário === */
-// void InicCodIntermed (void);
-// void InicCodIntermMod (simbolo);
-// void ImprimeQuadruplas (void);
-// quadrupla GeraQuadrupla (int, operando, operando, operando);
-// simbolo NovaTemp (int);
-// void RenumQuadruplas (quadrupla, quadrupla);
+void InicCodIntermed (void);
+void InicCodIntermMod (simbolo);
+void ImprimeQuadruplas (void);
+quadrupla GeraQuadrupla (int, operando, operando, operando);
+simbolo NovaTemp (int);
+void RenumQuadruplas (quadrupla, quadrupla);
 
 %}
 
