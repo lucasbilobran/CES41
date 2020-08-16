@@ -242,6 +242,7 @@ Prog        :   {
                     pontvar = simb->listvar;
                     pontparam = simb->listparam;
                     pontfunc = simb->listfunc;
+                    numtemp=0;
                     opnd1.tipo = MODOPND;
                     opnd1.atr.modulo = modcorrente;
                     GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
@@ -472,6 +473,7 @@ CmdAtrib    :  Variavel {if  ($1 != NULL) $1->inic = $1->ref = TRUE;}
                             ($1->tvar == FLOAT && $5 == LOGICAL) ||
                             ($1->tvar == LOGICAL && $5 != LOGICAL))
                                 Incompatibilidade ("Lado direito de comando de atribuicao improprio");
+                        GeraQuadrupla (OPATRIB, $5.opnd, opndidle, $1.opnd);
                 } 
             ;
 ListExpr    :  Expressao {
