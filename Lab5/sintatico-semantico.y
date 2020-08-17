@@ -558,17 +558,46 @@ CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR
                {
                     opnd1.tipo = INTOPND;
                     opnd1.atr.valint = $4;
-                    GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);     
+                    if ($4 > 0)
+                        GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);     
                }  PVIG {printf(");");} 
             ;        
 ListLeit    :  Variavel  
                {
-                   $$ = 1;
-                   GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
+                    if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;
+                    $$ = 1;
+                    if ($1.opnd.tipo == PONTOPND) {
+                        opndaux.tipo = VAROPND;
+                        opndaux.atr.simb = NovaTemp (VAROPND);
+                        GeraQuadrupla(PARAM, opndaux, opndidle, opndidle);
+                        opnd1.tipo = INTOPND;
+                        opnd1.atr.valint = 1;
+                        GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);
+                        GeraQuadrupla(OPATRIBPONT, opndaux, opndidle, $1.opnd);
+                        $$ = 0;
+                    }
+                    else
+                        GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
                }
             |  ListLeit  VIRG {printf(", ");} Variavel {
+                if  ($4.simb != NULL) $4.simb->inic = $4.simb->ref = TRUE;
                 $$ = $1 + 1;
-                GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
+                if ($4.opnd.tipo == PONTOPND) {
+                    opnd1.tipo = INTOPND;
+                    opnd1.atr.valint = $1;
+                    GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);
+                    // ----- Reorder? -----
+                    opndaux.tipo = VAROPND;
+                    opndaux.atr.simb = NovaTemp (VAROPND);
+                    GeraQuadrupla(PARAM, opndaux, opndidle, opndidle);
+                    opnd1.tipo = INTOPND;
+                    opnd1.atr.valint = 1;
+                    GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);
+                    GeraQuadrupla(OPATRIBPONT, opndaux, opndidle, $4.opnd);
+                    $$ = 0;
+                }
+                else
+                    GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
             }
             ;  
 CmdEscrever :  ESCREVER   ABPAR {printf("escrever (");} ListEscr  
