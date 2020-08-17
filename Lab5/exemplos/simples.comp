@@ -8,7 +8,7 @@ programa ExemploSimples {{{
     principal
 
     var {
-        int (i, inf, sup)
+        int (i, inf, sup, teste[4, 5, 6])
         logic (achou)
         carac (c)
     }
@@ -38,6 +38,8 @@ programa ExemploSimples {{{
             inf = inf*inf;
             i = i + 1;
         } enquanto ( i < 30 );
+
+        teste[i+1, 2, 3-i+6] = inf - 21 * sup;
 
     } 
 }}}
