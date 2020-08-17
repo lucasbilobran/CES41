@@ -583,7 +583,6 @@ ChamadaFunc :   ID  ABPAR  {
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
                                                     ChecArgumentos($4.listtipo, $$->listparam);
                                                 }
-                                                $$ = $<simb>3->tvar;
                                             } 
             ;
 

@@ -187,7 +187,7 @@ void RenumQuadruplas (quadrupla, quadrupla);
     char carac;
     simbolo simb;
     quadrupla quad;
-    int tipoexpr, nsubscr;
+    int tipoexpr, nsubscr, nargs;
     infolistexpr infolexpr;
     infoexpressao infoexpr;
 	infovariavel infovar;
@@ -195,9 +195,10 @@ void RenumQuadruplas (quadrupla, quadrupla);
 
 /* === Atributos e Tokens === */
 %type     <infovar>     Variavel ChamadaFunc
-%type     <infoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator
+%type     <infoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator ElemEscr
 %type     <infolexpr>   ListExpr Argumentos
 %type     <nsubscr>     Subscritos ListSubscr
+%type     <nargs>       ListLeit ListEscr
 
 %token    <string>      ID
 %token    <valor>       CTINT
@@ -477,17 +478,49 @@ CmdPara     :  PARA {printf("para ");} Variavel {if ($3.simb->tvar != CHAR && $3
                PVIG {printf("; ");}  Expressao {if ($11.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} PVIG {printf("; ");} 
                ExprAux4 {if ($15.tipo != INTEGER && $15.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} FPAR {printf(") "); tab++;} Comando {tab--;}
             ;
-CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR  PVIG {printf(");");} 
+CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR
+               {
+                    opnd1.tipo = INTOPND;
+                    opnd1.atr.valint = $4;
+                    GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);     
+               }  PVIG {printf(");");} 
             ;        
 ListLeit    :  Variavel  
-            |  ListLeit  VIRG {printf(", ");} Variavel 
+               {
+                   $$ = 1;
+                   GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
+               }
+            |  ListLeit  VIRG {printf(", ");} Variavel {
+                $$ = $1 + 1;
+                GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
+            }
             ;  
-CmdEscrever :  ESCREVER   ABPAR {printf("escrever (");} ListEscr  FPAR  PVIG {printf(");");}  
+CmdEscrever :  ESCREVER   ABPAR {printf("escrever (");} ListEscr  
+               {
+                   opnd1.tipo = INTOPND;
+                   opnd1.atr.valint = $4;
+                   GeraQuadrupla (OPWRITE, opnd1, opndidle, opndidle);
+               }
+               FPAR  PVIG {printf(");");}  
             ;    
 ListEscr    :  ElemEscr  
+                {
+                    $$ = 1;
+                    GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
+                }
             |  ListEscr  VIRG {printf(", ");} ElemEscr 
+                {
+                    $$ = $1 + 1;
+                    GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
+                }
             ;    
-ElemEscr    :  CADEIA {printf("%s", $1);}
+ElemEscr    :  CADEIA 
+               {
+                    printf("%s", $1);
+                    $$.opnd.tipo = CADOPND;
+                    $$.opnd.atr.valcad = malloc(strlen($1) + 1);
+                    strcpy($$.opnd.atr.valcad, $1);
+               }
             |  Expressao 
             ;    
 ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaSeEhProcedimento($2, escopo); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {printf(");");}
