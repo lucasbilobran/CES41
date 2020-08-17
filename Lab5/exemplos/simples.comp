@@ -41,5 +41,7 @@ programa ExemploSimples {{{
 
         teste[i+1, 2, 3-i+6] = inf - 21 * sup;
 
+        i = 5 * teste[5+i, 2, 3];
+
     } 
 }}}

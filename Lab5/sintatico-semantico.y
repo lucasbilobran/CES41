@@ -18,7 +18,7 @@ enum tiposvar {
 };
 
 enum operandos {
-    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT, OPCONTAPONT
 };
 
 enum tiposoperandos {
@@ -36,11 +36,11 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
-char *nomeoperquad[28] = {"",
+char *nomeoperquad[29] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
 	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", 
-    "JT", "IND", "INDEX", "ATRIBPONT"
+    "JT", "IND", "INDEX", "ATRIBPONT", "CONTAPONT"
 };
 char *nometipoopndquad[10] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO", "PONTEIRO"};
 
@@ -731,7 +731,7 @@ Termo       :  Fator
                         switch ($2) {
                             case MULT: case DIV:
                                 if ($1.tipo != INTEGER && $1.tipo != FLOAT && $1.tipo != CHAR
-                                    || $4.tipo != INTEGER && $4.tipo !=FLOAT && $4.tipo !=CHAR)
+                                    || $4.tipo != INTEGER && $4.tipo !=FLOAT && $4.tipo != CHAR)
                                     Incompatibilidade ("Operando improprio para operador aritmetico");
                                 if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
                                 else $$.tipo = INTEGER;
@@ -759,6 +759,11 @@ Fator       :  Variavel {
                             $1.simb->ref = TRUE;
                             $$.tipo = $1.simb->tvar;
                             $$.opnd = $1.opnd;
+                            if ($1.opnd.tipo == PONTOPND) {
+                                $$.opnd.tipo = $1.opnd.tipo = VAROPND;
+                                $$.opnd.atr.simb = NovaTemp($$.tipo);
+                                GeraQuadrupla(OPCONTAPONT, $1.opnd, opndidle, $$.opnd);
+                            }
                         }
                     }
             |  CTINT {printf ("%d", $1); $$.tipo = INTEGER; $$.opnd.tipo = INTOPND; $$.opnd.atr.valint = $1;}
