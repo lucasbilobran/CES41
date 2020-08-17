@@ -278,6 +278,8 @@ Prog        :   {
                     opnd1.atr.modulo = modglobal;
                     modcorrente = modglobal;
                     quadcorrente = modcorrente->listquad;
+                    numquadcorrente = 0;
+                    quadcorrente->num = numquadcorrente;
                     GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
                     GeraQuadrupla (OPCALL, opnd2, opndidle, opndidle);
                     GeraQuadrupla (OPEXIT, opndidle, opndidle, opndidle);
