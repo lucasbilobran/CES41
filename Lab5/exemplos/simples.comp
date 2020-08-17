@@ -14,7 +14,7 @@ programa ExemploSimples {{{
     }
     comandos {
         i = 5;
-        toso = 'a';
+        toso = 's';
         escrever ("\nDigite a palavra: ");
         ler (c);
 
@@ -29,5 +29,11 @@ programa ExemploSimples {{{
         
         i = 5;
         toso = 'a';
+
+        repetir {
+            inf = inf*inf;
+            i = i + 1;
+        } enquanto ( i < 30 );
+
     } 
 }}}

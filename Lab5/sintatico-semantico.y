@@ -18,7 +18,7 @@ enum tiposvar {
 };
 
 enum operandos {
-    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT
 };
 
 enum tiposoperandos {
@@ -36,10 +36,10 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
-char *nomeoperquad[24] = {"",
+char *nomeoperquad[25] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
-	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE"
+	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", "JT"
 };
 char *nometipoopndquad[9] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO"};
 
@@ -471,7 +471,18 @@ CmdSenao    :
             ;
 CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
             ;
-CmdRepetir  :  REPETIR {printf("repetir \n"); tab++;} Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao {if ($7.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR  PVIG {printf(");");} 
+CmdRepetir  :  REPETIR 
+               {
+                    printf("repetir \n"); tab++;
+                    $<quad>$ = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+               } 
+               Comando  ENQUANTO ABPAR {printf("enquanto (");} Expressao 
+               {
+                   if ($7.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR  PVIG {printf(");");
+                   opndaux.tipo = ROTOPND;
+                   opndaux.atr.rotulo = $<quad>2;
+                   GeraQuadrupla(OPJT, $7.opnd, opndidle, opndaux);
+               } 
             ;
 CmdPara     :  PARA {printf("para ");} Variavel {if ($3.simb->tvar != CHAR && $3.simb->tvar != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
                ABPAR {printf(" (");}  ExprAux4 {if ($7.tipo != INTEGER && $7.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} 
