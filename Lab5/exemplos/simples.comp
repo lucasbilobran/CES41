@@ -8,7 +8,7 @@ programa ExemploSimples {{{
     principal
 
     var {
-        int (i, inf, sup, j, k, A[10, 10])
+        int (i, inf, sup, j, k, l, m, n, A[10, 10], B[10, 10, 10, 10])
         logic (achou)
         carac (c)
     }
@@ -53,7 +53,7 @@ programa ExemploSimples {{{
         k = A[i - 3, j + 2] + 5;
         A[10 - i, 9 - j] = i + j * k;
 
-        ler(i, j, A[1, 2], k);
+        ler(i, j, k, B[1, 2, 3, 4], l, m, A[1, 2], n);
 
         /* ler(A[1, 2], i, j, k); */
     } 

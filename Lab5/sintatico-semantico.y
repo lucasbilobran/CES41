@@ -577,7 +577,7 @@ ListLeit    :  Variavel
                         $$ = 0;
                     }
                     else
-                        GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
+                        quadaux = GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
                }
             |  ListLeit  VIRG {printf(", ");} Variavel {
                 if  ($4.simb != NULL) $4.simb->inic = $4.simb->ref = TRUE;
@@ -585,8 +585,14 @@ ListLeit    :  Variavel
                 if ($4.opnd.tipo == PONTOPND) {
                     opnd1.tipo = INTOPND;
                     opnd1.atr.valint = $1;
+                    $<quad>$ = quadcorrente;
                     GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);
-                    // ----- Reorder? -----
+                    // ----- Reorder -----
+                    quadcorrente->prox = quadaux->prox;
+                    quadaux->prox = quadcorrente;
+                    quadcorrente = $<quad>$;
+                    RenumQuadruplas(quadaux, quadcorrente);
+                    // --------------------
                     opndaux.tipo = VAROPND;
                     opndaux.atr.simb = NovaTemp (VAROPND);
                     GeraQuadrupla(PARAM, opndaux, opndidle, opndidle);
@@ -597,7 +603,7 @@ ListLeit    :  Variavel
                     $$ = 0;
                 }
                 else
-                    GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
+                    quadaux = GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
             }
             ;  
 CmdEscrever :  ESCREVER   ABPAR {printf("escrever (");} ListEscr  
