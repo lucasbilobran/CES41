@@ -18,11 +18,11 @@ enum tiposvar {
 };
 
 enum operandos {
-    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT, OPCONTAPONT
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT, OPCONTAPONT, OPCALL, OPRETURN
 };
 
 enum tiposoperandos {
-    IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND, PONTOPND   
+    IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND, PONTOPND 
 };
 
 /* === Constantes === */
@@ -36,11 +36,11 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
-char *nomeoperquad[29] = {"",
+char *nomeoperquad[31] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
 	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", 
-    "JT", "IND", "INDEX", "ATRIBPONT", "CONTAPONT"
+    "JT", "IND", "INDEX", "ATRIBPONT", "CONTAPONT", "CALL", "RETURN"
 };
 char *nometipoopndquad[10] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO", "VAR"};
 
@@ -56,13 +56,24 @@ typedef struct elemlistsimb elemlistsimb;
 typedef elemlistsimb *pontelemlistsimb;
 typedef elemlistsimb *listsimb;
 
+/* === Definições de Tipos: Código Intermediário === */
+typedef union atribopnd atribopnd;
+typedef struct operando operando;
+typedef struct celquad celquad;
+typedef celquad *quadrupla;
+typedef struct celmodhead celmodhead;
+typedef celmodhead *modhead;
+typedef struct infoexpressao infoexpressao;
+typedef struct infovariavel infovariavel;
+
 /* === Estruturas: Análises Léxica, Sintática e Semântica === */
 struct celsimb {
     char *cadeia;
     int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
     char inic, ref, array, param;
     listsimb listvar, listparam, listfunc;
-    simbolo escopo, prox; 
+    simbolo escopo, prox;
+    modhead fhead;
 };
 
 struct elemlistsimb {
@@ -80,16 +91,6 @@ struct elemlisttipo {
     pontexprtipo prox;
 };
 
-/* === Definições de Tipos: Código Intermediário === */
-typedef union atribopnd atribopnd;
-typedef struct operando operando;
-typedef struct celquad celquad;
-typedef celquad *quadrupla;
-typedef struct celmodhead celmodhead;
-typedef celmodhead *modhead;
-typedef struct infoexpressao infoexpressao;
-typedef struct infovariavel infovariavel;
-
 /* === Estruturas: Código Intermediário === */
 union atribopnd {
     simbolo simb; 
@@ -97,7 +98,7 @@ union atribopnd {
     float valfloat;
     char valchar, vallogic; 
     char *valcad;
-    quadrupla rotulo; 
+    quadrupla rotulo;
     modhead modulo;
 };
 
@@ -255,19 +256,18 @@ Prog        :   {
                     InicCodIntermed ();
                     declparam = FALSE; 
                     simb = escopo = InsereSimb("##global", IDGLOB, NOTVAR, NULL);
-                    InicCodIntermMod (simb);
                     pontvar = simb->listvar;
                     pontparam = simb->listparam;
                     pontfunc = simb->listfunc;
                     numtemp=0;
-                    opnd1.tipo = MODOPND;
-                    opnd1.atr.modulo = modcorrente;
-                    GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
                 } 
                 PROGRAMA ID ABTRIP {
                     tabular(); 
                     printf("programa %s {{{", $3);
-                    InsereSimb ($3, IDPROG, NOTVAR, escopo); 
+                    InsereSimb ($3, IDPROG, NOTVAR, escopo);
+                    opnd1.tipo = MODOPND;
+                    opnd1.atr.modulo = modcorrente;
+                    GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
                     tab++; 
                     printf("\n");
                 }  Decls ListMod ModPrincipal FTRIP {
@@ -415,7 +415,7 @@ Parametro   :   Tipo ID {
             ;
 Corpo       :   Decls Comandos {escopo = escopo->escopo;}
             ;
-ModPrincipal:   {printf("\n"); tabular();} PRINCIPAL {escopo = InsereSimb("##principal", IDPROG, NOTVAR, escopo); printf("principal \n"); tab++;}  Corpo {printf("\n"); tab--;}
+ModPrincipal:   {printf("\n"); tabular();} PRINCIPAL {escopo = InsereSimb("##principal", IDPROG, NOTVAR, escopo); printf("principal \n"); tab++;}  Corpo {printf("\n"); tab--; GeraQuadrupla(OPRETURN, opndidle, opndidle, opndidle);}
             ;
 Comandos    :   COMANDOS {printf("\n"); tabular(); printf("comandos "); tab++;}  CmdComp {tab--;}
             ;
@@ -635,12 +635,20 @@ ElemEscr    :  CADEIA
                }
             |  Expressao 
             ;    
-ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaSeEhProcedimento($2, escopo); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {printf(");");}
+ChamadaProc :  CHAMAR   ID  ABPAR {printf("chamar %s (", $2); ChecaSeEhProcedimento($2, escopo); ChecaRecursividade($2, escopo); ChecaChamarId($2);} Argumentos  FPAR  PVIG  {
+                            printf(");");
+                            simb = ProcuraSimb($2, escopo->escopo);
+                            opnd1.tipo = MODOPND;
+                            opnd1.atr.modulo = simb->fhead;
+                            opnd2.tipo = INTOPND;
+                            opnd2.atr.valint = $5.nargs;
+                            GeraQuadrupla(OPCALL, opnd1, opnd2, opndidle);
+                        }
             ;    
 Argumentos  :  {$$.nargs = 0; $$.listtipo = NULL;}
             |  ListExpr 
             ;
-CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;"); if (escopo->tvar != NOTVAR) Incompatibilidade ("Retorno da funcao improprio");} 
+CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;"); if (escopo->tvar != NOTVAR) Incompatibilidade ("Retorno da funcao improprio"); GeraQuadrupla(OPRETURN, opndidle, opndidle, opndidle);} 
             |  RETORNAR {printf("retornar ");} Expressao  PVIG {
                                                                     printf(";");
                                                                     if (((escopo->tvar == INTEGER || escopo->tvar == CHAR) &&
@@ -650,6 +658,7 @@ CmdRetornar :  RETORNAR   PVIG  {printf("retornar ;"); if (escopo->tvar != NOTVA
                                                                             Incompatibilidade ("Retorno da funcao improprio");
                                                                     else if( escopo->tvar == NOTVAR )
                                                                         Incompatibilidade ("Procedimento nao deve retornar variavel");
+                                                                    GeraQuadrupla(OPRETURN, $3.opnd, opndidle, opndidle);
                                                                }  
             ;        
 CmdAtrib    :  Variavel {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;}  
@@ -672,10 +681,12 @@ CmdAtrib    :  Variavel {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TR
 ListExpr    :  Expressao {
                             $$.nargs = 1;
                             $$.listtipo = InicListTipo($1.tipo);
+                            GeraQuadrupla(PARAM, $1.opnd, opndidle, opndidle);
                          }
             |  ListExpr  VIRG {printf(", ");} Expressao {
                                                             $$.nargs = $1.nargs + 1;
                                                             $$.listtipo = ConcatListTipo($1.listtipo, InicListTipo($4.tipo));
+                                                            GeraQuadrupla(PARAM, $4.opnd, opndidle, opndidle);
                                                         }
             ;    
 Expressao   :  ExprAux1 
@@ -933,6 +944,18 @@ ChamadaFunc :   ID  ABPAR  {
                                                         Incompatibilidade("Numero de argumentos diferente do numero de parametros");
                                                     ChecArgumentos($4.listtipo, $$.simb->listparam);
                                                 }
+                                                opnd1.tipo = MODOPND;
+                                                opnd1.atr.modulo = $$.simb->fhead;
+                                                opnd2.tipo = INTOPND;
+                                                opnd2.atr.valint = $4.nargs;
+                                                if ($$.simb->tvar == NOTVAR)
+                                                    result = opndidle;
+                                                else {
+                                                    result.tipo = VAROPND;
+                                                    result.atr.simb = NovaTemp($$.simb->tvar);
+                                                }
+                                                GeraQuadrupla(OPCALL, opnd1, opnd2, result);
+                                                $$.opnd = result;
                                             } 
             ;
 
@@ -1022,6 +1045,12 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
         s->listparam = (elemlistsimb *) malloc(sizeof(elemlistsimb));
         s->listparam->prox = NULL;
         s->nparam = 0;
+    }
+
+    /* Se houver subprogramação abrir novo código intermediário */
+    if (tid == IDFUNC || tid == IDPROC || tid == IDPROG) {
+        InicCodIntermMod(s);
+        s->fhead = modcorrente;
     }
 
     return s;
@@ -1319,8 +1348,7 @@ void ImprimeQuadruplas () {
                 case LOGICOPND: printf (", %d", q->opnd1.atr.vallogic); break;
                 case CADOPND: printf (", %s", q->opnd1.atr.valcad); break;
                 case ROTOPND: printf (", %d", q->opnd1.atr.rotulo->num); break;
-                case MODOPND: printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
-                    break;
+                case MODOPND: printf(", %s", q->opnd1.atr.modulo->modname->cadeia); break;
             }
             printf (")");
             printf (", (%s", nometipoopndquad[q->opnd2.tipo]);
@@ -1334,8 +1362,7 @@ void ImprimeQuadruplas () {
                 case LOGICOPND: printf (", %d", q->opnd2.atr.vallogic); break;
                 case CADOPND: printf (", %s", q->opnd2.atr.valcad); break;
                 case ROTOPND: printf (", %d", q->opnd2.atr.rotulo->num); break;
-                case MODOPND: printf(", %s", q->opnd2.atr.modulo->modname->cadeia);
-                    break;
+                case MODOPND: printf(", %s", q->opnd2.atr.modulo->modname->cadeia); break;
             }
             printf (")");
             printf (", (%s", nometipoopndquad[q->result.tipo]);
@@ -1349,8 +1376,7 @@ void ImprimeQuadruplas () {
                 case LOGICOPND: printf (", %d", q->result.atr.vallogic); break;
                 case CADOPND: printf (", %s", q->result.atr.valcad); break;
                 case ROTOPND: printf (", %d", q->result.atr.rotulo->num); break;
-                case MODOPND: printf(", %s", q->result.atr.modulo->modname->cadeia);
-                    break;
+                case MODOPND: printf(", %s", q->result.atr.modulo->modname->cadeia); break;
             }
             printf (")");
         }
