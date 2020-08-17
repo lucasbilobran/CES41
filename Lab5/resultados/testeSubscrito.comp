@@ -1,0 +1,112 @@
+programa teste {{{
+
+   principal 
+
+      var {
+         int (i, j, k, A[10, 10])
+      }
+
+      comandos {
+         i = 7;
+         j = 5;
+         k = A[i - 3, j + 2] + 5;
+         A[10 - i, 9 - j] = i + j * k;
+         ler (i, j, A[2, 3], k);
+         ler (A[1, 2]);
+      }
+
+}}}
+
+
+===== VARIAVEIS NAO DECLARADAS OU NAO REFERENCIADAS: =====
+
+
+
+===== TABELA  DE  SIMBOLOS: =====
+
+Classe 4:
+  (##1, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 5:
+  (##2, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##global, GLOBAL)
+Classe 6:
+  (##10, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##3, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 7:
+  (##11, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##4, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 8:
+  (##12, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##5, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 9:
+  (##13, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##6, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 10:
+  (##14, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+  (##7, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 11:
+  (##8, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 12:
+  (##9, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 13:
+  (i, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 14:
+  (j, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 15:
+  (k, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
+Classe 19:
+  (A, IDVAR, INTEGER, 1, 1EH ARRAY
+ 	dims = 2, dimensoes: 10 10 | Escopo: ##principal)
+Classe 20:
+  (##principal, IDPROG | Escopo: ##global)
+  (teste, IDPROG | Escopo: ##global)
+
+
+Quadruplas do modulo teste:
+
+	   1) OPENMOD, (MODULO, teste), (IDLE), (IDLE)
+	   2) CALL, (MODULO, ##principal), (IDLE), (IDLE)
+	   3) EXIT, (IDLE), (IDLE), (IDLE)
+
+Quadruplas do modulo ##principal:
+
+	   1) ATRIB, (INT, 7), (IDLE), (VAR, i)
+	   2) ATRIB, (INT, 5), (IDLE), (VAR, j)
+	   3) MENOS, (VAR, i), (INT, 3), (VAR, ##1)
+	   4) IND, (VAR, ##1), (IDLE), (IDLE)
+	   5) MAIS, (VAR, j), (INT, 2), (VAR, ##2)
+	   6) IND, (VAR, ##2), (IDLE), (IDLE)
+	   7) INDEX, (VAR, A), (INT, 2), (VAR, ##3)
+	   8) CONTAPONT, (VAR, ##3), (IDLE), (VAR, ##4)
+	   9) MAIS, (VAR, ##4), (INT, 5), (VAR, ##5)
+	  10) ATRIB, (VAR, ##5), (IDLE), (VAR, k)
+	  11) MENOS, (INT, 10), (VAR, i), (VAR, ##6)
+	  12) IND, (VAR, ##6), (IDLE), (IDLE)
+	  13) MENOS, (INT, 9), (VAR, j), (VAR, ##7)
+	  14) IND, (VAR, ##7), (IDLE), (IDLE)
+	  15) INDEX, (VAR, A), (INT, 2), (VAR, ##8)
+	  16) MULT, (VAR, j), (VAR, k), (VAR, ##9)
+	  17) MAIS, (VAR, i), (VAR, ##9), (VAR, ##10)
+	  18) ATRIBPONT, (VAR, ##10), (IDLE), (VAR, ##8)
+	  19) PARAM, (VAR, i), (IDLE), (IDLE)
+	  20) PARAM, (VAR, j), (IDLE), (IDLE)
+	  21) READ, (INT, 2), (IDLE), (IDLE)
+	  22) IND, (INT, 2), (IDLE), (IDLE)
+	  23) IND, (INT, 3), (IDLE), (IDLE)
+	  24) INDEX, (VAR, A), (INT, 2), (VAR, ##11)
+	  25) PARAM, (VAR, ##12), (IDLE), (IDLE)
+	  26) READ, (INT, 1), (IDLE), (IDLE)
+	  27) ATRIBPONT, (VAR, ##12), (IDLE), (VAR, ##11)
+	  28) PARAM, (VAR, k), (IDLE), (IDLE)
+	  29) READ, (INT, 1), (IDLE), (IDLE)
+	  30) IND, (INT, 1), (IDLE), (IDLE)
+	  31) IND, (INT, 2), (IDLE), (IDLE)
+	  32) INDEX, (VAR, A), (INT, 2), (VAR, ##13)
+	  33) PARAM, (VAR, ##14), (IDLE), (IDLE)
+	  34) READ, (INT, 1), (IDLE), (IDLE)
+	  35) ATRIBPONT, (VAR, ##14), (IDLE), (VAR, ##13)
+	  36) RETURN, (IDLE), (IDLE), (IDLE)
+
+
+Programa Compilado com Sucesso!
+

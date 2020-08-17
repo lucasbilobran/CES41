@@ -1,0 +1,91 @@
+programa ExemploSimples {{{
+
+   var {
+      int (med, compara)
+      logic (toso)
+   }
+
+   principal 
+
+      var {
+         int (a, b, c, d)
+         logic (achou, flag)
+         real (re)
+         carac (ca)
+      }
+
+      comandos {
+      }
+
+}}}
+
+
+===== VARIAVEIS NAO DECLARADAS OU NAO REFERENCIADAS: =====
+
+Variavel compara (Escopo: ##global): Nao Inicializada
+Variavel compara (Escopo: ##global): Nao Referenciada
+Variavel a (Escopo: ##principal): Nao Inicializada
+Variavel a (Escopo: ##principal): Nao Referenciada
+Variavel b (Escopo: ##principal): Nao Inicializada
+Variavel b (Escopo: ##principal): Nao Referenciada
+Variavel c (Escopo: ##principal): Nao Inicializada
+Variavel c (Escopo: ##principal): Nao Referenciada
+Variavel re (Escopo: ##principal): Nao Inicializada
+Variavel re (Escopo: ##principal): Nao Referenciada
+Variavel d (Escopo: ##principal): Nao Inicializada
+Variavel d (Escopo: ##principal): Nao Referenciada
+Variavel med (Escopo: ##global): Nao Inicializada
+Variavel med (Escopo: ##global): Nao Referenciada
+Variavel ca (Escopo: ##principal): Nao Inicializada
+Variavel ca (Escopo: ##principal): Nao Referenciada
+Variavel toso (Escopo: ##global): Nao Inicializada
+Variavel toso (Escopo: ##global): Nao Referenciada
+Variavel flag (Escopo: ##principal): Nao Inicializada
+Variavel flag (Escopo: ##principal): Nao Referenciada
+Variavel achou (Escopo: ##principal): Nao Inicializada
+Variavel achou (Escopo: ##principal): Nao Referenciada
+
+
+===== TABELA  DE  SIMBOLOS: =====
+
+Classe 3:
+  (compara, IDVAR, INTEGER, 0, 0 | Escopo: ##global)
+Classe 5:
+  (a, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+  (##global, GLOBAL)
+Classe 6:
+  (b, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+Classe 7:
+  (c, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+Classe 8:
+  (re, IDVAR, FLOAT, 0, 0 | Escopo: ##principal)
+  (d, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+Classe 11:
+  (med, IDVAR, INTEGER, 0, 0 | Escopo: ##global)
+Classe 12:
+  (ca, IDVAR, CHAR, 0, 0 | Escopo: ##principal)
+Classe 14:
+  (ExemploSimples, IDPROG | Escopo: ##global)
+Classe 16:
+  (toso, IDVAR, LOGICAL, 0, 0 | Escopo: ##global)
+Classe 19:
+  (flag, IDVAR, LOGICAL, 0, 0 | Escopo: ##principal)
+Classe 20:
+  (##principal, IDPROG | Escopo: ##global)
+Classe 22:
+  (achou, IDVAR, LOGICAL, 0, 0 | Escopo: ##principal)
+
+
+Quadruplas do modulo ExemploSimples:
+
+	   1) OPENMOD, (MODULO, ExemploSimples), (IDLE), (IDLE)
+	   2) CALL, (MODULO, ##principal), (IDLE), (IDLE)
+	   3) EXIT, (IDLE), (IDLE), (IDLE)
+
+Quadruplas do modulo ##principal:
+
+	   1) RETURN, (IDLE), (IDLE), (IDLE)
+
+
+Programa Compilado com Sucesso!
+
