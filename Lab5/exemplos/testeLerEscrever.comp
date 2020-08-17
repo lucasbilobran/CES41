@@ -1,0 +1,19 @@
+programa ExemploSimples {{{
+
+    var {
+        int (A[10,10])
+    }
+
+    principal
+
+    var {
+        carac (ca, cb, cc)
+    }
+    comandos {
+        
+        ler (ca, cb, A[2,3], cc);
+
+        escrever("Valor de ca: ", ca, "Aleatorio: ", A[1,1]);
+
+    } 
+}}}
