@@ -1,19 +1,34 @@
 programa ExemploSimples {{{
 
     var {
-        int (med, compara)
-        logic (toso)
+        int (a)
     }
 
     principal
 
     var {
-        int (a, b, c, d)
-        logic (achou, flag)
-        real (re)
-        carac (ca)
+        int (b)
+        logic (achou)
     }
     comandos {
-        
+        achou  = falso;
+        a = 1;
+        b = 3;
+
+        se (!achou && a > 3) {
+            a = 2;
+        }
+
+        se (achou) {
+            a = 3;
+        }
+        senao se (a > 4) {
+            b = 5;
+        }
+        senao {
+            b = b + 4;
+        }
+
+
     } 
 }}}

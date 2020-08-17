@@ -1,20 +1,33 @@
 programa ExemploSimples {{{
 
    var {
-      int (med, compara)
-      logic (toso)
+      int (a)
    }
 
    principal 
 
       var {
-         int (a, b, c, d)
-         logic (achou, flag)
-         real (re)
-         carac (ca)
+         int (b)
+         logic (achou)
       }
 
       comandos {
+         achou = falso;
+         a = 1;
+         b = 3;
+         se (!achou && a > 3) {
+            a = 2;
+         }
+         se (achou) {
+            a = 3;
+         }
+         senao 
+            se (a > 4) {
+               b = 5;
+            }
+            senao {
+               b = b + 4;
+            }
       }
 
 }}}
@@ -22,58 +35,29 @@ programa ExemploSimples {{{
 
 ===== VARIAVEIS NAO DECLARADAS OU NAO REFERENCIADAS: =====
 
-Variavel compara (Escopo: ##global): Nao Inicializada
-Variavel compara (Escopo: ##global): Nao Referenciada
-Variavel a (Escopo: ##principal): Nao Inicializada
-Variavel a (Escopo: ##principal): Nao Referenciada
-Variavel b (Escopo: ##principal): Nao Inicializada
-Variavel b (Escopo: ##principal): Nao Referenciada
-Variavel c (Escopo: ##principal): Nao Inicializada
-Variavel c (Escopo: ##principal): Nao Referenciada
-Variavel re (Escopo: ##principal): Nao Inicializada
-Variavel re (Escopo: ##principal): Nao Referenciada
-Variavel d (Escopo: ##principal): Nao Inicializada
-Variavel d (Escopo: ##principal): Nao Referenciada
-Variavel med (Escopo: ##global): Nao Inicializada
-Variavel med (Escopo: ##global): Nao Referenciada
-Variavel ca (Escopo: ##principal): Nao Inicializada
-Variavel ca (Escopo: ##principal): Nao Referenciada
-Variavel toso (Escopo: ##global): Nao Inicializada
-Variavel toso (Escopo: ##global): Nao Referenciada
-Variavel flag (Escopo: ##principal): Nao Inicializada
-Variavel flag (Escopo: ##principal): Nao Referenciada
-Variavel achou (Escopo: ##principal): Nao Inicializada
-Variavel achou (Escopo: ##principal): Nao Referenciada
 
 
 ===== TABELA  DE  SIMBOLOS: =====
 
-Classe 3:
-  (compara, IDVAR, INTEGER, 0, 0 | Escopo: ##global)
+Classe 4:
+  (##1, IDVAR, LOGICAL, 1, 1 | Escopo: ##principal)
 Classe 5:
-  (a, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+  (##2, IDVAR, LOGICAL, 1, 1 | Escopo: ##principal)
+  (a, IDVAR, INTEGER, 1, 1 | Escopo: ##global)
   (##global, GLOBAL)
 Classe 6:
-  (b, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+  (##3, IDVAR, LOGICAL, 1, 1 | Escopo: ##principal)
+  (b, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
 Classe 7:
-  (c, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
+  (##4, IDVAR, LOGICAL, 1, 1 | Escopo: ##principal)
 Classe 8:
-  (re, IDVAR, FLOAT, 0, 0 | Escopo: ##principal)
-  (d, IDVAR, INTEGER, 0, 0 | Escopo: ##principal)
-Classe 11:
-  (med, IDVAR, INTEGER, 0, 0 | Escopo: ##global)
-Classe 12:
-  (ca, IDVAR, CHAR, 0, 0 | Escopo: ##principal)
+  (##5, IDVAR, INTEGER, 1, 1 | Escopo: ##principal)
 Classe 14:
   (ExemploSimples, IDPROG | Escopo: ##global)
-Classe 16:
-  (toso, IDVAR, LOGICAL, 0, 0 | Escopo: ##global)
-Classe 19:
-  (flag, IDVAR, LOGICAL, 0, 0 | Escopo: ##principal)
 Classe 20:
   (##principal, IDPROG | Escopo: ##global)
 Classe 22:
-  (achou, IDVAR, LOGICAL, 0, 0 | Escopo: ##principal)
+  (achou, IDVAR, LOGICAL, 1, 1 | Escopo: ##principal)
 
 
 Quadruplas do modulo ExemploSimples:
@@ -84,7 +68,29 @@ Quadruplas do modulo ExemploSimples:
 
 Quadruplas do modulo ##principal:
 
-	   1) RETURN, (IDLE), (IDLE), (IDLE)
+	   1) ATRIB, (LOGIC, 0), (IDLE), (VAR, achou)
+	   2) ATRIB, (INT, 1), (IDLE), (VAR, a)
+	   3) ATRIB, (INT, 3), (IDLE), (VAR, b)
+	   4) NOT, (VAR, achou), (IDLE), (VAR, ##1)
+	   5) GT, (VAR, a), (INT, 3), (VAR, ##2)
+	   6) AND, (VAR, ##1), (VAR, ##2), (VAR, ##3)
+	   7) JF, (VAR, ##3), (IDLE), (ROTULO, 9)
+	   8) ATRIB, (INT, 2), (IDLE), (VAR, a)
+	   9) NOP, (IDLE), (IDLE), (IDLE)
+	  10) JF, (VAR, achou), (IDLE), (ROTULO, 13)
+	  11) ATRIB, (INT, 3), (IDLE), (VAR, a)
+	  12) JUMP, (IDLE), (IDLE), (ROTULO, 22)
+	  13) NOP, (IDLE), (IDLE), (IDLE)
+	  14) GT, (VAR, a), (INT, 4), (VAR, ##4)
+	  15) JF, (VAR, ##4), (IDLE), (ROTULO, 18)
+	  16) ATRIB, (INT, 5), (IDLE), (VAR, b)
+	  17) JUMP, (IDLE), (IDLE), (ROTULO, 21)
+	  18) NOP, (IDLE), (IDLE), (IDLE)
+	  19) MAIS, (VAR, b), (INT, 4), (VAR, ##5)
+	  20) ATRIB, (VAR, ##5), (IDLE), (VAR, b)
+	  21) NOP, (IDLE), (IDLE), (IDLE)
+	  22) NOP, (IDLE), (IDLE), (IDLE)
+	  23) RETURN, (IDLE), (IDLE), (IDLE)
 
 
 Programa Compilado com Sucesso!
