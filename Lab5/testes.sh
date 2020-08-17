@@ -8,3 +8,4 @@ gcc y.tab.c main.c yyerror.c -o sintatico-semantico -lfl
 ./sintatico-semantico < exemplos/testeExpressoes.comp > resultados/testeExpressoes.comp
 ./sintatico-semantico < exemplos/testePara.comp > resultados/testePara.comp
 ./sintatico-semantico < exemplos/testeLerEscrever.comp > resultados/testeLerEscrever.comp
+./sintatico-semantico < exemplos/testeEnquantoRepetir.comp > resultados/testeEnquantoRepetir.comp
