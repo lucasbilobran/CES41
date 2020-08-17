@@ -1,22 +1,30 @@
 programa ExemploSimples {{{
 
    var {
+      int (med, compara)
       carac (toso)
    }
 
     principal
 
     var {
-        int (i, inf, sup, med, compara)
-        logic (acho)
+        int (i, inf, sup)
+        logic (achou)
     }
     comandos {
         i = 5;
+        toso = 'a';
+        
+        se (compara == 1)
+            med = 3;
         se (compara == 0)
             achou = verdade;
         senao se (compara < 0)
             sup = med - 1;
         senao 
             inf = med + 1;
+        
+        i = 5;
+        toso = 'a';
     } 
 }}}

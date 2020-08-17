@@ -453,8 +453,8 @@ CmdSe       :   SE   ABPAR {printf("se (");}  Expressao
                         $<quad>9->prox = quadaux->prox;
                         quadaux->prox = $<quad>9->prox->prox;
                         $<quad>9->prox->prox = quadaux;
-                        RenumQuadruplas ($<quad>9, quadaux);
-                        }
+                        RenumQuadruplas ($<quad>9, quadcorrente);
+                    }
                 } 
             ;  
 CmdSenao    : 
@@ -465,7 +465,7 @@ CmdSenao    :
                 $<quad>$ = GeraQuadrupla(OPJUMP, opndidle, opndidle, opndaux);
             } Comando
             {
-                $<quad>2->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndaux);
+                $<quad>2->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
             }
             ;
 CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
@@ -534,6 +534,9 @@ Expressao   :  ExprAux1
                         if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador or");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        GeraQuadrupla (OPOR, $1.opnd, $4.opnd, $$.opnd);
                     }
             ;    
 ExprAux1    :  ExprAux2 
@@ -541,6 +544,9 @@ ExprAux1    :  ExprAux2
                         if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador and");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        GeraQuadrupla (OPAND, $1.opnd, $4.opnd, $$.opnd);
                     }
             ;    
 ExprAux2    :  ExprAux3 
@@ -548,6 +554,9 @@ ExprAux2    :  ExprAux3
                         if ($3.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador not");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($3.tipo);
+                        GeraQuadrupla (OPNOT, $3.opnd, opndidle, $$.opnd);
                     }
             ;    
 ExprAux3    :  ExprAux4 
@@ -584,6 +593,28 @@ ExprAux3    :  ExprAux4
                                 break;
                         }
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        switch ($2) {
+                            case LT:
+                                GeraQuadrupla (OPLT, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case LEQ:
+                                GeraQuadrupla (OPLE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case GT:
+                                GeraQuadrupla (OPGT, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case GEQ:
+                                GeraQuadrupla (OPGE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case EQ:
+                                GeraQuadrupla (OPEQ, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case NEQ:
+                                GeraQuadrupla (OPNE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                        }
                     }
             ;    
 ExprAux4    :  Termo 
@@ -601,6 +632,11 @@ ExprAux4    :  Termo
                             Incompatibilidade ("Operando improprio para operador aritmetico");
                         if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
                         else $$.tipo = INTEGER;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        if ($2 == SOMA)
+                            GeraQuadrupla (OPMAIS, $1.opnd, $4.opnd, $$.opnd);
+                        else  GeraQuadrupla (OPMENOS, $1.opnd, $4.opnd, $$.opnd);
                     }
             ;    
 Termo       :  Fator 
@@ -1064,8 +1100,7 @@ void InicCodIntermMod (simbolo simb) {
     quadcorrente->num = numquadcorrente;
 }
 
-quadrupla GeraQuadrupla (int oper, operando opnd1, operando opnd2,
-    operando result) {
+quadrupla GeraQuadrupla (int oper, operando opnd1, operando opnd2, operando result) {
     quadcorrente->prox = malloc (sizeof (celquad));
     quadcorrente = quadcorrente->prox;
     quadcorrente->oper = oper;
