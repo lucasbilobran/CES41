@@ -18,11 +18,11 @@ enum tiposvar {
 };
 
 enum operandos {
-    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT
 };
 
 enum tiposoperandos {
-    IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND     
+    IDLEOPND=0, VAROPND, INTOPND, REALOPND, CHAROPND, LOGICOPND, CADOPND, ROTOPND, MODOPND, PONTOPND   
 };
 
 /* === Constantes === */
@@ -36,12 +36,13 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
-char *nomeoperquad[25] = {"",
+char *nomeoperquad[28] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
-	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", "JT"
+	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", 
+    "JT", "IND", "INDEX", "ATRIBPONT"
 };
-char *nometipoopndquad[9] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO"};
+char *nometipoopndquad[10] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO", "PONTEIRO"};
 
 /* === Definições de Tipos: Análises Léxica, Sintática e Semântica === */
 typedef int bool;
@@ -88,8 +89,9 @@ typedef struct celmodhead celmodhead;
 typedef celmodhead *modhead;
 typedef struct infoexpressao infoexpressao;
 typedef struct infovariavel infovariavel;
+typedef struct infoponteiro infoponteiro;
 
-// /* === Estruturas: Código Intermediário === */
+/* === Estruturas: Código Intermediário === */
 union atribopnd {
     simbolo simb; 
     int valint; 
@@ -127,6 +129,11 @@ struct infovariavel {
 	operando opnd;
 };
 
+struct infoponteiro {
+    int nsubscr;
+    operando opnd;
+};
+
 /* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
 simbolo tabsimb[NCLASSHASH];
 simbolo simb, escopo, escaux;
@@ -142,7 +149,7 @@ listsimb pontfunc;
 quadrupla quadcorrente, quadaux, quadaux2;
 modhead codintermed, modcorrente;
 int oper, numquadcorrente;
-operando opnd1, opnd2, result, opndaux;
+operando opnd1, opnd2, result, opndaux, opndaux2;
 int numtemp;
 const operando opndidle = {IDLEOPND, 0};
 
@@ -191,13 +198,15 @@ void RenumQuadruplas (quadrupla, quadrupla);
     infolistexpr infolexpr;
     infoexpressao infoexpr;
 	infovariavel infovar;
+    infoponteiro infopont;
 }        
 
 /* === Atributos e Tokens === */
 %type     <infovar>     Variavel ChamadaFunc
 %type     <infoexpr>    Expressao  ExprAux1  ExprAux2 ExprAux3   ExprAux4   Termo   Fator ElemEscr
 %type     <infolexpr>   ListExpr Argumentos
-%type     <nsubscr>     Subscritos ListSubscr
+%type     <infopont>    Subscritos 
+%type     <nsubscr>     ListSubscr
 %type     <nargs>       ListLeit ListEscr
 
 %token    <string>      ID
@@ -625,7 +634,12 @@ CmdAtrib    :  Variavel {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TR
                             ($1.simb->tvar == FLOAT && $5.tipo == LOGICAL) ||
                             ($1.simb->tvar == LOGICAL && $5.tipo != LOGICAL))
                                 Incompatibilidade ("Lado direito de comando de atribuicao improprio");
-                        GeraQuadrupla (OPATRIB, $5.opnd, opndidle, $1.opnd);
+                        if ($1.opnd.tipo == PONTOPND) {
+                            $1.opnd.tipo = VAROPND;
+                            GeraQuadrupla (OPATRIBPONT, $5.opnd, opndidle, $1.opnd);
+                        }
+                        else
+                            GeraQuadrupla (OPATRIB, $5.opnd, opndidle, $1.opnd);
                 } 
             ;
 ListExpr    :  Expressao {
@@ -830,29 +844,44 @@ Variavel    : ID  {
                     }  Subscritos  {
                                     $$.simb = $<simb>2;
                                     if($$.simb != NULL) {
-                                        if($$.simb->array == FALSE && $3 > 0)
+                                        if($$.simb->array == FALSE && $3.nsubscr > 0)
                                             NaoEsperado("Subscrito\(s)");
-                                        else if($$.simb->array == TRUE && $3 == 0){
+                                        else if($$.simb->array == TRUE && $3.nsubscr == 0){
                                             Esperado("Subscrito\(s)");
                                         }
-                                        else if($$.simb->ndims!= $3)
+                                        else if($$.simb->ndims!= $3.nsubscr)
                                             Incompatibilidade("Numero de subscritos incompativel com declaracao");
-                                        $$.opnd.tipo = VAROPND;
-                                        if ($3 == 0)
+                                        if ($3.nsubscr == 0) {
+                                            $$.opnd.tipo = VAROPND;
                                             $$.opnd.atr.simb = $$.simb;
+                                        }
+                                        else {
+                                            $$.opnd.tipo = PONTOPND;
+                                            $$.simb = $$.opnd.atr.simb = $3.opnd.atr.simb;
+                                        }
                                     }
                         }
             ;    
-Subscritos  :  {$$ = 0;}
-            |  ABCOL {printf("[");}  ListSubscr  FCOL  {printf("]"); $$ = $3;}
+Subscritos  :  {$$.nsubscr = 0;}
+            |  ABCOL {printf("[");}  ListSubscr  FCOL  {
+                                                        printf("]"); 
+                                                        opndaux.tipo = INTOPND;
+                                                        opndaux.atr.valint = $3;
+                                                        $$.nsubscr = $3;
+                                                        $$.opnd.tipo = VAROPND;
+                                                        $$.opnd.atr.simb = NovaTemp(VAROPND);
+                                                        GeraQuadrupla(OPINDEX, opndaux, opndidle, $$.opnd);
+                                                    }
             ;    
 ListSubscr  :  ExprAux4 {
                             if($1.tipo != INTEGER && $1.tipo != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
                             $$ = 1;
+                            GeraQuadrupla(OPIND, $1.opnd, opndidle, opndidle);
                         }
             |  ListSubscr  VIRG {printf(", ");}  ExprAux4 {
                             if($4.tipo != INTEGER && $4.tipo != CHAR) Incompatibilidade("Tipo inadequado para subscrito");
                             $$ = $1 + 1;
+                            GeraQuadrupla(OPIND, $4.opnd, opndidle, opndidle);
                         }
             ;    
 ChamadaFunc :   ID  ABPAR  {

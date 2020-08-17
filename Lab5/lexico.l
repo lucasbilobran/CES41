@@ -48,7 +48,7 @@ verdade             {return VERDADE;}
 {ctint}             {yylval.valor = atoi(yytext); return CTINT;}
 {ctcarac}           {yylval.carac = tratachar (yytext); return CTCARAC;}
 {ctreal}            {yylval.valreal = atof(yytext); return CTREAL;}
-{cadeia}            {strcpy(yylval.string, yytext); tratacadeia (yylval.string); return CADEIA;}
+{cadeia}            {strcpy(yylval.string, yytext); /*tratacadeia (yylval.string);*/ return CADEIA;}
 
 "!="                {yylval.atr = NEQ; return OPREL;}
 "<="                {yylval.atr = LEQ; return OPREL;}

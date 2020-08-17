@@ -48,5 +48,7 @@ programa ExemploSimples {{{
             i = i + 1;
         } enquanto ( i < 30 );
 
+        teste[i+1, 2, 3-i+6] = inf - 21 * sup;
+
     } 
 }}}
