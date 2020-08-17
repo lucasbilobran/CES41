@@ -55,6 +55,9 @@ programa ExemploSimples {{{
 
         ler(i, j, k, B[1, 2, 3, 4], l, m, A[1, 2], n);
 
-        /* ler(A[1, 2], i, j, k); */
+        ler(B[1, 1, 1, 1]);
+
+        ler(i, A[2, 2]);
+
     } 
 }}}

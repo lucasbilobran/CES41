@@ -1,0 +1,14 @@
+programa teste {{{
+
+    principal
+    var {
+        int (i, j, k, A[10,10]) 
+    }
+    comandos {
+        i = 7; j = 5;
+        k = A[i-3,j+2] + 5;
+        A[10-i,9-j] = i + j * k;
+        ler (i, j, A[2,3], k);
+        ler (A[1,2]);
+    }
+}}}

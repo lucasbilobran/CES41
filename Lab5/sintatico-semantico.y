@@ -591,7 +591,6 @@ ListLeit    :  Variavel
                     quadcorrente->prox = quadaux->prox;
                     quadaux->prox = quadcorrente;
                     quadcorrente = $<quad>$;
-                    RenumQuadruplas(quadaux, quadcorrente);
                     // --------------------
                     opndaux.tipo = VAROPND;
                     opndaux.atr.simb = NovaTemp (VAROPND);
@@ -600,6 +599,8 @@ ListLeit    :  Variavel
                     opnd1.atr.valint = 1;
                     GeraQuadrupla(OPREAD, opnd1, opndidle, opndidle);
                     GeraQuadrupla(OPATRIBPONT, opndaux, opndidle, $4.opnd);
+                    // ----- Renumerate -----
+                    RenumQuadruplas(quadaux, quadcorrente);
                     $$ = 0;
                 }
                 else
