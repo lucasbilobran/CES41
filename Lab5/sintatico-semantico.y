@@ -202,7 +202,7 @@ void RenumQuadruplas (quadrupla, quadrupla);
 
 %token    <string>      ID
 %token    <valor>       CTINT
-%token    <string>      CTCARAC
+%token    <carac>       CTCARAC
 %token    <valreal>     CTREAL
 %token    <string>      CADEIA
 
@@ -721,7 +721,7 @@ Fator       :  Variavel {
                     }
             |  CTINT {printf ("%d", $1); $$.tipo = INTEGER; $$.opnd.tipo = INTOPND; $$.opnd.atr.valint = $1;}
             |  CTREAL {printf ("%g", $1); $$.tipo = FLOAT; $$.opnd.tipo = REALOPND; $$.opnd.atr.valfloat = $1;}
-            |  CTCARAC {printf("%s", $1); $$.tipo = CHAR; $$.opnd.tipo = CHAROPND; $$.opnd.atr.valchar = $1;}
+            |  CTCARAC {printf("\'%c\' ", $1); $$.tipo = CHAR; $$.opnd.tipo = CHAROPND; $$.opnd.atr.valchar = $1;}
             |  VERDADE  {printf("verdade"); $$.tipo = LOGICAL; $$.opnd.tipo = LOGICOPND; $$.opnd.atr.vallogic = 1;}
             |  FALSO  {printf("falso"); $$.tipo = LOGICAL; $$.opnd.tipo = LOGICOPND; $$.opnd.atr.vallogic = 0;}
             |  NEG {printf("~");} Fator {
