@@ -469,7 +469,24 @@ CmdSenao    :
                 $<quad>2->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
             }
             ;
-CmdEnquanto :  ENQUANTO   ABPAR  {printf("enquanto (");} Expressao {if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} FPAR {printf(") "); tab++;} Comando {tab--;} 
+CmdEnquanto :  ENQUANTO   ABPAR  
+                {
+                   printf("enquanto (");
+                   $<quad>$ = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                } Expressao 
+                {
+                    if ($4.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");
+                    opndaux.tipo = ROTOPND;
+                    $<quad>$ = GeraQuadrupla(OPJF, $4.opnd, opndidle, opndaux);
+                } FPAR {printf(") "); tab++;} 
+                Comando 
+                {
+                    tab--;
+                    opndaux.tipo = ROTOPND;
+                    opndaux.atr.rotulo = $<quad>3;
+                    GeraQuadrupla(OPJUMP, opndidle, opndidle, opndaux);
+                    opndaux.atr.rotulo = $<quad>5->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                } 
             ;
 CmdRepetir  :  REPETIR 
                {

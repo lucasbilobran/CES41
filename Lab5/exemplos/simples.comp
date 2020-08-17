@@ -18,6 +18,10 @@ programa ExemploSimples {{{
         escrever ("\nDigite a palavra: ");
         ler (c);
 
+        enquanto ( i < 30 ) {
+            i = i + 1;
+        };
+
         se (compara == 1)
             med = 3;
         se (compara == 0)
