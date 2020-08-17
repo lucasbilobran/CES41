@@ -1,0 +1,19 @@
+programa ExemploSimples {{{
+
+    var {
+        int (med, compara)
+        logic (toso)
+    }
+
+    principal
+
+    var {
+        int (a, b, c, d)
+        logic (achou, flag)
+        real (re)
+        carac (ca)
+    }
+    comandos {
+        
+    } 
+}}}
