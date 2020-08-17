@@ -18,7 +18,7 @@ enum tiposvar {
 };
 
 enum operandos {
-    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT, OPCONTAPONT, OPCALL, OPRETURN
+    OPOR=1, OPAND, OPLT, OPLE, OPGT, OPGE, OPEQ, OPNE, OPMAIS, OPMENOS, OPMULTIP, OPDIV, OPRESTO, OPMENUN, OPNOT, OPATRIB, OPENMOD, NOP, OPJUMP, OPJF, PARAM, OPREAD, OPWRITE, OPJT, OPIND, OPINDEX, OPATRIBPONT, OPCONTAPONT, OPCALL, OPRETURN, OPEXIT
 };
 
 enum tiposoperandos {
@@ -36,11 +36,11 @@ enum tiposoperandos {
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
 char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
-char *nomeoperquad[31] = {"",
+char *nomeoperquad[32] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
 	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE", 
-    "JT", "IND", "INDEX", "ATRIBPONT", "CONTAPONT", "CALL", "RETURN"
+    "JT", "IND", "INDEX", "ATRIBPONT", "CONTAPONT", "CALL", "RETURN", "EXIT"
 };
 char *nometipoopndquad[10] = {"IDLE", "VAR", "INT", "REAL", "CARAC", "LOGIC", "CADEIA", "ROTULO", "MODULO", "VAR"};
 
@@ -142,7 +142,7 @@ listsimb pontfunc;
 
 /* ===  Variaveis globais: Código Intermediário === */
 quadrupla quadcorrente, quadaux, quadaux2;
-modhead codintermed, modcorrente;
+modhead codintermed, modcorrente, modglobal;
 int oper, numquadcorrente;
 operando opnd1, opnd2, result, opndaux, opndaux2;
 int numtemp;
@@ -263,23 +263,33 @@ Prog        :   {
                 } 
                 PROGRAMA ID ABTRIP {
                     tabular(); 
-                    printf("programa %s {{{", $3);
                     InsereSimb ($3, IDPROG, NOTVAR, escopo);
-                    opnd1.tipo = MODOPND;
-                    opnd1.atr.modulo = modcorrente;
-                    GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
+                    modglobal = modcorrente;
+                    printf("programa %s {{{", $3);
                     tab++; 
                     printf("\n");
                 }  Decls ListMod ModPrincipal FTRIP {
                     printf("\n"); 
                     printf("}}}\n");
+
+                    opnd2.tipo = MODOPND;
+                    opnd2.atr.modulo = modcorrente;
+                    opnd1.tipo = MODOPND;
+                    opnd1.atr.modulo = modglobal;
+                    modcorrente = modglobal;
+                    quadcorrente = modcorrente->listquad;
+                    GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
+                    GeraQuadrupla (OPCALL, opnd2, opndidle, opndidle);
+                    GeraQuadrupla (OPEXIT, opndidle, opndidle, opndidle);
+
                     VerificaInicRef();
                     ImprimeTabSimb();
                     ImprimeQuadruplas();
                     if (semanticamente_valido) 
                         printf("\n\nPrograma Compilado com Sucesso!\n\n");
                     else 
-                        printf("\n\nPROGRAMA COM ERROS SEMÂNTICOS!\n\n"); 
+                        printf("\n\nPROGRAMA COM ERROS SEMÂNTICOS!\n\n");
+
                     return;
                 }
             ;
@@ -1050,8 +1060,9 @@ simbolo InsereSimb (char *cadeia, int tid, int tvar, simbolo escopo) {
     /* Se houver subprogramação abrir novo código intermediário */
     if (tid == IDFUNC || tid == IDPROC || tid == IDPROG) {
         InicCodIntermMod(s);
-        s->fhead = modcorrente;
     }
+
+    s->fhead = modcorrente;
 
     return s;
 }
