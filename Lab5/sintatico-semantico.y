@@ -423,7 +423,14 @@ Parametro   :   Tipo ID {
                             printf("%s", $2);
                         }
             ;
-Corpo       :   Decls Comandos {escopo = escopo->escopo;}
+Corpo       :   Decls Comandos { 
+                                simb = ProcuraSimb(escopo->cadeia, escopo->escopo);
+                                if (simb) {
+                                    if (simb->tid == IDPROC)
+                                        GeraQuadrupla(OPRETURN, opndidle, opndidle, opndidle);
+                                }
+                                escopo = escopo->escopo;
+                            }
             ;
 ModPrincipal:   {printf("\n"); tabular();} PRINCIPAL {escopo = InsereSimb("##principal", IDPROG, NOTVAR, escopo); printf("principal \n"); tab++;}  Corpo {printf("\n"); tab--; GeraQuadrupla(OPRETURN, opndidle, opndidle, opndidle);}
             ;
