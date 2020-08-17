@@ -8,15 +8,24 @@ programa ExemploSimples {{{
     principal
 
     var {
-        int (i, inf, sup)
+        int (i, inf, sup, j)
         logic (achou)
         carac (c)
     }
     comandos {
         i = 5;
+        j = 4;
         toso = 's';
         escrever ("\nDigite a palavra: ");
         ler (c);
+
+        para i (0; i < sup; i + 1) {
+            achou = falso;
+            para j (0; j < sup; j + 1) {
+                achou = verdade;
+        }
+        }
+        
 
         enquanto ( i < 30 ) {
             i = i + 1;

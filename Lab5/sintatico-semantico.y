@@ -139,7 +139,7 @@ listsimb pontparam;
 listsimb pontfunc;
 
 /* ===  Variaveis globais: Código Intermediário === */
-quadrupla quadcorrente, quadaux;
+quadrupla quadcorrente, quadaux, quadaux2;
 modhead codintermed, modcorrente;
 int oper, numquadcorrente;
 operando opnd1, opnd2, result, opndaux;
@@ -501,10 +501,57 @@ CmdRepetir  :  REPETIR
                    GeraQuadrupla(OPJT, $7.opnd, opndidle, opndaux);
                } 
             ;
-CmdPara     :  PARA {printf("para ");} Variavel {if ($3.simb->tvar != CHAR && $3.simb->tvar != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");} 
-               ABPAR {printf(" (");}  ExprAux4 {if ($7.tipo != INTEGER && $7.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} 
-               PVIG {printf("; ");}  Expressao {if ($11.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");} PVIG {printf("; ");} 
-               ExprAux4 {if ($15.tipo != INTEGER && $15.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} FPAR {printf(") "); tab++;} Comando {tab--;}
+CmdPara     :  PARA {printf("para ");} Variavel 
+               {
+                    if ($3.simb->tvar != CHAR && $3.simb->tvar != INTEGER) Incompatibilidade("Expressao nao inteiro ou caractere");
+                } 
+               ABPAR {printf(" (");}  ExprAux4 {
+                   GeraQuadrupla (OPATRIB, $7.opnd, opndidle, $3.opnd);
+                   if ($7.tipo != INTEGER && $7.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");
+                } 
+               PVIG {
+                   printf("; ");
+                   // 1
+                   $<quad>$ = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                }  Expressao 
+                {
+                    if ($11.tipo != LOGICAL) Incompatibilidade("Expressao nao logica");
+                    // 12
+                    opndaux.tipo = ROTOPND;
+                    $<quad>$ = GeraQuadrupla(OPJF, $11.opnd, opndidle, opndaux);
+                } PVIG 
+                {
+                    printf("; ");
+                    // 14
+                    $<quad>$ = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                } 
+               ExprAux4 {if ($15.tipo != INTEGER && $15.tipo != CHAR) Incompatibilidade("Expressao nao inteiro ou caractere");} 
+               FPAR {
+                   //18
+                   printf(") "); tab++;
+                   GeraQuadrupla (OPATRIB, $15.opnd, opndidle, $3.opnd);
+                   $<quad>$ = quadcorrente;
+                }
+                {//19
+                    $<quad>$ = GeraQuadrupla(NOP, opndidle, opndidle, opndidle);
+                } 
+                /*{// 20
+                    $<quad>$ = GeraQuadrupla (OPATRIB, $15.opnd, opndidle, $3.opnd);
+                }*/
+                Comando {
+                    tab--;
+                    quadaux = quadcorrente;
+                    opndaux.tipo = ROTOPND; 
+                    opndaux.atr.rotulo =$<quad>10;
+                    quadaux2 = GeraQuadrupla(OPJUMP, opndidle, opndidle, opndaux);
+                    $<quad>12->result.atr.rotulo = GeraQuadrupla(NOP, opndidle, opndidle, opndidle); // certo
+
+                    
+                    $<quad>12->prox = $<quad>19;
+                    quadaux->prox = $<quad>14;
+                    $<quad>18->prox = quadaux2;
+                    RenumQuadruplas ($<quad>12, quadcorrente);
+                }
             ;
 CmdLer      :  LER   ABPAR  {printf("ler (");} ListLeit  FPAR
                {
