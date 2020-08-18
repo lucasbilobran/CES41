@@ -14,7 +14,7 @@ enum identificadores {
 };
 
 enum tiposvar {
-    NOTVAR=0, INTEGER, LOGICAL, FLOAT, CHAR
+    NOTVAR=0, INTEGER, LOGICAL, FLOAT, CHAR, END
 };
 
 enum operandos {
@@ -35,7 +35,7 @@ enum tiposoperandos {
 /*  === Nomes ===  */
 
 char *nometipid[5] = {"GLOBAL", "IDPROG", "IDVAR", "IDFUNC","IDPROC"};
-char *nometipvar[5] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR"};
+char *nometipvar[6] = {"NOTVAR", "INTEGER", "LOGICAL", "FLOAT", "CHAR", "ADDRESS"};
 char *nomeoperquad[32] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
@@ -75,6 +75,7 @@ struct celsimb {
     char *cadeia;
     int  tid, tvar, ndims, nparam, dims[MAXDIMS+1], *valint;
     float *valfloat;
+    char *valaddr;
     char inic, ref, array, param, *valchar, *vallogic;
     listsimb listvar, listparam, listfunc;
     simbolo escopo, prox;
@@ -103,6 +104,7 @@ union atribopnd {
     float valfloat;
     char valchar, vallogic; 
     char *valcad;
+    int *valpontint;
     quadrupla rotulo;
     modhead modulo;
 };
@@ -164,6 +166,7 @@ const operando opndidle = {IDLEOPND, 0};
  FILE *finput;
  pilhaoperando pilhaopnd;
  pilhaoperando pilhachamadas;
+ pilhaoperando pilhaindices;
 
 /* === Prototipos: Análises Léxica, Sintática e Semântica === */
 void InicTabSimb (void);
@@ -367,11 +370,11 @@ Dims        :
             ;
 ListDim     :   CTINT {printf("%d", $1);
                         if($1 <= 0) Esperado("Valor inteiro positivo");
-                        simb->ndims++; simb->dims[simb->ndims] = $1;  
+                        simb->ndims++; simb->dims[simb->ndims] = $1;    
                       }
             |   ListDim VIRG CTINT {printf(", %d", $3);
                                         if($3 <= 0) Esperado("Valor inteiro positivo");
-                                        simb->ndims++; simb->dims[simb->ndims] = $3; 
+                                        simb->ndims++; simb->dims[simb->ndims] = $3;   
                                    }
             ;
 ListMod     :
@@ -1462,6 +1465,7 @@ void InterpCodIntermed () {
 	printf ("\n\nINTERPRETADOR:\n");
     InicPilhaOpnd(&pilhaopnd);
     InicPilhaOpnd(&pilhachamadas);
+    InicPilhaOpnd(&pilhaindices);
 	encerra = FALSE;
 	quad = codintermed->prox->listquad->prox;
 	while (! encerra) {
@@ -1486,9 +1490,6 @@ void InterpCodIntermed () {
                     condicao = *(quad->opnd1.atr.simb->vallogic);
                 if (condicao)
                     quadprox = quad->result.atr.rotulo;
-                break;
-            case OPJUMP:
-                quadprox = quad->result.atr.rotulo;
                 break;
             case OPLT:  ExecQuadLT (quad); break;
             case OPOR:  ExecQuadOR (quad); break;
@@ -1516,6 +1517,62 @@ void InterpCodIntermed () {
                 quadprox = opndaux.atr.rotulo;
             }
             break;
+            case OPIND: {
+                EmpilharOpnd(quad->opnd1, &pilhaindices);
+            }
+            break;
+            case OPINDEX: {
+                simb = quad->opnd1.atr.simb;
+                int desl = 0;
+                int cont = 0;
+                for (int i = 1; i <= quad->opnd2.atr.valint; i++) {
+                    opndaux = TopoOpnd(pilhaindices);
+                    DesempilharOpnd(&pilhaindices);
+                    int aux = 1;
+                    for (int k = 0; k < cont; k++) {
+                        aux = aux * simb->dims[simb->ndims - k];
+                    }
+                    cont++;
+                    desl = desl + opndaux.atr.valint * aux;
+                }
+                switch (simb->tvar) {
+                    case INTEGER:
+                            (quad->result.atr.simb->valint) = &(quad->opnd1.atr.simb->valint) + desl; break;
+                    case FLOAT:
+                            (quad->result.atr.simb->valfloat) = &(quad->opnd1.atr.simb->valfloat) + desl; break;
+                    case CHAR:
+                            (quad->result.atr.simb->valchar) = &(quad->opnd1.atr.simb->valchar) + desl; break;
+                    case LOGICAL:
+                            (quad->result.atr.simb->vallogic) = &(quad->opnd1.atr.simb->vallogic) + desl; break;
+                }
+            }
+            break;
+            case OPCONTAPONT: {
+                switch (quad->opnd1.atr.simb->tvar) {
+                    case INTEGER:
+                            (quad->result.atr.valint) = *(quad->opnd1.atr.simb->valint); break;
+                    case FLOAT:
+                            (quad->result.atr.valfloat) = *(quad->opnd1.atr.simb->valfloat); break;
+                    case CHAR:
+                            (quad->result.atr.valchar) = *(quad->opnd1.atr.simb->valchar); break;
+                    case LOGICAL:
+                            (quad->result.atr.vallogic) = *(quad->opnd1.atr.simb->vallogic); break;
+                }
+            }
+            break;
+            case OPATRIBPONT: {
+                switch (quad->result.atr.simb->tvar) {
+                    case INTEGER:
+                            *(quad->result.atr.simb->valint) = (quad->opnd1.atr.valint); break;
+                    case FLOAT:
+                            *(quad->result.atr.simb->valfloat) = (quad->opnd1.atr.valfloat); break;
+                    case CHAR:
+                            *(quad->result.atr.simb->valchar) = (quad->opnd1.atr.valchar); break;
+                    case LOGICAL:
+                            *(quad->result.atr.simb->vallogic) = (quad->opnd1.atr.vallogic); break;
+                }
+            }
+            break;
 		}
 		if (!encerra) quad = quadprox;
 	}
@@ -1523,29 +1580,29 @@ void InterpCodIntermed () {
 }
 
 void AlocaVariaveis () {
-simbolo s; int nelemaloc, i, j;
-printf ("\n\t\tAlocando as variaveis:");
-for (i = 0; i < NCLASSHASH; i++)
-    if (tabsimb[i]) {
-        for (s = tabsimb[i]; s != NULL; s = s->prox){
-            if (s->tid == IDVAR) {
-                nelemaloc = 1;
-                if (s->array)
-                    for (j = 1; j <= s->ndims; j++)  nelemaloc *= s->dims[j];
-                switch (s->tvar) {
-                    case INTEGER:
-                            s->valint = malloc (nelemaloc * sizeof (int)); break;
-                    case FLOAT:
-                            s->valfloat = malloc (nelemaloc * sizeof (float)); break;
-                    case CHAR:
-                            s->valchar = malloc (nelemaloc * sizeof (char)); break;
-                    case LOGICAL:
-                            s->vallogic = malloc (nelemaloc * sizeof (char)); break;
+    simbolo s; int nelemaloc, i, j;
+    printf ("\n\t\tAlocando as variaveis:");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i]) {
+            for (s = tabsimb[i]; s != NULL; s = s->prox){
+                if (s->tid == IDVAR) {
+                    nelemaloc = 1;
+                    if (s->array)
+                        for (j = 1; j <= s->ndims; j++)  nelemaloc *= s->dims[j];
+                    switch (s->tvar) {
+                        case INTEGER:
+                                s->valint = malloc (nelemaloc * sizeof (int)); break;
+                        case FLOAT:
+                                s->valfloat = malloc (nelemaloc * sizeof (float)); break;
+                        case CHAR:
+                                s->valchar = malloc (nelemaloc * sizeof (char)); break;
+                        case LOGICAL:
+                                s->vallogic = malloc (nelemaloc * sizeof (char)); break;
+                    }
+                    printf ("\n\t\t\t%s: %d elemento(s) alocado(s) ", s->cadeia, nelemaloc);
                 }
-                printf ("\n\t\t\t%s: %d elemento(s) alocado(s) ", s->cadeia, nelemaloc);
             }
         }
-    }
 }
 
 void EmpilharOpnd (operando x, pilhaoperando *P) {
@@ -1824,7 +1881,7 @@ void ExecQuadRead (quadrupla quad) {
         DesempilharOpnd (&pilhaopndaux);
         switch (opndaux.atr.simb->tvar) {
             case INTEGER:
-                    fscanf (finput, "%d", opndaux.atr.simb->valint); break;
+                fscanf (finput, "%d", opndaux.atr.simb->valint); break;
             case FLOAT:
                 fscanf (finput, "%g", opndaux.atr.simb->valfloat);break;
             case LOGICAL:

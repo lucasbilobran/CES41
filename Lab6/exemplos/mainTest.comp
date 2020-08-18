@@ -1,7 +1,7 @@
 programa ExemploSimples {{{
 
    var {
-      int (i, j, m)
+      int (i, j, m, A[10, 20, 30])
    }
 
     principal
@@ -19,5 +19,7 @@ programa ExemploSimples {{{
       b2 = verdade;
       b3 = !b2;
       b1 = (i+3*j >= j/2-2)  &&  !b2 || (b1 != b2) && (i == j);
+      A[3, 4, 5] = 21;
+      i = A[3, 4, 5];
     } 
 }}}
