@@ -1590,7 +1590,10 @@ void InterpCodIntermed () {
                         aux = aux * simb->dims[simb->ndims - k];
                     }
                     cont++;
-                    desl = desl + opndaux.atr.valint * aux;
+                    switch (opndaux.tipo) {
+                        case INTOPND: desl = desl + opndaux.atr.valint * aux; break;
+                        case VAROPND: desl = desl + *(opndaux.atr.simb->valint) * aux; break;
+                    }
                 }
                 switch (simb->tvar) {
                     case INTEGER:
@@ -1607,26 +1610,38 @@ void InterpCodIntermed () {
             case OPCONTAPONT: {
                 switch (quad->opnd1.atr.simb->tvar) {
                     case INTEGER:
-                            (quad->result.atr.valint) = *(quad->opnd1.atr.simb->valint); break;
+                        *(quad->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint); break;
                     case FLOAT:
-                            (quad->result.atr.valfloat) = *(quad->opnd1.atr.simb->valfloat); break;
+                        *(quad->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat); break;
                     case CHAR:
-                            (quad->result.atr.valchar) = *(quad->opnd1.atr.simb->valchar); break;
+                        *(quad->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar); break;
                     case LOGICAL:
-                            (quad->result.atr.vallogic) = *(quad->opnd1.atr.simb->vallogic); break;
+                        *(quad->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic); break;
                 }
             }
             break;
             case OPATRIBPONT: {
-                switch (quad->result.atr.simb->tvar) {
-                    case INTEGER:
-                            *(quad->result.atr.simb->valint) = (quad->opnd1.atr.valint); break;
-                    case FLOAT:
-                            *(quad->result.atr.simb->valfloat) = (quad->opnd1.atr.valfloat); break;
-                    case CHAR:
-                            *(quad->result.atr.simb->valchar) = (quad->opnd1.atr.valchar); break;
-                    case LOGICAL:
-                            *(quad->result.atr.simb->vallogic) = (quad->opnd1.atr.vallogic); break;
+                switch (quad->opnd1.tipo) {
+                    case INTOPND:
+                        *(quad->result.atr.simb->valint) = quad->opnd1.atr.valint; break;
+                    case REALOPND:
+                        *(quad->result.atr.simb->valfloat) = quad->opnd1.atr.valfloat; break;
+                    case CHAROPND:
+                        *(quad->result.atr.simb->valchar) = quad->opnd1.atr.valchar; break;
+                    case LOGICOPND:
+                        *(quad->result.atr.simb->vallogic) = quad->opnd1.atr.vallogic; break;
+                    case VAROPND:
+                        switch (quad->result.atr.simb->tvar) {
+                            case INTEGER:
+                                    *(quad->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint); break;
+                            case FLOAT:
+                                    *(quad->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat); break;
+                            case CHAR:
+                                    *(quad->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar); break;
+                            case LOGICAL:
+                                    *(quad->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic); break;
+                        }
+                    break;
                 }
             }
             break;
