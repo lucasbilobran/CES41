@@ -56,6 +56,10 @@
 #define		NOP			    18
 #define		OPJUMP		    19
 #define		OPJF			20
+#define     PARAM           21
+#define     OPREAD          22
+#define     OPWRITE         23
+#define		OPEXIT		    24
 
 /* Definicao de constantes para os tipos de operandos de quadruplas */
 
@@ -88,10 +92,11 @@ char *nometipvar[5] = {"NOTVAR",
 
 /* Strings para operadores de quadruplas */
 
-char *nomeoperquad[21] = {"",
+char *nomeoperquad[25] = {"",
 	"OR", "AND", "LT", "LE", "GT", "GE", "EQ", "NE", "MAIS",
 	"MENOS", "MULT", "DIV", "RESTO", "MENUN", "NOT", "ATRIB",
-	"OPENMOD", "NOP", "JUMP", "JF"
+	"OPENMOD", "NOP", "JUMP", "JF", "PARAM", "READ", "WRITE",
+	"EXIT"
 };
 
 /*
@@ -110,6 +115,9 @@ struct celsimb {
 	char *cadeia;
 	int tid, tvar, ndims, dims[MAXDIMS+1];
 	char inic, ref, array;
+	int *valint;
+	float *valfloat;
+  	char *valchar, *vallogic;
 	simbolo prox;
 };
 
@@ -198,6 +206,34 @@ struct infovariavel {
 	operando opnd;
 };
 
+/* Prototipos das funcoes para o interpretador */
+
+void InterpCodIntermed (void);
+void AlocaVariaveis (void);
+void ExecQuadWrite (quadrupla);
+void ExecQuadMais (quadrupla);
+void ExecQuadLT (quadrupla);
+void ExecQuadAtrib (quadrupla);
+void ExecQuadRead (quadrupla);
+
+/*	Declaracoes para pilhas de operandos  */
+
+typedef struct nohopnd nohopnd;
+struct nohopnd {
+	operando opnd;
+	nohopnd *prox;
+};
+typedef nohopnd *pilhaoperando;
+pilhaoperando pilhaopnd;
+
+/*  Prototipos das funcoes para pilhas de operandos  */
+
+void EmpilharOpnd (operando, pilhaoperando *);
+void DesempilharOpnd (pilhaoperando *);
+operando TopoOpnd (pilhaoperando);
+void InicPilhaOpnd (pilhaoperando *);
+char VaziaOpnd (pilhaoperando);
+
 %}
 
 /* Definicao do tipo de yylval e dos atributos dos nao terminais */
@@ -210,15 +246,18 @@ struct infovariavel {
 	simbolo simb;
 	infoexpressao infoexpr;
 	infovariavel infovar;
-	int nsubscr;
+	int nsubscr, nargs;
+	quadrupla quad;
 }
 
 /* Declaracao dos atributos dos tokens e dos nao-terminais */
 
-%type	    <infovar>	        Variavel
+%type	    <infovar>	    Variavel
 %type 	    <infoexpr> 	    Expressao  ExprAux1  ExprAux2
                             ExprAux3   ExprAux4   Termo   Fator
+                            ElemEscr
 %type       <nsubscr>       Subscritos  ListSubscr
+%type       <nargs>		    ListLeit   ListEscr
 %token		<cadeia>		ID
 %token		<carac>		    CTCARAC
 %token		<cadeia>		CADEIA
@@ -263,11 +302,24 @@ struct infovariavel {
 	Os terminais sao escritos e, depois de alguns,
 	para alguma estetica, ha mudanca de linha       */
 
-Prog			:	{InicTabSimb ();}  PROGRAMA  ID  ABTRIP
-                    {printf ("programa %s {{{\n", $3); InsereSimb ($3, IDPROG, NOTVAR);}
-                    Decls  Comandos  FTRIP  {printf ("}}}\n");
-                    VerificaInicRef ();
-                    ImprimeTabSimb ();}
+Prog			:	{
+                        InicTabSimb (); InicCodIntermed (); numtemp = 0;
+                    }  PROGRAMA  ID  ABTRIP {
+                        printf ("programa %s {{{\n", $3);
+                        simb = InsereSimb ($3, IDPROG, NOTVAR);
+                        InicCodIntermMod (simb);
+                        opnd1.tipo = MODOPND;
+                        opnd1.atr.modulo = modcorrente;
+                        GeraQuadrupla (OPENMOD, opnd1, opndidle, opndidle);
+                    }
+                    Decls  Comandos  FTRIP  {
+                        printf ("}}}\n");
+                        GeraQuadrupla (OPEXIT, opndidle, opndidle, opndidle);
+                        VerificaInicRef ();
+                        ImprimeTabSimb ();
+                        ImprimeQuadruplas ();
+                        InterpCodIntermed ();
+                    }
                 ;
 Decls 		    :
                 |   VAR  ABCHAV  {printf ("var {\n");}  ListDecl
@@ -327,28 +379,85 @@ Comando        	:   CmdComp  |  CmdSe  |  CmdEnquanto  |  CmdLer
 CmdSe		    :   SE    ABPAR  {printf ("se ( ");}  Expressao  {
                         if ($4.tipo != LOGICAL)
                             Incompatibilidade ("Expressao nao logica em comando se");
-                    }  FPAR  {printf (")\n");}  Comando  CmdSenao
+                        opndaux.tipo = ROTOPND;
+                        $<quad>$ = GeraQuadrupla (OPJF, $4.opnd, opndidle, opndaux);
+                    }  FPAR  {printf (")\n");}  Comando  {
+                        $<quad>$ = quadcorrente;
+                        $<quad>5->result.atr.rotulo = GeraQuadrupla (NOP, opndidle, opndidle, opndidle);
+                    }  CmdSenao  {
+                        if ($<quad>9->prox != quadcorrente) {
+                            quadaux = $<quad>9->prox;
+                        	$<quad>9->prox = quadaux->prox;
+                        	quadaux->prox = $<quad>9->prox->prox;
+                        	$<quad>9->prox->prox = quadaux;
+                        	RenumQuadruplas ($<quad>9, quadcorrente);
+                        }
+                    }
                 ;
 CmdSenao		:   |
-                    SENAO  {printf ("senao\n");}  Comando
+                    SENAO  {
+                        printf ("senao\n");
+                        opndaux.tipo = ROTOPND;
+                        $<quad>$ = GeraQuadrupla (OPJUMP, opndidle, opndidle, opndaux);
+                    }  Comando  {
+                        $<quad>2->result.atr.rotulo = GeraQuadrupla (NOP, opndidle, opndidle, opndidle);
+                    }
                 ;
-CmdEnquanto   	:	ENQUANTO  ABPAR  {printf ("enquanto ( ");}  Expressao  {
+CmdEnquanto   	:	ENQUANTO  ABPAR  {
+                        printf ("enquanto ( ");
+                        $<quad>$ = GeraQuadrupla (NOP, opndidle, opndidle, opndidle);
+                    }  Expressao  {
                         if ($4.tipo != LOGICAL)
                             Incompatibilidade ("Expressao nao logica em comando enquanto");
-                    }  FPAR  {printf (")\n");}  Comando
+                        opndaux.tipo = ROTOPND;
+                        $<quad>$ = GeraQuadrupla (OPJF, $4.opnd, opndidle, opndaux);
+                    }  FPAR  {printf (")\n");}  Comando  {
+                        opndaux.tipo = ROTOPND;
+                        opndaux.atr.rotulo = $<quad>3;
+                        GeraQuadrupla (OPJUMP, opndidle, opndidle, opndaux);
+                        $<quad>5->result.atr.rotulo = GeraQuadrupla (NOP, opndidle, opndidle, opndidle);
+                    }
                 ;
-CmdLer   	    :   LER  ABPAR  {printf ("ler ( ");}  ListLeit  FPAR  PVIRG
+CmdLer   	    :   LER  ABPAR  {printf ("ler ( ");}  ListLeit  {
+                        opnd1.tipo = INTOPND;
+                        opnd1.atr.valint = $4;
+                        GeraQuadrupla (OPREAD, opnd1, opndidle, opndidle);
+                    }  FPAR  PVIRG
                     {printf (") ;\n");}
                 ;
-ListLeit		:   Variavel  {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;}
-                |   ListLeit  VIRG  {printf (", ");}  Variavel  {if  ($4.simb != NULL) $4.simb->inic = $4.simb->ref = TRUE;}
+ListLeit		:   Variavel  {
+                        if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;
+                        $$ = 1;
+                        GeraQuadrupla (PARAM, $1.opnd, opndidle, opndidle);
+                    }
+                |   ListLeit  VIRG  {printf (", ");}  Variavel  {
+                        if  ($4.simb != NULL) $4.simb->inic = $4.simb->ref = TRUE;
+                        $$ = $1 + 1;
+                        GeraQuadrupla (PARAM, $4.opnd, opndidle, opndidle);
+                    }
                 ;
-CmdEscrever   	:	ESCREVER  ABPAR  {printf ("escrever ( ");}  ListEscr  FPAR
+CmdEscrever   	:	ESCREVER  ABPAR  {printf ("escrever ( ");}  ListEscr  {
+                        opnd1.tipo = INTOPND;
+                        opnd1.atr.valint = $4;
+                        GeraQuadrupla (OPWRITE, opnd1, opndidle, opndidle);
+                    }  FPAR
                     PVIRG  {printf (") ;\n");}
                 ;
-ListEscr		:	ElemEscr  |  ListEscr  VIRG  {printf (", ");}  ElemEscr
+ListEscr		:	ElemEscr  {
+                        $$ = 1;
+                        GeraQuadrupla (PARAM, $1.opnd, opndidle, opndidle);
+                    }
+                |   ListEscr  VIRG  {printf (", ");}  ElemEscr  {
+                        $$ = $1 + 1;
+                        GeraQuadrupla (PARAM, $4.opnd, opndidle, opndidle);
+                    }
                 ;
-ElemEscr		:   CADEIA  {printf ("\"%s\" ", $1);}  |  Expressao
+ElemEscr		:   CADEIA  {
+                        printf ("\"%s\" ", $1);
+                        $$.opnd.tipo = CADOPND;
+                        $$.opnd.atr.valcad = malloc (strlen($1) + 1);
+                        strcpy ($$.opnd.atr.valcad, $1);
+                    }  |  Expressao
                 ;
 CmdAtrib      	:   Variavel  {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref = TRUE;}
                     ATRIB  {printf ("= ");}  Expressao  PVIRG
@@ -360,24 +469,34 @@ CmdAtrib      	:   Variavel  {if  ($1.simb != NULL) $1.simb->inic = $1.simb->ref
                                 ($1.simb->tvar == FLOAT && $5.tipo == LOGICAL) ||
                                 ($1.simb->tvar == LOGICAL && $5.tipo != LOGICAL))
                                 Incompatibilidade ("Lado direito de comando de atribuicao improprio");
+                                GeraQuadrupla (OPATRIB, $5.opnd, opndidle, $1.opnd);
                     }
                 ;
 Expressao     	:   ExprAux1  |  Expressao  OR  {printf ("|| ");}  ExprAux1  {
                         if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador or");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        GeraQuadrupla (OPOR, $1.opnd, $4.opnd, $$.opnd);
                     }
                 ;
 ExprAux1    	:   ExprAux2  |  ExprAux1  AND  {printf ("&& ");}  ExprAux2  {
                         if ($1.tipo != LOGICAL || $4.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador and");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        GeraQuadrupla (OPAND, $1.opnd, $4.opnd, $$.opnd);
                     }
                 ;
 ExprAux2    	:   ExprAux3  |  NOT  {printf ("! ");}  ExprAux3  {
                         if ($3.tipo != LOGICAL)
                             Incompatibilidade ("Operando improprio para operador not");
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($3.tipo);
+                        GeraQuadrupla (OPNOT, $3.opnd, opndidle, $$.opnd);
                     }
                 ;
 ExprAux3    	:   ExprAux4
@@ -402,6 +521,29 @@ ExprAux3    	:   ExprAux4
                                 break;
                         }
                         $$.tipo = LOGICAL;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        switch ($2) {
+                            case LT:
+                                GeraQuadrupla (OPLT, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case LE:
+                                GeraQuadrupla (OPLE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case GT:
+                                GeraQuadrupla (OPGT, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case GE:
+                                GeraQuadrupla (OPGE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case EQ:
+                                GeraQuadrupla (OPEQ, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                            case NE:
+                                GeraQuadrupla (OPNE, $1.opnd, $4.opnd, $$.opnd);
+                                break;
+                        }
+
                     }
                 ;
 ExprAux4    	:   Termo
@@ -415,6 +557,11 @@ ExprAux4    	:   Termo
                             Incompatibilidade ("Operando improprio para operador aritmetico");
                         if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
                         else $$.tipo = INTEGER;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        if ($2 == MAIS)
+                            GeraQuadrupla (OPMAIS, $1.opnd, $4.opnd, $$.opnd);
+                        else  GeraQuadrupla (OPMENOS, $1.opnd, $4.opnd, $$.opnd);
                     }
                 ;
 Termo  	    	:   Fator
@@ -432,12 +579,20 @@ Termo  	    	:   Fator
                                     Incompatibilidade ("Operando improprio para operador aritmetico");
                                 if ($1.tipo == FLOAT || $4.tipo == FLOAT) $$.tipo = FLOAT;
                                 else $$.tipo = INTEGER;
+                                $$.opnd.tipo = VAROPND;
+                                $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                                if ($2 == MULT)
+                                    GeraQuadrupla   (OPMULTIP, $1.opnd, $4.opnd, $$.opnd);
+                                else  GeraQuadrupla  (OPDIV, $1.opnd, $4.opnd, $$.opnd);
                                 break;
                             case RESTO:
                                 if ($1.tipo != INTEGER && $1.tipo != CHAR
                                     ||  $4.tipo != INTEGER && $4.tipo != CHAR)
                                     Incompatibilidade ("Operando improprio para operador resto");
                                 $$.tipo = INTEGER;
+                                $$.opnd.tipo = VAROPND;
+                                $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                                GeraQuadrupla (OPRESTO, $1.opnd, $4.opnd, $$.opnd);
                                 break;
                         }
                     }
@@ -446,22 +601,47 @@ Fator		    :   Variavel  {
                         if  ($1.simb != NULL) {
                             $1.simb->ref  =  TRUE;
                             $$.tipo = $1.simb->tvar;
+                            $$.opnd = $1.opnd;
                         }
                     }
-                |   CTINT  {printf ("%d ", $1); $$.tipo = INTEGER;}
-                |   CTREAL  {printf ("%g ", $1); $$.tipo = FLOAT;}
-                |   CTCARAC  {printf ("\'%c\' ", $1); $$.tipo = CHAR;}
-            	|   VERDADE  {printf ("verdade "); $$.tipo = LOGICAL;}
-            	|   FALSO  {printf ("falso "); $$.tipo = LOGICAL;}
+                |   CTINT  {
+                        printf ("%d ", $1); $$.tipo = INTEGER;
+                        $$.opnd.tipo = INTOPND;
+                        $$.opnd.atr.valint = $1;
+                    }
+                |   CTREAL  {
+                        printf ("%g ", $1); $$.tipo = FLOAT;
+                        $$.opnd.tipo = REALOPND;
+                        $$.opnd.atr.valfloat = $1;
+                    }
+                |   CTCARAC  {
+                        printf ("\'%c\' ", $1); $$.tipo = CHAR;
+                        $$.opnd.tipo = CHAROPND;
+                        $$.opnd.atr.valchar = $1;
+                    }
+            	|   VERDADE  {
+                        printf ("verdade "); $$.tipo = LOGICAL;
+                        $$.opnd.tipo = LOGICOPND;
+                        $$.opnd.atr.vallogic = 1;
+                    }
+            	|   FALSO  {
+                        printf ("falso "); $$.tipo = LOGICAL;
+                        $$.opnd.tipo = LOGICOPND;
+                        $$.opnd.atr.vallogic = 0;
+                    }
             	|   NEG  {printf ("~ ");}  Fator  {
                         if ($3.tipo != INTEGER &&
                             $3.tipo != FLOAT && $3.tipo != CHAR)
                             Incompatibilidade  ("Operando improprio para menos unario");
-                            if ($3.tipo == FLOAT) $$.tipo = FLOAT;
-                            else $$.tipo = INTEGER;
+                        if ($3.tipo == FLOAT) $$.tipo = FLOAT;
+                        else $$.tipo = INTEGER;
+                        $$.opnd.tipo = VAROPND;
+                        $$.opnd.atr.simb = NovaTemp ($$.tipo);
+                        GeraQuadrupla  (OPMENUN, $3.opnd, opndidle, $$.opnd);
                     }
-            	|   ABPAR  {printf ("( ");}  Expressao  FPAR
-                    {printf (") "); $$.tipo = $3.tipo;}
+            	|   ABPAR  {printf ("( ");}  Expressao  FPAR  {
+                        printf (") "); $$.tipo = $3.tipo; $$.opnd = $3.opnd;
+                    }
                 ;
 Variavel		:   ID  {
                         printf ("%s ", $1);
@@ -478,6 +658,9 @@ Variavel		:   ID  {
                                 Esperado ("Subscrito\(s)");
                             else if ($$.simb->ndims != $3)
                                 Incompatibilidade ("Numero de subscritos incompativel com declaracao");
+                            $$.opnd.tipo = VAROPND;
+                            if ($3 == 0)
+                                $$.opnd.atr.simb = $$.simb;
                         }
                     }
                 ;
@@ -733,5 +916,23 @@ void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
       nquad++;
 		q->num = nquad;
 	}
+}
+
+/* Funcoes para interpretar o codigo intermediario */
+
+void InterpCodIntermed () {
+	quadrupla quad, quadprox;  char encerra;
+	printf ("\n\nINTERPRETADOR:\n");
+	encerra = FALSE;
+	quad = codintermed->prox->listquad->prox;
+	while (! encerra) {
+		printf ("\n%4d) %s", quad->num, nomeoperquad[quad->oper]);
+		quadprox = quad->prox;
+		switch (quad->oper) {
+			case OPEXIT: encerra = TRUE; break;
+		}
+		if (! encerra) quad = quadprox;
+	}
+	printf ("\n");
 }
 

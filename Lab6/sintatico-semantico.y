@@ -69,8 +69,9 @@ typedef struct infovariavel infovariavel;
 /* === Estruturas: Análises Léxica, Sintática e Semântica === */
 struct celsimb {
     char *cadeia;
-    int  tid, tvar, ndims, nparam, dims[MAXDIMS+1];
-    char inic, ref, array, param;
+    int  tid, tvar, ndims, nparam, dims[MAXDIMS+1], *valint;
+    float *valfloat;
+    char inic, ref, array, param, *valchar, *vallogic;
     listsimb listvar, listparam, listfunc;
     simbolo escopo, prox;
     modhead fhead;
@@ -1410,4 +1411,26 @@ void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
       nquad++;
         q->num = nquad;
     }
+}
+
+void InterpCodIntermed () {
+    quadrupla quad, quadprox;  
+    char encerra;
+    printf ("\n\nINTERPRETADOR:\n");
+    encerra = FALSE;
+    quad = codintermed->prox->listquad->prox;
+    
+    while (! encerra) {
+        printf ("\n%4d) %s", quad->num, nomeoperquad[quad->oper]);
+        quadprox = quad->prox;
+
+        switch (quad->oper) {
+            case OPEXIT: encerra = TRUE; 
+                break;
+        }
+
+        if (! encerra) 
+            quad = quadprox;
+    }
+    printf ("\n");                 
 }

@@ -1,0 +1,39 @@
+programa teste {{{
+
+var {
+	int (a, b, c, i, j) real (k) logic (b1)
+   	int (A[5,4])
+}
+comandos {
+	escrever ("Valor 1: ", 14, "; Valor 2: ", 15.2, "; Valor 3: ", verdade);
+	escrever ("Valor de 3+4: ", 3+4);
+	a = 1;
+	b = 2;
+	i = 3;
+	j = 4;
+	c = a + b + i + j + 20;
+
+	k = 12.6;
+	b1 = verdade;
+	escrever ("c = ", c, "; k = ", k, "; b1 = ", b1, ";");
+
+	i = 4; j = 5; b1 = verdade;
+	se (b1) {i = j + 6;} senao {i = i + 15;}
+	escrever ("i = ", i);
+
+	i = 4; j = 5; b1 = verdade;
+	enquanto (b1) {i = i + j; b1 = falso;}
+	escrever ("i = ", i);
+
+	i = 3;
+	k = 20.3;
+	escrever ("i = ", i, "; k = ", k);
+
+/*  enquanto (i < k) {
+		i = i + 4;
+		escrever ("i = ", i, "; k = ", k);
+	}                                       */
+
+	escrever ("Valor de i+k: ", i+k);
+}
+}}}
