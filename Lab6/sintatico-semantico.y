@@ -196,6 +196,12 @@ quadrupla GeraQuadrupla (int, operando, operando, operando);
 simbolo NovaTemp (int);
 void RenumQuadruplas (quadrupla, quadrupla);
 
+void InicPilhaOpnd (pilhaoperando*);
+operando TopoOpnd (pilhaoperando);
+void DesempilharOpnd (pilhaoperando*);
+char VaziaOpnd (pilhaoperando);
+void EmpilharOpnd (operando, pilhaoperando*);
+
 void InterpCodIntermed (void);
 void AlocaVariaveis (void);
 void ExecQuadWrite (quadrupla);
@@ -1473,13 +1479,17 @@ void InterpCodIntermed () {
             case OPATRIB: ExecQuadAtrib(quad); break;
             // -----------------------------------------
             case OPCALL: {
-                operando *opndnextprogcount; 
-                opndnextprogcount = (operando *)malloc(sizeof(operando));
-                opndnextprogcount->atr.rotulo = quadprox;
-                EmpilharOpnd(opndnextprogcount, &pilhachamadas);
+                opndaux.atr.rotulo = quadprox;
+                EmpilharOpnd(opndaux, &pilhachamadas);
                 quadprox = quad->opnd1.atr.modulo->listquad;
-                break;
             }
+            break;
+            case OPRETURN: {
+                opndaux = TopoOpnd(pilhachamadas);
+                DesempilharOpnd(&pilhachamadas);
+                quadprox = opndaux.atr.rotulo;
+            }
+            break;
 		}
 		if (!encerra) quad = quadprox;
 	}
