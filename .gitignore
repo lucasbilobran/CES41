@@ -14,6 +14,7 @@ Lab6/sintatico-semantico
 Lab6/sintatico
 Lab6/ans
 Lab6/resultados/
+Lab6/entrada2020
 
 # Flex / Yacc Output
 *.yy.c
