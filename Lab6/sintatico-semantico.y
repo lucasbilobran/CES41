@@ -1467,7 +1467,7 @@ void InterpCodIntermed () {
 	quadrupla quad, quadprox;  
     char encerra;
     char condicao;
-    // finput = fopen ("entrada2020", "r");
+    finput = fopen ("exemplos/entrada2020", "r");
 	printf ("\n\nINTERPRETADOR:\n");
     InicPilhaOpnd(&pilhaopnd);
     InicPilhaOpnd(&pilhachamadas);
@@ -1672,6 +1672,30 @@ void AlocaVariaveis () {
                                 s->vallogic = malloc (nelemaloc * sizeof (char)); break;
                     }
                     printf ("\n\t\t\t%s: %d elemento(s) alocado(s) ", s->cadeia, nelemaloc);
+                }
+            }
+        }
+}
+
+void DesalocaVariaveis () {
+    simbolo s; int i, j;
+    printf ("\n\t\tDesalocando as variaveis:");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i]) {
+            for (s = tabsimb[i]; s != NULL; s = s->prox){
+                if (s->tid == IDVAR) {
+    
+                    switch (s->tvar) {
+                        case INTEGER:
+                            free (s->valint);
+                        case FLOAT:
+                            free (s->valfloat);
+                        case CHAR:
+                            free (s->valchar);
+                        case LOGICAL:
+                            free (s->vallogic); 
+                    }
+                    printf ("\n\t\t\t%s:  elemento dalocado ", s->cadeia);
                 }
             }
         }
