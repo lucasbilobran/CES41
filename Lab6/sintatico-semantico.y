@@ -1467,7 +1467,7 @@ void InterpCodIntermed () {
 	quadrupla quad, quadprox;  
     char encerra;
     char condicao;
-    // finput = fopen ("entrada2020", "r");
+    finput = fopen ("entrada2020", "r");
 	printf ("\n\n----- EXECUÇÃO DO INTERPRETADOR -----\n\n");
     InicPilhaOpnd(&pilhaopnd);
     InicPilhaOpnd(&pilhachamadas);
@@ -2210,8 +2210,6 @@ void ExecQuadRead (quadrupla quad) {
 	int i;  
     operando opndaux;  
     pilhaoperando pilhaopndaux;
-
-	printf ("\n\t\tLendo: \n");
 	InicPilhaOpnd (&pilhaopndaux);
 	for (i = 1; i <= quad->opnd1.atr.valint; i++) {
 		EmpilharOpnd (TopoOpnd (pilhaopnd), &pilhaopndaux);

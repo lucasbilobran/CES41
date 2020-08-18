@@ -1,0 +1,89 @@
+programa matrizTransposta {{{
+
+var { 
+	int (A[4,4])
+}
+
+procedimento PreencheMatriz (int numbase)
+var {
+	int (i, j, cont)
+}
+comandos {
+    cont = numbase;
+	para i (0; i < 4; i + 1) {
+        para j (0; j < 4; j + 1) {
+            A[i, j] = cont;
+            cont = cont + 1;
+        }
+    }
+}
+
+procedimento ImprimeMatriz ()
+var {
+	int (i, j)
+}
+comandos {
+	para i (0; i < 4; i + 1) {
+        escrever("| ", A[i, 0], " ", A[i, 1], " ", A[i, 2], " ", A[i, 3], " |");
+    }
+}
+
+procedimento TranspoeMatriz()
+var {
+	int (i, j, aux)
+}
+comandos {
+    para i (0; i < 4; i + 1) {
+        para j (0; j < 4; j + 1) {
+            /* Inverte somente uma metade da matriz */
+            se (j > i) {
+                aux = A[i, j];
+                A[i, j] = A[j, i];
+                A[j, i] = aux;
+            }
+        }
+    }
+}
+
+funcao int CalculaTraco()
+var {
+	int (i, traco)
+}
+comandos {
+    traco = 0;
+    para i (0; i < 4; i + 1) {
+        traco = traco + A[i, i];
+    }
+    retornar traco;
+}
+
+principal
+
+var {
+    int (num, traco)
+}
+comandos {
+	escrever("### Programa de matriz transposta ###\n");
+
+    escrever("* Lendo numero base (do arquivo de entrada)");
+    ler(num);
+    escrever("Numero lido: ", num, "\n");
+
+    escrever("* Gerando matriz");
+    chamar PreencheMatriz(num);
+    escrever("Matriz gerada:");
+    chamar ImprimeMatriz();
+    escrever("");
+
+    escrever("* Calculando a sua transposta");
+    chamar TranspoeMatriz();
+    escrever("Matriz gerada:");
+    chamar ImprimeMatriz();
+    escrever("");
+
+    escrever("* Calculando o traço da matriz");
+    traco = CalculaTraco();
+    escrever("Traço = ", traco);
+}
+
+}}}
