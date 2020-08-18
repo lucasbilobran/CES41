@@ -210,6 +210,14 @@ void ExecQuadLT (quadrupla);
 void ExecQuadAtrib (quadrupla);
 void ExecQuadRead (quadrupla);
 
+void ExecQuadAND (quadrupla);
+void ExecQuadOR (quadrupla);
+void ExecQuadLE (quadrupla);
+void ExecQuadGT (quadrupla);
+void ExecQuadGE (quadrupla);
+void ExecQuadEQ (quadrupla);
+void ExecQuadNE (quadrupla);
+
 %}
 
 %union {
@@ -1472,6 +1480,13 @@ void InterpCodIntermed () {
                     quadprox = quad->result.atr.rotulo;
                 break;
             case OPLT:  ExecQuadLT (quad); break;
+            case OPOR:  ExecQuadOR (quad); break;
+            case OPAND: ExecQuadAND (quad); break;
+            case OPLE:  ExecQuadLE (quad); break;
+            case OPGT:  ExecQuadGT (quad); break;
+            case OPGE:  ExecQuadGE (quad); break;
+            case OPEQ:  ExecQuadEQ (quad); break;
+            case OPNE:  ExecQuadNE (quad); break;
             case OPREAD: ExecQuadRead (quad);  break;
             case PARAM: EmpilharOpnd(quad->opnd1, &pilhaopnd); break;
             case OPWRITE: ExecQuadWrite(quad); break;
@@ -1808,9 +1823,389 @@ void ExecQuadRead (quadrupla quad) {
             }
         }
 }
-// -----------------------------
-/* void ExecCall(quadrupla quad) {
-    quadprox = quadproxquad->opnd1.atr.modulo->listquad;
-    break;
-} */
+
+void ExecQuadLE (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 <= valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 <= valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 <= valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 <= valfloat2;
+}
+
+void ExecQuadGT (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 > valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 > valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 > valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 > valfloat2;
+}
+
+void ExecQuadGE (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 >= valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 >= valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 >= valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 >= valfloat2;
+}
+
+void ExecQuadEQ (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 == valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 == valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 == valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 == valfloat2;
+}
+
+void ExecQuadNE (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 != valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 != valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 != valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 != valfloat2;
+}
+
+void ExecQuadAND (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 && valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 && valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 && valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 && valfloat2;
+}
+
+void ExecQuadOR (quadrupla quad) {
+	int tipo1, tipo2, valint1, valint2;
+	float valfloat1, valfloat2;
+    switch (quad->opnd1.tipo) {
+        case INTOPND:
+            tipo1 = INTOPND;  valint1 = quad->opnd1.atr.valint;  break;
+        case REALOPND:
+            tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
+        case CHAROPND:
+            tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar) {
+                case INTEGER:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo1 = REALOPND;
+                    valfloat1 = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+    switch (quad->opnd2.tipo) {
+        case INTOPND:
+            tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
+        case REALOPND:
+            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+        case CHAROPND:
+            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case VAROPND:
+            switch (quad->opnd2.atr.simb->tvar) {
+                case INTEGER:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valint);
+                    break;
+                case FLOAT:  tipo2 = REALOPND;
+                    valfloat2 = *(quad->opnd2.atr.simb->valfloat);
+                    break;
+                case CHAR:  tipo2 = INTOPND;
+                    valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                }
+            break;
+    }
+    if (tipo1 == INTOPND && tipo2 == INTOPND)
+        *(quad->result.atr.simb->vallogic) = valint1 || valint2;
+	if (tipo1 == INTOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 || valfloat2;
+	if (tipo1 == REALOPND && tipo2 == INTOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 || valint2;
+	if (tipo1 == REALOPND && tipo2 == REALOPND)
+		*(quad->result.atr.simb->vallogic) = valfloat1 || valfloat2;
+}
 
