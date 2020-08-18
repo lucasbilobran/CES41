@@ -1674,6 +1674,30 @@ void AlocaVariaveis () {
     printf ("\n-------------------------------------\n");
 }
 
+void DesalocaVariaveis () {
+    simbolo s; int i, j;
+    printf ("\n\t\tDesalocando as variaveis:");
+    for (i = 0; i < NCLASSHASH; i++)
+        if (tabsimb[i]) {
+            for (s = tabsimb[i]; s != NULL; s = s->prox){
+                if (s->tid == IDVAR) {
+    
+                    switch (s->tvar) {
+                        case INTEGER:
+                            free (s->valint);
+                        case FLOAT:
+                            free (s->valfloat);
+                        case CHAR:
+                            free (s->valchar);
+                        case LOGICAL:
+                            free (s->vallogic); 
+                    }
+                    printf ("\n\t\t\t%s:  elemento dalocado ", s->cadeia);
+                }
+            }
+        }
+}
+
 void EmpilharOpnd (operando x, pilhaoperando *P) {
     nohopnd *temp;
     temp = *P;   

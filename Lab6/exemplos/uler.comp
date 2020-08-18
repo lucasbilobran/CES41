@@ -1,0 +1,36 @@
+programa ExemploSimples {{{
+
+   var {
+      int (i, j, glob)
+      real (x)
+      logic(b)
+   }
+
+   funcao int Inserir (int a, int b)
+
+   var {
+       int (c)
+   }
+   comandos {
+        c = a + b;
+        retornar (c + glob); 
+   }
+
+   procedimento Vamosler()
+   var {
+       int(u)
+   }
+   comandos{
+       ler(i, j, x, b);
+   }
+
+    principal
+
+    var {
+        int(v)
+    }
+    comandos {
+        chamar Vamosler(); 
+        escrever("i: ", i, "; j: ", j, "; x: ", x, "; b: ", b);
+    } 
+}}}
