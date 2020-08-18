@@ -1,0 +1,47 @@
+programa ExemploSimples {{{
+
+   var {
+      int (A[20])
+   }
+
+   procedimento BBsort(int tam)
+   var {
+       int(k, j, aux)
+   }
+   comandos{
+       para k (0 ; k < tam; k + 1) {
+            para j (k + 1 ; j < tam; j + 1) {
+                se ( A[k] < A[j] ) {
+                    aux = A[k];
+                    A[k] = A[j];
+                    A[j] = aux;
+                }
+            }
+       }
+   }
+
+    principal 
+
+     var {
+        int(tam, i)
+    }
+    comandos {
+        i = 0;
+        ler(tam);    
+        se ( tam < 20) {
+            para i ( 0; i < tam; i + 1) {
+                ler(A[i]);  
+            }
+
+            chamar BBsort(tam);
+
+            para i ( 0; i < tam; i + 1) {
+                escrever(A[i]);
+            }
+        }
+        senao {
+            escrever("O vetor de entrada deve ser menor que 20");
+        }
+
+    } 
+}}}
