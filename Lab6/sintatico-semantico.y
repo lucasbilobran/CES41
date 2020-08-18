@@ -66,6 +66,11 @@ typedef celmodhead *modhead;
 typedef struct infoexpressao infoexpressao;
 typedef struct infovariavel infovariavel;
 
+/* === Definições de Tipos: Execução do CI === */
+typedef struct nohopnd nohopnd;
+typedef nohopnd *pilhaoperando;
+pilhaoperando pilhaopnd;
+
 /* === Estruturas: Análises Léxica, Sintática e Semântica === */
 struct celsimb {
     char *cadeia;
@@ -129,6 +134,12 @@ struct infovariavel {
 	simbolo simb;
 	operando opnd;
 };
+/* === Estruturas: Execução do CI  === */
+struct nohopnd {
+    operando opnd;
+    nohopnd *prox;
+};
+
 
 /* ===  Variaveis globais: Análises Léxica, Sintática e Semântica === */
 simbolo tabsimb[NCLASSHASH];
@@ -179,6 +190,14 @@ void ImprimeQuadruplas (void);
 quadrupla GeraQuadrupla (int, operando, operando, operando);
 simbolo NovaTemp (int);
 void RenumQuadruplas (quadrupla, quadrupla);
+
+void InterpCodIntermed (void);
+void AlocaVariaveis (void);
+void ExecQuadWrite (quadrupla);
+void ExecQuadMais (quadrupla);
+void ExecQuadLT (quadrupla);
+void ExecQuadAtrib (quadrupla);
+void ExecQuadRead (quadrupla);
 
 %}
 
@@ -1433,4 +1452,118 @@ void InterpCodIntermed () {
             quad = quadprox;
     }
     printf ("\n");                 
+}
+
+void AlocaVariaveis () {
+simbolo s; int nelemaloc, i, j;
+printf ("\n\t\tAlocando as variaveis:");
+for (i = 0; i < NCLASSHASH; i++)
+    if (tabsimb[i]) {
+        for (s = tabsimb[i]; s != NULL; s = s->prox){
+            if (s->tid == IDVAR) {
+                nelemaloc = 1;
+                if (s->array)
+                    for (j = 1; j <= s->ndims; j++)  nelemaloc *= s->dims[j];
+                switch (s->tvar) {
+                    case INTEGER:
+                            s->valint = malloc (nelemaloc * sizeof (int)); break;
+                    case FLOAT:
+                            s->valfloat = malloc (nelemaloc * sizeof (float)); break;
+                    case CHAR:
+                            s->valchar = malloc (nelemaloc * sizeof (char)); break;
+                    case LOGICAL:
+                            s->vallogic = malloc (nelemaloc * sizeof (char)); break;
+                }
+                printf ("\n\t\t\t%s: %d elemento(s) alocado(s) ", s->cadeia, nelemaloc);
+            }
+        }
+    }
+}
+
+void EmpilharOpnd (operando x, pilhaoperando *P) {
+    nohopnd *temp;
+    temp = *P;   
+    *P = (nohopnd *) malloc (sizeof (nohopnd));
+    (*P)->opnd = x; (*P)->prox = temp;
+}
+
+char VaziaOpnd (pilhaoperando P) {
+    if  (P == NULL)  
+        return 1;  
+    else 
+        return 0; 
+}
+
+void DesempilharOpnd (pilhaoperando *P) {
+    nohopnd *temp;
+    if (! VaziaOpnd (*P)) {
+        temp = *P;  *P = (*P)->prox; free (temp);
+    }
+    else  
+        printf ("\n\tDelecao em pilha vazia\n");
+}
+
+operando TopoOpnd (pilhaoperando P) {
+    if (! VaziaOpnd (P))  
+        return P->opnd;
+    else  
+        printf ("\n\tTopo de pilha vazia\n");
+}
+
+void InicPilhaOpnd (pilhaoperando *P) { 
+    *P = NULL;
+}
+
+
+
+void ExecQuadWrite (quadrupla quad) {
+    int i;  
+    operando opndaux;  
+    pilhaoperando pilhaopndaux;
+
+    printf ("\n\t\tEscrevendo: \n\n");
+    InicPilhaOpnd (&pilhaopndaux);
+
+    for (i = 1; i <= quad->opnd1.atr.valint; i++) {
+        EmpilharOpnd (TopoOpnd (pilhaopnd), &pilhaopndaux);
+        DesempilharOpnd (&pilhaopnd);
+    }
+
+    for (i = 1; i <= quad->opnd1.atr.valint; i++) {
+        opndaux = TopoOpnd (pilhaopndaux);
+        DesempilharOpnd (&pilhaopndaux);
+        switch (opndaux.tipo) {
+            case INTOPND:
+                printf ("%d", opndaux.atr.valint); break;
+            case REALOPND:
+                printf ("%g", opndaux.atr.valfloat); break;
+            case CHAROPND:
+                printf ("%c", opndaux.atr.valchar); break;
+            case LOGICOPND:
+                if (opndaux.atr.vallogic == 1) printf ("VERDADE");
+                else printf ("FALSO");
+                break;
+            case CADOPND:
+                printf ("%s", opndaux.atr.valcad); 
+                break ;
+            case VAROPND:
+
+            switch (opndaux.atr.simb->tvar) {
+                case INTEGER:
+                    printf ("%d", *(opndaux.atr.simb->valint)); break;
+                case FLOAT:
+                    printf ("%g", 
+                        *(opndaux.atr.simb->valfloat));break;
+                case LOGICAL:
+                    if (*(opndaux.atr.simb->vallogic) == 1)
+                    printf ("VERDADE"); 
+                    else printf ("FALSO"); break;
+                case CHAR:
+                    printf ("%c", 
+                        *(opndaux.atr.simb->valchar)); break;
+            }
+            break;
+        }
+    }
+    printf ("\n");
 }
