@@ -1,0 +1,31 @@
+programa ExemploSimples {{{
+
+    var {
+        int (i)
+        logic (achou)
+    }
+
+    principal
+
+    var {
+        int (j, sum, total)
+        carac (ca)
+    }
+    comandos {
+        ca = 'v';
+        sum = 1;
+
+        para i (2; i < 5; i + 2) {
+            sum = sum*10;
+        }
+
+        total = 0;
+        para i (0; i < 5; i + 1) {
+            sum = sum*10;
+            para j (0; j < 10; j + 2) {
+                total = total + sum;
+            }
+        }
+
+    } 
+}}}

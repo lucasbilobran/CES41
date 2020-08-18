@@ -1,0 +1,30 @@
+programa ExemploSimples {{{
+
+    var {
+        int (med, compara)
+        logic (toso)
+    }
+
+    principal
+
+    var {
+        int (a, b, c, d)
+        logic (achou, flag)
+        real (re)
+        carac (ca)
+    }
+    comandos {
+        med = 0;
+        compara = 0;
+        a = 1;
+        b = 2;
+        c = 3;
+        d = a*b-c/d+d;
+
+        ca = 's';
+        re = a + b + c - med;
+
+        toso = achou || ca == 'S' && !flag || ca != 'b';
+        toso = a > b || a >= c || a == d || a < d && a <= c;
+    } 
+}}}
