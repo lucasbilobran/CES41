@@ -3,10 +3,18 @@
 flex lexico.l
 yacc sintatico-semantico.y
 gcc y.tab.c main.c yyerror.c -o sintatico-semantico -lfl
-./sintatico-semantico < exemplos/testeCondicional.comp > resultados/anstesteCondicional.comp
-./sintatico-semantico < exemplos/testeSubscrito.comp > resultados/anstesteSubscrito.comp
-./sintatico-semantico < exemplos/testeExpressoes.comp > resultados/anstesteExpressoes.comp
-./sintatico-semantico < exemplos/testePara.comp > resultados/anstestePara.comp
-./sintatico-semantico < exemplos/testeLerEscrever.comp > resultados/anstesteLerEscrever.comp
-./sintatico-semantico < exemplos/testeEnquantoRepetir.comp > resultados/anstesteEnquantoRepetir.comp
-./sintatico-semantico < exemplos/testeCompleto.comp > resultados/anstesteCompleto.comp
+
+# Matriz Transposta
+cp exemplos/matrizTransposta.in entrada2020
+./sintatico-semantico < exemplos/matrizTransposta.comp > resultados/matrizTransposta.dat
+
+# Aproximação de PI
+./sintatico-semantico < exemplos/piApprox.comp > resultados/piApprox.dat
+
+# Matriz MergeSort
+cp exemplos/mergeSort.in entrada2020
+./sintatico-semantico < exemplos/mergeSort.comp > resultados/mergeSort.dat
+
+# Matriz BBSort
+cp exemplos/BBsort.in entrada2020
+./sintatico-semantico < exemplos/BBsort.comp > resultados/BBsort.dat

@@ -2079,11 +2079,10 @@ void ExecQuadNot (quadrupla quad) {
 	int tipo1, valint1;
     switch (quad->opnd1.tipo) {
         case LOGICOPND:
-            tipo1 = LOGICOPND;  valint1 = quad->opnd1.atr.vallogic;  break;
+            valint1 = quad->opnd1.atr.vallogic;  break;
         case VAROPND:
             switch (quad->opnd1.atr.simb->tvar) {
                 case LOGICAL:
-                    tipo1 = LOGICOPND;
                     valint1 = *(quad->opnd1.atr.simb->vallogic);  break;
             }
             break;
@@ -2093,6 +2092,8 @@ void ExecQuadNot (quadrupla quad) {
             *(quad->result.atr.simb->vallogic) = !valint1;
             break;
     }
+
+    printf("ADWADDADADWADWWD\n\n");
 }
 
 void ExecQuadMenum (quadrupla quad) {
