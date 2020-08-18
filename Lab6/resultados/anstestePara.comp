@@ -124,5 +124,31 @@ Quadruplas do modulo ##principal:
 	  40) RETURN, (IDLE), (IDLE), (IDLE)
 
 
+INTERPRETADOR:
+
+   1) OPENMOD
+		Alocando as variaveis:
+			##1: 1 elemento(s) alocado(s) 
+			##2: 1 elemento(s) alocado(s) 
+			##3: 1 elemento(s) alocado(s) 
+			##4: 1 elemento(s) alocado(s) 
+			##5: 1 elemento(s) alocado(s) 
+			##6: 1 elemento(s) alocado(s) 
+			##7: 1 elemento(s) alocado(s) 
+			##8: 1 elemento(s) alocado(s) 
+			##9: 1 elemento(s) alocado(s) 
+			ca: 1 elemento(s) alocado(s) 
+			i: 1 elemento(s) alocado(s) 
+			j: 1 elemento(s) alocado(s) 
+			total: 1 elemento(s) alocado(s) 
+			sum: 1 elemento(s) alocado(s) 
+			achou: 1 elemento(s) alocado(s) 
+   2) CALL
+
+EITA:
+
+   3) EXIT
+
+
 Programa Compilado com Sucesso!
 

@@ -136,5 +136,49 @@ Quadruplas do modulo ##principal:
 	  33) RETURN, (IDLE), (IDLE), (IDLE)
 
 
+INTERPRETADOR:
+
+   1) OPENMOD
+		Alocando as variaveis:
+			compara: 1 elemento(s) alocado(s) 
+			##1: 1 elemento(s) alocado(s) 
+			##2: 1 elemento(s) alocado(s) 
+			a: 1 elemento(s) alocado(s) 
+			##10: 1 elemento(s) alocado(s) 
+			##3: 1 elemento(s) alocado(s) 
+			b: 1 elemento(s) alocado(s) 
+			##20: 1 elemento(s) alocado(s) 
+			##11: 1 elemento(s) alocado(s) 
+			##4: 1 elemento(s) alocado(s) 
+			c: 1 elemento(s) alocado(s) 
+			##21: 1 elemento(s) alocado(s) 
+			##12: 1 elemento(s) alocado(s) 
+			##5: 1 elemento(s) alocado(s) 
+			re: 1 elemento(s) alocado(s) 
+			d: 1 elemento(s) alocado(s) 
+			##22: 1 elemento(s) alocado(s) 
+			##13: 1 elemento(s) alocado(s) 
+			##6: 1 elemento(s) alocado(s) 
+			##14: 1 elemento(s) alocado(s) 
+			##7: 1 elemento(s) alocado(s) 
+			##15: 1 elemento(s) alocado(s) 
+			##8: 1 elemento(s) alocado(s) 
+			med: 1 elemento(s) alocado(s) 
+			##16: 1 elemento(s) alocado(s) 
+			##9: 1 elemento(s) alocado(s) 
+			ca: 1 elemento(s) alocado(s) 
+			##17: 1 elemento(s) alocado(s) 
+			##18: 1 elemento(s) alocado(s) 
+			##19: 1 elemento(s) alocado(s) 
+			toso: 1 elemento(s) alocado(s) 
+			flag: 1 elemento(s) alocado(s) 
+			achou: 1 elemento(s) alocado(s) 
+   2) CALL
+
+EITA:
+
+   3) EXIT
+
+
 Programa Compilado com Sucesso!
 

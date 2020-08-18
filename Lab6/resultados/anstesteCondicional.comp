@@ -93,5 +93,24 @@ Quadruplas do modulo ##principal:
 	  23) RETURN, (IDLE), (IDLE), (IDLE)
 
 
+INTERPRETADOR:
+
+   1) OPENMOD
+		Alocando as variaveis:
+			##1: 1 elemento(s) alocado(s) 
+			##2: 1 elemento(s) alocado(s) 
+			a: 1 elemento(s) alocado(s) 
+			##3: 1 elemento(s) alocado(s) 
+			b: 1 elemento(s) alocado(s) 
+			##4: 1 elemento(s) alocado(s) 
+			##5: 1 elemento(s) alocado(s) 
+			achou: 1 elemento(s) alocado(s) 
+   2) CALL
+
+EITA:
+
+   3) EXIT
+
+
 Programa Compilado com Sucesso!
 

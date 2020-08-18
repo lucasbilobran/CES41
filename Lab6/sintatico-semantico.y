@@ -69,7 +69,6 @@ typedef struct infovariavel infovariavel;
 /* === Definições de Tipos: Execução do CI === */
 typedef struct nohopnd nohopnd;
 typedef nohopnd *pilhaoperando;
-pilhaoperando pilhaopnd;
 
 /* === Estruturas: Análises Léxica, Sintática e Semântica === */
 struct celsimb {
@@ -163,6 +162,8 @@ const operando opndidle = {IDLEOPND, 0};
 
 /* ===  Variaveis globais:  Execução do CI === */
  FILE *finput;
+ pilhaoperando pilhaopnd;
+ pilhaoperando pilhachamadas;
 
 /* === Prototipos: Análises Léxica, Sintática e Semântica === */
 void InicTabSimb (void);
@@ -1446,6 +1447,7 @@ void InterpCodIntermed () {
     // finput = fopen ("entrada2020", "r");
 	printf ("\n\nINTERPRETADOR:\n");
     InicPilhaOpnd(&pilhaopnd);
+    InicPilhaOpnd(&pilhachamadas);
 	encerra = FALSE;
 	quad = codintermed->prox->listquad->prox;
 	while (! encerra) {
@@ -1460,7 +1462,7 @@ void InterpCodIntermed () {
                     condicao = quad->opnd1.atr.vallogic;
                 if (quad->opnd1.tipo == VAROPND)
                     condicao = *(quad->opnd1.atr.simb->vallogic);
-                if (! condicao)
+                if (!condicao)
                     quadprox = quad->result.atr.rotulo;
                 break;
             case OPLT:  ExecQuadLT (quad); break;
@@ -1469,9 +1471,17 @@ void InterpCodIntermed () {
             case OPWRITE: ExecQuadWrite(quad); break;
             case OPMAIS: ExecQuadMais(quad); break;
             case OPATRIB: ExecQuadAtrib(quad); break;
-            case OPCALL: printf ("\n\nEITA:\n");  break;
+            // -----------------------------------------
+            case OPCALL: {
+                operando *opndnextprogcount; 
+                opndnextprogcount = (operando *)malloc(sizeof(operando));
+                opndnextprogcount->atr.rotulo = quadprox;
+                EmpilharOpnd(opndnextprogcount, &pilhachamadas);
+                quadprox = quad->opnd1.atr.modulo->listquad;
+                break;
+            }
 		}
-		if (! encerra) quad = quadprox;
+		if (!encerra) quad = quadprox;
 	}
 	printf ("\n");
 }
@@ -1788,4 +1798,9 @@ void ExecQuadRead (quadrupla quad) {
             }
         }
 }
+// -----------------------------
+/* void ExecCall(quadrupla quad) {
+    quadprox = quadproxquad->opnd1.atr.modulo->listquad;
+    break;
+} */
 
