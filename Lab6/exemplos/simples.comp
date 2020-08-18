@@ -1,7 +1,7 @@
 programa ExemploSimples {{{
 
    var {
-      int (glob)
+      int (A[2, 2])
    }
 
    funcao int Inserir (int a, int b)
@@ -17,12 +17,26 @@ programa ExemploSimples {{{
     principal
 
     var {
-        int (i, res, f)
+        int (i, res, f, j)
     }
     comandos {
+
+        para i (0; i < 2; i + 1){
+            para j (0; j < 2; j + 1){
+                A[i,j] = i;
+            }
+        }
+
         i = 3;
-        f = 2;
+        f = A[0,0];
         res = Inserir(i, f);
 
+        para i (0; i < 2; i + 1){
+            para j (0; j < 2; j + 1){
+                escrever(A[i, j]);
+            }
+        }
+
+        escrever(f);
     } 
 }}}
