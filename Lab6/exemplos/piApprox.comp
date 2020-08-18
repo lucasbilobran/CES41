@@ -1,7 +1,7 @@
 programa piApprox {{{
 var {
     /* FatMem: Vetor para memoization de fatorial (de 0! até 9!) */
-    int (Fat[14])
+    int (Fat[12])
 }
 
 procedimento InicializarFatMem()
@@ -12,7 +12,7 @@ var {
 
 comandos {
     Fat[0] = 1;
-    para i (1; i < 14; i + 1) {
+    para i (1; i < 12; i + 1) {
         Fat[i] = i * Fat[i-1];
     }
 }
@@ -42,7 +42,7 @@ comandos {
     chamar InicializarFatMem();
 
     pi = 0;
-    para k (0; k < 6; k + 1) {
+    para k (0; k < 5; k + 1) {
         aux1 = pow(2, k);
         aux2 = pow(Fat[k], 2);
         aux3 = Fat[2*k + 1];

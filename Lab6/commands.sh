@@ -9,4 +9,4 @@ gcc y.tab.c main.c yyerror.c -o sintatico-semantico -lfl
 # ./sintatico-semantico < exemplos/matrizTransposta.comp > resultados/matrizTransposta.dat
 
 # Aproximação de PI
-./sintatico-semantico < exemplos/piApprox.comp # > resultados/matrizTransposta.dat
+./sintatico-semantico < exemplos/piApprox.comp > resultados/piApprox.dat
