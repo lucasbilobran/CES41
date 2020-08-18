@@ -943,8 +943,8 @@ void InterpCodIntermed () {
                     quadprox = quad->result.atr.rotulo;
                 break;
             case OPLT:  ExecQuadLT (quad); break;
-            case  OPREAD:   ExecQuadRead (quad);  break;
-
+            case OPREAD:   ExecQuadRead (quad);  break;
+            case CALL: printf ("\n\nEITA:\n");  break;
 
 		}
 		if (! encerra) quad = quadprox;

@@ -311,6 +311,7 @@ Prog        :   {
                     VerificaInicRef();
                     ImprimeTabSimb();
                     ImprimeQuadruplas();
+                    InterpCodIntermed();
                     if (semanticamente_valido) 
                         printf("\n\nPrograma Compilado com Sucesso!\n\n");
                     else 
@@ -1444,12 +1445,14 @@ void InterpCodIntermed () {
     char condicao;
     // finput = fopen ("entrada2020", "r");
 	printf ("\n\nINTERPRETADOR:\n");
+    InicPilhaOpnd(&pilhaopnd);
 	encerra = FALSE;
 	quad = codintermed->prox->listquad->prox;
 	while (! encerra) {
 		printf ("\n%4d) %s", quad->num, nomeoperquad[quad->oper]);
 		quadprox = quad->prox;
 		switch (quad->oper) {
+            case OPENMOD: AlocaVariaveis(); break;
 			case OPEXIT: encerra = TRUE; break;
             case OPJUMP: quadprox = quad->result.atr.rotulo;  break;
             case OPJF:
@@ -1461,7 +1464,12 @@ void InterpCodIntermed () {
                     quadprox = quad->result.atr.rotulo;
                 break;
             case OPLT:  ExecQuadLT (quad); break;
-            case  OPREAD:   ExecQuadRead (quad);  break;
+            case OPREAD: ExecQuadRead (quad);  break;
+            case PARAM: EmpilharOpnd(quad->opnd1, &pilhaopnd); break;
+            case OPWRITE: ExecQuadWrite(quad); break;
+            case OPMAIS: ExecQuadMais(quad); break;
+            case OPATRIB: ExecQuadAtrib(quad); break;
+            case OPCALL: printf ("\n\nEITA:\n");  break;
 		}
 		if (! encerra) quad = quadprox;
 	}
@@ -1527,8 +1535,6 @@ operando TopoOpnd (pilhaoperando P) {
 void InicPilhaOpnd (pilhaoperando *P) { 
     *P = NULL;
 }
-
-
 
 void ExecQuadWrite (quadrupla quad) {
     int i;  

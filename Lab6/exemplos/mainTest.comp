@@ -12,12 +12,12 @@ programa ExemploSimples {{{
 		real (k)
     }
     comandos {
-        i = ~4;
-		j = ~i*3;
-		k = i / j;
-		m = i % j;
-		b2 = verdade;
-		b3 = !b2;
-		b1 = (i+3*j >= j/2-2)  &&  !b2 || (b1 != b2) && (i == j);
+      i = ~4;
+      j = ~i*3;
+      k = i / j;
+      m = i % j;
+      b2 = verdade;
+      b3 = !b2;
+      b1 = (i+3*j >= j/2-2)  &&  !b2 || (b1 != b2) && (i == j);
     } 
 }}}
