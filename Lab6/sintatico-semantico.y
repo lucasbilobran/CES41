@@ -1468,14 +1468,14 @@ void InterpCodIntermed () {
     char encerra;
     char condicao;
     // finput = fopen ("entrada2020", "r");
-	printf ("\n\nINTERPRETADOR:\n");
+	printf ("\n\n----- EXECUÇÃO DO INTERPRETADOR -----\n\n");
     InicPilhaOpnd(&pilhaopnd);
     InicPilhaOpnd(&pilhachamadas);
     InicPilhaOpnd(&pilhaindices);
 	encerra = FALSE;
 	quad = codintermed->prox->listquad->prox;
 	while (! encerra) {
-		printf ("\n%4d) %s", quad->num, nomeoperquad[quad->oper]);
+		//printf ("\n%4d) %s", quad->num, nomeoperquad[quad->oper]);
 		quadprox = quad->prox;
 		switch (quad->oper) {
             case OPENMOD: AlocaVariaveis(); break;
@@ -1525,9 +1525,7 @@ void InterpCodIntermed () {
                 pilhaoperando pilhaopndaux;
                 listsimb listparam = quad->opnd1.atr.modulo->modname->listparam;
 
-                printf ("\n\t\tLendo: \n");
                 InicPilhaOpnd (&pilhaopndaux);
-                // Ainda nao tenho ctz se tenho que inverter a pilha
                 for (i = 1; i <= quad->opnd2.atr.valint; i++) {
                     EmpilharOpnd (TopoOpnd (pilhaopnd), &pilhaopndaux);
                     DesempilharOpnd (&pilhaopnd);
@@ -1547,8 +1545,6 @@ void InterpCodIntermed () {
                     }
                     listparam = listparam->prox;
                 }
-
-                // Na pilha se tem o valor das paradas que vc quer 
                 opndaux.atr.rotulo = quad;
                 EmpilharOpnd(opndaux, &pilhachamadas);
                 quadprox = quad->opnd1.atr.modulo->listquad;
@@ -1675,6 +1671,7 @@ void AlocaVariaveis () {
                 }
             }
         }
+    printf ("\n-------------------------------------\n");
 }
 
 void EmpilharOpnd (operando x, pilhaoperando *P) {
@@ -1715,8 +1712,6 @@ void ExecQuadWrite (quadrupla quad) {
     int i;  
     operando opndaux;  
     pilhaoperando pilhaopndaux;
-
-    printf ("\n\t\tEscrevendo: \n\n");
     InicPilhaOpnd (&pilhaopndaux);
 
     for (i = 1; i <= quad->opnd1.atr.valint; i++) {
