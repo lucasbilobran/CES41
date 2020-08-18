@@ -1533,15 +1533,27 @@ void InterpCodIntermed () {
                 for (i = 1; i <= quad->opnd2.atr.valint; i++) {
                     opndaux = TopoOpnd (pilhaopndaux);
                     DesempilharOpnd (&pilhaopndaux);
-                    switch (opndaux.atr.simb->tvar) {
-                        case INTEGER:;
-                            listparam->prox->simb->valint = opndaux.atr.simb->valint; break;
-                        case FLOAT:;
-                            listparam->prox->simb->valfloat =  opndaux.atr.simb->valfloat; break;
-                        case LOGICAL:;
-                            listparam->prox->simb->vallogic = opndaux.atr.simb->vallogic; break;
-                        case CHAR:;
-                            listparam->prox->simb->valchar = opndaux.atr.simb->valchar; break;
+                    switch (opndaux.tipo) {
+                        case INTOPND:
+                            *(listparam->prox->simb->valint) = opndaux.atr.valint; break;
+                        case REALOPND:
+                            *(listparam->prox->simb->valfloat) =  opndaux.atr.valfloat; break;
+                        case LOGICOPND:
+                            *(listparam->prox->simb->vallogic) = opndaux.atr.vallogic; break;
+                        case CHAROPND:
+                            *(listparam->prox->simb->valchar) = opndaux.atr.valchar; break;
+                        case VAROPND:
+                            switch (opndaux.atr.simb->tvar) {
+                                case INTEGER:;
+                                    listparam->prox->simb->valint = opndaux.atr.simb->valint; break;
+                                case FLOAT:;
+                                    listparam->prox->simb->valfloat =  opndaux.atr.simb->valfloat; break;
+                                case LOGICAL:;
+                                    listparam->prox->simb->vallogic = opndaux.atr.simb->vallogic; break;
+                                case CHAR:;
+                                    listparam->prox->simb->valchar = opndaux.atr.simb->valchar; break;
+                            }
+                        break;
                     }
                     listparam = listparam->prox;
                 }

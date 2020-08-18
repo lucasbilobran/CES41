@@ -1,0 +1,47 @@
+programa piApprox {{{
+var {
+    /* FatMem: Vetor para memoization de fatorial (de 0! até 9!) */
+    int (FatMem[10])
+}
+
+procedimento InicializarFatMem()
+
+var {
+    int(i)
+}
+
+comandos {
+    FatMem[0] = 1;
+    para i (1; i < 10; i + 1) {
+        FatMem[i] = i * FatMem[i-1];
+    }
+}
+
+funcao int pow(int base, int expoente)
+
+var {
+    int(i, result)
+}
+
+comandos {
+    result = base;
+    para i (1; i < expoente; i + 1) {
+        result = result * base;
+    }
+    escrever(result);
+    retornar result;
+}
+
+principal
+
+var {
+    int (teste)
+}
+comandos {
+    escrever("--- Aproximação de pi por método de newton ---");
+    teste = 2;
+    teste = pow(teste, 10);
+    escrever(teste);
+}
+
+}}}
