@@ -1487,6 +1487,9 @@ void InterpCodIntermed () {
                 if (condicao)
                     quadprox = quad->result.atr.rotulo;
                 break;
+            case OPJUMP:
+                quadprox = quad->result.atr.rotulo;
+                break;
             case OPLT:  ExecQuadLT (quad); break;
             case OPOR:  ExecQuadOR (quad); break;
             case OPAND: ExecQuadAND (quad); break;
