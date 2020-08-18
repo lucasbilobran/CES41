@@ -1545,13 +1545,13 @@ void InterpCodIntermed () {
                         case VAROPND:
                             switch (opndaux.atr.simb->tvar) {
                                 case INTEGER:;
-                                    listparam->prox->simb->valint = opndaux.atr.simb->valint; break;
+                                    *(listparam->prox->simb->valint) = *(opndaux.atr.simb->valint); break;
                                 case FLOAT:;
-                                    listparam->prox->simb->valfloat =  opndaux.atr.simb->valfloat; break;
+                                    *(listparam->prox->simb->valfloat) =  *(opndaux.atr.simb->valfloat); break;
                                 case LOGICAL:;
-                                    listparam->prox->simb->vallogic = opndaux.atr.simb->vallogic; break;
+                                    *(listparam->prox->simb->vallogic) = *(opndaux.atr.simb->vallogic); break;
                                 case CHAR:;
-                                    listparam->prox->simb->valchar = opndaux.atr.simb->valchar; break;
+                                    *(listparam->prox->simb->valchar) = *(opndaux.atr.simb->valchar); break;
                             }
                         break;
                     }
@@ -1579,13 +1579,13 @@ void InterpCodIntermed () {
                         case VAROPND:
                             switch (opndaux.atr.rotulo->result.atr.simb->tvar) {
                                 case INTEGER:;
-                                    opndaux.atr.rotulo->result.atr.simb->valint = quad->opnd1.atr.simb->valint; break;
+                                    *(opndaux.atr.rotulo->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint); break;
                                 case FLOAT:;
-                                    opndaux.atr.rotulo->result.atr.simb->valfloat =  quad->opnd1.atr.simb->valfloat; break;
+                                    *(opndaux.atr.rotulo->result.atr.simb->valfloat) =  *(quad->opnd1.atr.simb->valfloat); break;
                                 case LOGICAL:;
-                                    opndaux.atr.rotulo->result.atr.simb->vallogic = quad->opnd1.atr.simb->vallogic; break;
+                                    *(opndaux.atr.rotulo->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic); break;
                                 case CHAR:;
-                                    opndaux.atr.rotulo->result.atr.simb->valchar = quad->opnd1.atr.simb->valchar; break;
+                                    *(opndaux.atr.rotulo->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar); break;
                             }
                         break;
                     }
