@@ -921,7 +921,10 @@ void RenumQuadruplas (quadrupla quad1, quadrupla quad2) {
 /* Funcoes para interpretar o codigo intermediario */
 
 void InterpCodIntermed () {
-	quadrupla quad, quadprox;  char encerra;
+	quadrupla quad, quadprox;  
+    char encerra;
+    char condicao;
+    // finput = fopen ("entrada2020", "r");
 	printf ("\n\nINTERPRETADOR:\n");
 	encerra = FALSE;
 	quad = codintermed->prox->listquad->prox;
@@ -930,6 +933,19 @@ void InterpCodIntermed () {
 		quadprox = quad->prox;
 		switch (quad->oper) {
 			case OPEXIT: encerra = TRUE; break;
+            case OPJUMP: quadprox = quad->result.atr.rotulo;  break;
+            case OPJF:
+                if (quad->opnd1.tipo == LOGICOPND)
+                    condicao = quad->opnd1.atr.vallogic;
+                if (quad->opnd1.tipo == VAROPND)
+                    condicao = *(quad->opnd1.atr.simb->vallogic);
+                if (! condicao)
+                    quadprox = quad->result.atr.rotulo;
+                break;
+            case OPLT:  ExecQuadLT (quad); break;
+            case OPREAD:   ExecQuadRead (quad);  break;
+            case CALL: printf ("\n\nEITA:\n");  break;
+
 		}
 		if (! encerra) quad = quadprox;
 	}
