@@ -10,3 +10,13 @@ gcc y.tab.c main.c yyerror.c -o sintatico-semantico -lfl
 
 # Aproximação de PI
 ./sintatico-semantico < exemplos/piApprox.comp # > resultados/matrizTransposta.dat
+
+# # Matriz MergeSort
+# cp exemplos/mergeSort.in entrada2020
+# ./sintatico-semantico < exemplos/mergeSort.comp > resultados/mergeSort.dat
+
+# ./sintatico-semantico < exemplos/testeEnquanto.comp 
+
+# # Matriz BBSort
+# cp exemplos/BBsort.in entrada2020
+# ./sintatico-semantico < exemplos/BBsort.comp > resultados/BBsort.dat
