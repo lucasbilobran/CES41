@@ -2203,9 +2203,9 @@ void ExecQuadLT (quadrupla quad) {
         case INTOPND:
             tipo2 = INTOPND;  valint2 = quad->opnd2.atr.valint;  break;
         case REALOPND:
-            tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
+            tipo2=REALOPND; valfloat2 = quad->opnd2.atr.valfloat;break;
         case CHAROPND:
-            tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+            tipo2 = INTOPND; valint2 = quad->opnd2.atr.valchar; break;
         case VAROPND:
             switch (quad->opnd2.atr.simb->tvar) {
                 case INTEGER:  tipo2 = INTOPND;
@@ -2540,6 +2540,8 @@ void ExecQuadAND (quadrupla quad) {
             tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
         case CHAROPND:
             tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case LOGICOPND:
+            tipo1 = LOGICOPND; valint1 = quad->opnd1.atr.vallogic; break;
         case VAROPND:
             switch (quad->opnd1.atr.simb->tvar) {
                 case INTEGER:  tipo1 = INTOPND;
@@ -2551,6 +2553,9 @@ void ExecQuadAND (quadrupla quad) {
                 case CHAR:  tipo1 = INTOPND;
                     valint1 = *(quad->opnd1.atr.simb->valchar);
                     break;
+                case LOGICAL: tipo1 = LOGICOPND;
+                    valint1 = *(quad->opnd1.atr.simb->vallogic);
+                    break;
             }
             break;
         }
@@ -2561,6 +2566,8 @@ void ExecQuadAND (quadrupla quad) {
             tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
         case CHAROPND:
             tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case LOGICOPND:
+            tipo2 = LOGICOPND; valint2 = quad->opnd1.atr.vallogic; break;
         case VAROPND:
             switch (quad->opnd2.atr.simb->tvar) {
                 case INTEGER:  tipo2 = INTOPND;
@@ -2571,6 +2578,9 @@ void ExecQuadAND (quadrupla quad) {
                     break;
                 case CHAR:  tipo2 = INTOPND;
                     valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                case LOGICAL: tipo2 = LOGICOPND;
+                    valint2 = *(quad->opnd2.atr.simb->vallogic);
                     break;
                 }
             break;
@@ -2583,6 +2593,8 @@ void ExecQuadAND (quadrupla quad) {
 		*(quad->result.atr.simb->vallogic) = valfloat1 && valint2;
 	if (tipo1 == REALOPND && tipo2 == REALOPND)
 		*(quad->result.atr.simb->vallogic) = valfloat1 && valfloat2;
+    if (tipo1 == LOGICOPND && tipo2 == LOGICOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 && valint2;
 }
 
 void ExecQuadOR (quadrupla quad) {
@@ -2595,6 +2607,8 @@ void ExecQuadOR (quadrupla quad) {
             tipo1 = REALOPND; valfloat1=quad->opnd1.atr.valfloat;break;
         case CHAROPND:
             tipo1 = INTOPND; valint1 = quad->opnd1.atr.valchar; break;
+        case LOGICOPND:
+            tipo1 = LOGICOPND; valint1 = quad->opnd1.atr.vallogic; break;
         case VAROPND:
             switch (quad->opnd1.atr.simb->tvar) {
                 case INTEGER:  tipo1 = INTOPND;
@@ -2606,6 +2620,9 @@ void ExecQuadOR (quadrupla quad) {
                 case CHAR:  tipo1 = INTOPND;
                     valint1 = *(quad->opnd1.atr.simb->valchar);
                     break;
+                case LOGICAL: tipo1 = LOGICOPND;
+                    valint1 = *(quad->opnd1.atr.simb->vallogic);
+                    break;
             }
             break;
         }
@@ -2616,6 +2633,8 @@ void ExecQuadOR (quadrupla quad) {
             tipo2=REALOPND;valfloat2 = quad->opnd2.atr.valfloat;break;
         case CHAROPND:
             tipo2 = INTOPND;valint2 = quad->opnd2.atr.valchar; break;
+        case LOGICOPND:
+            tipo2 = LOGICOPND; valint2 = quad->opnd1.atr.vallogic; break;
         case VAROPND:
             switch (quad->opnd2.atr.simb->tvar) {
                 case INTEGER:  tipo2 = INTOPND;
@@ -2626,6 +2645,9 @@ void ExecQuadOR (quadrupla quad) {
                     break;
                 case CHAR:  tipo2 = INTOPND;
                     valint2 = *(quad->opnd2.atr.simb->valchar);
+                    break;
+                case LOGICAL: tipo2 = LOGICOPND;
+                    valint2 = *(quad->opnd2.atr.simb->vallogic);
                     break;
                 }
             break;
@@ -2638,5 +2660,7 @@ void ExecQuadOR (quadrupla quad) {
 		*(quad->result.atr.simb->vallogic) = valfloat1 || valint2;
 	if (tipo1 == REALOPND && tipo2 == REALOPND)
 		*(quad->result.atr.simb->vallogic) = valfloat1 || valfloat2;
+    if (tipo1 == LOGICOPND && tipo2 == LOGICOPND)
+		*(quad->result.atr.simb->vallogic) = valint1 || valint2;
 }
 

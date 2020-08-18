@@ -1,0 +1,75 @@
+programa ExemploSimples {{{
+
+   var {
+      int (A[20], B[20] )
+   }
+
+   procedimento mergeSort( int num)
+   var {
+       int(i, j, k, m, t, left, rght, wid, rend)
+   }
+   comandos{
+        para k ( 1; k < num; k*2 ) {       
+            para left ( 0; left + k < num; left + k*2 ) {
+                rght = left + k;        
+                rend = rght + k;
+                se (rend > num) 
+                    rend = num; 
+
+                m = left; 
+                i = left; 
+                j = rght; 
+                escrever("rght: ", rght, "; rend: ", rend);
+                enquanto ( (i < rght) && (j < rend)) { 
+                    escrever("i: ", i, "; rght: ", rght, "; j: ", j, "; rend: ", rend);
+                    se (A[i] <= A[j]) {         
+                        B[m] = B[i];
+                        i = i + 1;
+                    } senao {
+                        B[m] = B[j]; 
+                        j = j + 1;
+                    }
+                    m = m + 1;
+                }
+                enquanto (i < rght) { 
+                    B[m]=A[i]; 
+                    i = i + 1;
+                    m = m + 1;
+                }
+                enquanto (j < rend) { 
+                    B[m]=A[j]; 
+                    j = j + 1; 
+                    m = m + 1;
+                }
+                para m (left; m < rend; m + 1) { 
+                    A[m] = B[m]; 
+                }
+            }
+        }
+   }
+
+    principal
+
+    var {
+        int(tam, i)
+    }
+    comandos {
+        i = 0;
+        ler(tam);    
+        se ( tam < 20) {
+            para i ( 0; i < tam; i + 1) {
+                ler(A[i]);  
+            }
+
+            chamar mergeSort(tam);
+
+            para i ( 0; i < 10; i + 1) {
+                escrever(A[i]);
+            }
+        }
+        senao {
+            escrever("O vetor de entrada deve ser menor que 20");
+        }
+
+    } 
+}}}
